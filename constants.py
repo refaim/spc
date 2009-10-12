@@ -2,11 +2,10 @@
 
 import re
 
-keyword_count = 20
-shift = 0
+keywords_count = 20
 kw_begin, kw_break, kw_const, kw_continue, kw_do, kw_else, kw_end, kw_float,\
 kw_for, kw_function, kw_if, kw_integer, kw_nil, kw_procedure, kw_record,\
-kw_repeat, kw_then, kw_until, kw_var, kw_while = range(keyword_count)
+kw_repeat, kw_then, kw_until, kw_var, kw_while = range(keywords_count)
 
 keywords = { "begin": kw_begin, "break": kw_break, "const": kw_const, "continue": kw_continue, "do": kw_do, "else": kw_else,
              "end": kw_end, "float": kw_float, "for": kw_for, "function": kw_function, "if": kw_if, "integer": kw_integer, 
@@ -15,7 +14,7 @@ keywords = { "begin": kw_begin, "break": kw_break, "const": kw_const, "continue"
            }
 
 delimiters_count = 20
-shift += keyword_count
+shift = keywords_count
 tt_plus, tt_LT, tt_assign, tt_lparen, tt_EQ, tt_comma, tt_minus,\
 tt_GT, tt_semicolon, tt_rparen, tt_NEQ, tt_mul, tt_LTE,\
 tt_colon, tt_LSB, tt_div, tt_GTE, tt_dot, tt_RSB,\
@@ -54,8 +53,6 @@ dec_re = re.compile(r"\d+")
 float_re = re.compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
 numerical_regexps = { tt_hex: hex_re, tt_dec: dec_re, tt_float: float_re }
 
-generic_error = "ERROR"
-error_msg = { tt_string_const: "EOF in string constant", tt_block_comment: "EOF in block comment",
-              tt_hex: "Wrong hexadecimal number", tt_dec: "Wrong decimal number", tt_float: "Wrong float number",   
+error_msg = { tt_hex: "Wrong hexadecimal number", tt_dec: "Wrong decimal number", tt_float: "Wrong float number",   
               tt_char_const: "Wrong character constant",
-              tt_unknown: "Illegal character", tt_error: "" }
+              tt_unknown: "Illegal character" }

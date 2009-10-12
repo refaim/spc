@@ -15,8 +15,8 @@ empty_args_s = "no input files"
 errmsg_s = "spc: {0}: {1}"
 
 opts_count = 3
-short_opts = "hlp"
-long_opts = ["help", "lex", "parse-expr"]
+short_opts = "hle"
+long_opts = ["help", "lex", "expr-parse"]
 max_opt_len = 10
 opts_descr = ["display this help text", "perform lexical analysis", "parse arithmetic expressions"]
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from constants import lexems_str, generic_error
+from constants import lexems_str
 from exceptions import MyLexicalError
 
 def get_token_array(tokenizer):

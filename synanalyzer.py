@@ -25,7 +25,6 @@ class Parser:
             result = self.parse_expr(priority + 1) 
         else:
             result = self.parse_factor()
-               
         while self.token.type in operators[priority]:
             op = self.token.text
             self.next_token()

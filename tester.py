@@ -15,7 +15,7 @@ for root, dirs, files in test_dir:
         if ext.lower() != t_ext: continue
 
         fout = open(test_path + fname + o_ext, "w")
-        app = popen(args = "python spc.py --lex {0}\\{1}".format(test_path, entry), 
+        app = popen(args = "python spc.py --lex {0}{1}".format(test_path, entry), 
                     stdout = fout).communicate()
         fout.close()
         msg = "Test #{0} ".format(fname)

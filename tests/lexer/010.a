@@ -20,4 +20,4 @@
 |  7, 6       ||  b              ||               ||  Identifier       |
 |             ||                 ||               ||                   |
 ------------------------------------------------------------------------
-spc: tests\lexer\\010.in: Lexical error on line 7, col 7. Unexpected end of file in string literal
+spc: tests\lexer\010.in: Lexical error on line 7, col 7. Unexpected end of file in string literal
