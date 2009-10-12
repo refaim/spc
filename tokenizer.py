@@ -126,7 +126,7 @@ class Tokenizer:
         ttype = tt_hex if num == ["$"] else (tt_float if ch in float_part else tt_dec)
         while ch and ch in valid_chars[ttype]:
 
-            # десятичная точка, минус или экспонента могут встретиться только один раз
+            # РґРµСЃСЏС‚РёС‡РЅР°СЏ С‚РѕС‡РєР°, РјРёРЅСѓСЃ РёР»Рё СЌРєСЃРїРѕРЅРµРЅС‚Р° РјРѕРіСѓС‚ РІСЃС‚СЂРµС‚РёС‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РѕРґРёРЅ СЂР°Р·
             if ttype == tt_float and ch in float_part: 
                 valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
 
