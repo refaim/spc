@@ -1,0 +1,25 @@
+------------------------------------------------------------------------------------------------------
+|             ||              ||               ||                      ||                            |
+|  Line, pos  ||  Token text  ||  Token value  ||      Token type      ||           Error            |
+|             ||              ||               ||                      ||                            |
+------------------------------------------------------------------------------------------------------
+|             ||              ||               ||                      ||                            |
+|  1, 1       ||  #           ||               ||  Wrong token         ||  Wrong character constant  |
+|  2, 1       ||  #0          ||  b'\x00'      ||  Character constant  ||                            |
+|  3, 1       ||  #123        ||  {            ||  Character constant  ||                            |
+|  4, 1       ||  #           ||               ||  Wrong token         ||  Wrong character constant  |
+|  4, 2       ||  -           ||               ||  Minus               ||                            |
+|  4, 3       ||  20          ||  20           ||  Integer (decimal)   ||                            |
+|  5, 1       ||  #           ||               ||  Wrong token         ||  Wrong character constant  |
+|  5, 2       ||  abc         ||               ||  Identifier          ||                            |
+|  6, 1       ||  #23         ||  b'\x17'      ||  Character constant  ||                            |
+|  6, 4       ||  abc         ||               ||  Identifier          ||                            |
+|  7, 1       ||  #00123      ||  {            ||  Character constant  ||                            |
+|  8, 1       ||  #25         ||  b'\x19'      ||  Character constant  ||                            |
+|  8, 4       ||  .           ||               ||  Dot                 ||                            |
+|  8, 5       ||  23          ||  23           ||  Integer (decimal)   ||                            |
+|  9, 1       ||  #22         ||  b'\x16'      ||  Character constant  ||                            |
+|  9, 4       ||  %           ||               ||  Wrong token         ||  Illegal character         |
+|  9, 5       ||  123         ||  123          ||  Integer (decimal)   ||                            |
+|             ||              ||               ||                      ||                            |
+------------------------------------------------------------------------------------------------------

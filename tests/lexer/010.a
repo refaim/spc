@@ -1,0 +1,23 @@
+------------------------------------------------------------------------
+|             ||                 ||               ||                   |
+|  Line, pos  ||   Token text    ||  Token value  ||    Token type     |
+|             ||                 ||               ||                   |
+------------------------------------------------------------------------
+|             ||                 ||               ||                   |
+|  1, 1       ||  ''             ||  ""           ||  String constant  |
+|  2, 1       ||  ''''           ||  "'"          ||  String constant  |
+|  3, 1       ||  ''''''         ||  "''"         ||  String constant  |
+|  4, 1       ||  ' '            ||  " "          ||  String constant  |
+|  4, 5       ||  ' '            ||  " "          ||  String constant  |
+|  4, 9       ||  ' '            ||  " "          ||  String constant  |
+|  5, 1       ||  'a''''b''''c'  ||  "a''b''c"    ||  String constant  |
+|  6, 1       ||  'a'            ||  "a"          ||  String constant  |
+|  6, 4       ||  b              ||               ||  Identifier       |
+|  6, 5       ||  'c'            ||  "c"          ||  String constant  |
+|  6, 8       ||  d              ||               ||  Identifier       |
+|  6, 9       ||  'e'            ||  "e"          ||  String constant  |
+|  7, 1       ||  'a'''          ||  "a'"         ||  String constant  |
+|  7, 6       ||  b              ||               ||  Identifier       |
+|             ||                 ||               ||                   |
+------------------------------------------------------------------------
+spc: tests\lexer\\010.in: Lexical error on line 7, col 7. Unexpected end of file in string literal
