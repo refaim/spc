@@ -47,14 +47,14 @@ def lex(tokenizer):
     utils.print_token_array(tokens)
     if error: raise error
 
-def parse_e(tokenizer):
+def e_parse(tokenizer):
     parser = Parser(tokenizer)
     e = parser.parse_expr()
     while e:
-        print(e)
+        utils.print_syntax_tree(e)
         e = parser.parse_expr()
             
-opts_actions = [help, lex, parse_e]
+opts_actions = [help, lex, e_parse]
 try:
     opts, args = getopt(argv[1:], short_opts, long_opts)
     if len(opts) == 0: help()

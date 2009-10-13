@@ -10,7 +10,8 @@ class SynBinaryOp(SynExpr):
         self.opleft, self.opright = opleft, opright
 
     def __str__(self):
-        return "({0} {1} {2})".format(self.opleft, self.optype.text, self.opright)
+        #return "({0} {1} {2})".format(self.opleft, self.optype.text, self.opright)
+        return self.optype.text
 
 class SynUnaryOp(SynExpr):
     def __init__(self, optype, operand):
@@ -21,7 +22,8 @@ class SynConst(SynExpr):
         self.token = const
 
     def __str__(self):
-        return str(self.token.value)
+        #return str(self.token.value)
+        return self.token.text
 
 class SynVar(SynExpr):
     def __init__(self, var):
