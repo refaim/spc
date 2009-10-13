@@ -26,7 +26,7 @@ class Parser:
         else:
             result = self.parse_factor()
         while self.token.type in operators[priority]:
-            op = self.token.text
+            op = self.token
             self.next_token()
             if priority < max_priority:
                 result = SynBinaryOp(result, op, self.parse_expr(priority + 1))
@@ -37,16 +37,18 @@ class Parser:
     def parse_factor(self):
         filepos = self._tokenizer.curfilepos
         if filepos == None: exit()
+
         if self.token.type == tt_lparen:
             self.next_token()
             result = self.parse_expr()
             if self.token.type != tt_rparen:
                 exceptions.raise_error(exceptions.syn_par_mismatch, filepos)
         elif self.token.type == tt_identifier:
-            result = SynVar(self.token.text)
+            result = SynVar(self.token)
         elif self.token.type in [tt_dec, tt_hex, tt_float, tt_string_const]:
-            result = SynConst(self.token.value)
+            result = SynConst(self.token)
         else:
             exceptions.raise_error(exceptions.syn_unexp_token, filepos)
+
         self.next_token()
         return result

@@ -5,27 +5,27 @@ class SynNode: pass
 class SynExpr(SynNode): pass
 
 class SynBinaryOp(SynExpr):
-    def __init__(self, left_op, optype, right_op):
-        self.optype = optype                    
-        self.left_op, self.right_op = left_op, right_op
+    def __init__(self, opleft, optype, opright):
+        self.optype = optype
+        self.opleft, self.opright = opleft, opright
 
     def __str__(self):
-        return "({0} {1} {2})".format(self.left_op, self.optype, self.right_op)
+        return "({0} {1} {2})".format(self.opleft, self.optype.text, self.opright)
 
 class SynUnaryOp(SynExpr):
     def __init__(self, optype, operand):
         self.optype, self.operand = optype, operand
 
 class SynConst(SynExpr):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, const):
+        self.token = const
 
     def __str__(self):
-        return str(self.value)
+        return str(self.token.value)
 
 class SynVar(SynExpr):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, var):
+        self.var = var
 
     def __str__(self):
-        return self.name
+        return self.var.text
