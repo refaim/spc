@@ -1,17 +1,17 @@
------------------------------------------------------------------
-|             ||               ||               ||              |
-|  Line, pos  ||  Token text   ||  Token value  ||  Token type  |
-|             ||               ||               ||              |
------------------------------------------------------------------
-|             ||               ||               ||              |
-|  1, 1       ||  abc          ||               ||  Identifier  |
-|  1, 5       ||  bc           ||               ||  Identifier  |
-|  1, 8       ||  bac          ||               ||  Identifier  |
-|  2, 1       ||  while        ||               ||  Keyword     |
-|  2, 7       ||  do           ||               ||  Keyword     |
-|  2, 10      ||  if           ||               ||  Keyword     |
-|  2, 13      ||  then         ||               ||  Keyword     |
-|  3, 1       ||  forforbegin  ||               ||  Identifier  |
-|  4, 1       ||  end          ||               ||  Keyword     |
-|             ||               ||               ||              |
------------------------------------------------------------------
++-------------+---------------+---------------+--------------+
+|             |               |               |              |
+|  Line, pos  |  Token text   |  Token value  |  Token type  |
+|             |               |               |              |
++-------------+---------------+---------------+--------------+
+|             |               |               |              |
+|  1, 1       |  abc          |               |  Identifier  |
+|  1, 5       |  bc           |               |  Identifier  |
+|  1, 8       |  bac          |               |  Identifier  |
+|  2, 1       |  while        |               |  Keyword     |
+|  2, 7       |  do           |               |  Keyword     |
+|  2, 10      |  if           |               |  Keyword     |
+|  2, 13      |  then         |               |  Keyword     |
+|  3, 1       |  forforbegin  |               |  Identifier  |
+|  4, 1       |  end          |               |  Keyword     |
+|             |               |               |              |
++-------------+---------------+---------------+--------------+
