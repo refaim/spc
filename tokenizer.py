@@ -22,11 +22,11 @@ class Token:
         def make_char(c):
             return c if c in printable else c.encode()
 
-        def make_hex(n):
-            return eval(n.replace("$", "0x"))
+        def make_int(n):
+            return eval(n.replace("$", "0x")) if n.startswith("$") else int(n)
 
         value_makers = { tt_string_const: make_string, tt_char_const: make_char, 
-                         tt_hex: make_hex, tt_float: eval, tt_dec: int }
+                         tt_float: eval, tt_integer: make_int }
         
         if not self.error and self.type in value_makers:
             if v == "": v = self.text
@@ -120,10 +120,10 @@ class Tokenizer:
         
     def _read_number(self, ch):       
         float_part = ".eE"
-        valid_chars = { tt_hex: hexdigits, tt_dec: digits, tt_float: digits + float_part }
+        valid_chars = { tt_hex: hexdigits, tt_integer: digits, tt_float: digits + float_part }
 
         num, ch = [ch], self._getch()
-        ttype = tt_hex if num == ["$"] else (tt_float if ch in float_part else tt_dec)
+        ttype = tt_hex if num == ["$"] else (tt_float if ch in float_part else tt_integer)
         while ch and ch in valid_chars[ttype]:
 
             # десятичная точка, минус или экспонента могут встретиться только один раз
@@ -141,6 +141,10 @@ class Tokenizer:
         matches = numerical_regexps[ttype].findall(num)
         error = not (matches and "".join(matches[0]).startswith(num))
         self._putch()
+
+        if ttype == tt_hex:
+            ttype = tt_integer
+
         return Token(type = ttype, text = num, error = error)
 
     def _read_comment(self, ch):

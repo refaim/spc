@@ -30,12 +30,12 @@ delimiters = { "+": tt_plus,  "<" : tt_LT,  ":=": tt_assign,    "(": tt_lparen,
                                                                                                  
 shift += delimiters_count
 common_lexems_count = 12
-tt_keyword, tt_identifier, tt_dec, tt_hex, tt_float,\
+tt_keyword, tt_identifier, tt_integer, tt_hex, tt_float,\
 tt_char_const, tt_string_const, tt_unknown, tt_error,\
 tt_block_comment, tt_comment, tt_wrong = range(shift, shift + common_lexems_count)
 
 lexems_str = { tt_keyword: "Keyword", tt_identifier: "Identifier", 
-               tt_dec: "Integer (decimal)", tt_hex: "Integer (hexadecimal)", tt_float: "Float",
+               tt_integer: "Integer", tt_float: "Float",
                tt_char_const: "Character constant", tt_string_const: "String constant",
                tt_block_comment: "Block comment", tt_comment: "Comment", tt_error: "Lexical error",
                tt_wrong: "Wrong token",
@@ -51,8 +51,8 @@ lexems_str = { tt_keyword: "Keyword", tt_identifier: "Identifier",
 hex_re = re.compile(r"\$[0-9a-fA-F]+")
 dec_re = re.compile(r"\d+")
 float_re = re.compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
-numerical_regexps = { tt_hex: hex_re, tt_dec: dec_re, tt_float: float_re }
+numerical_regexps = { tt_hex: hex_re, tt_integer: dec_re, tt_float: float_re }
 
-error_msg = { tt_hex: "Wrong hexadecimal number", tt_dec: "Wrong decimal number", tt_float: "Wrong float number",   
+error_msg = { tt_integer: "Wrong integer number", tt_float: "Wrong float number",
               tt_char_const: "Wrong character constant",
               tt_unknown: "Illegal character" }

@@ -11,6 +11,7 @@ max_priority = len(operators) - 1
 class Parser:
     def __init__(self, tokenizer):
         self._tokenizer = tokenizer
+        self.symtable = {}
 
     @property
     def token(self):
@@ -45,7 +46,7 @@ class Parser:
                 exceptions.raise_error(exceptions.syn_par_mismatch, filepos)
         elif self.token.type == tt_identifier:
             result = SynVar(self.token)
-        elif self.token.type in [tt_dec, tt_hex, tt_float, tt_string_const]:
+        elif self.token.type in [tt_integer, tt_float, tt_string_const]:
             result = SynConst(self.token)
         else:
             exceptions.raise_error(exceptions.syn_unexp_token, filepos)
