@@ -2,18 +2,21 @@
 
 import os
 from subprocess import Popen as popen
-from getopt import getopt
+from getopt import getopt, GetoptError
 from sys import argv
 
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
-opts, args = getopt(argv[1:], "le")
-opt = opts[0][0]
-if opt == "-l":
-    test_path = "tests\\lexer\\"
-elif opt == "-e":
-    test_path = "tests\\parser\\"
-else:
+short_opts = "le"
+paths = ["tests\\lexer\\", "tests\\parser\\"]
+
+try:
+    opts, args = getopt(argv[1:], short_opts)
+    opt = opts[0][0]
+    index = short_opts.index(opt.lstrip('-'))
+    test_path = paths[index]
+except GetoptError as opterr:
+    print("{0}, {1}".format(opterr, "use short variants of compiler options"))
     exit()
 
 test_dir = os.walk(test_path)
