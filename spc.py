@@ -5,7 +5,7 @@ from getopt import getopt, GetoptError
 
 from tokenizer import Tokenizer
 from synanalyzer import Parser
-from exceptions import MyCompilerError
+from exceptions import CompileError
 import utils
 
 cname_s = "Small Pascal Compiler (by Roman Kharitonov)"
@@ -37,8 +37,8 @@ def common(args, action):
             program.close()
         except IOError as ioerr:
             print(errmsg_s.format(arg, ioerr.args[1]))
-        except MyCompilerError as mcerr:
-            print(errmsg_s.format(arg, mcerr.message))
+        except CompileError as cerr:
+            print(errmsg_s.format(arg, cerr.message))
     if len(args) == 0:
         print(empty_args_s)
 

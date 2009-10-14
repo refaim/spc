@@ -1,35 +1,24 @@
 # -*- coding: utf-8 -*-
 
-class MyCompilerError(BaseException):
-    def __init__(self, message):
-        self.message = message
+class CompileError(BaseException):
+    def __init__(self, filepos):
+        self.line, self.pos = filepos
 
-class MyLexicalError(MyCompilerError): pass
-class MySyntaxError(MyCompilerError): pass
+class LexError(CompileError):
+    prefix = "Lexical error"
+class BlockCommentEofError(LexError):
+    message = "Unexpected end of file in block comment"
+class StringEofError(LexError):
+    message = "Unexpected end of file in string literal"
 
-# лексические ошибки
-lex_count = 2
-lex_eof_bc, lex_eof_str = range(2)
+class SynError(CompileError):
+    prefix = "Syntax error"
+class UnexpectedTokenError(SynError):
+    message = "Expected constant expression or identifier"
+class ParMismatchError(SynError):
+    message = "Parenthesis mismatch"
 
-# синтаксические ошибки
-syn_count = 2
-shift = lex_count
-syn_unexp_token, syn_par_mismatch = range(shift, shift + syn_count)
-
-
-error_messages = { lex_eof_bc: "Unexpected end of file in block comment",  
-                   lex_eof_str: "Unexpected end of file in string literal", 
-         
-                   syn_unexp_token: "Expected constant expression or identifier",
-                   syn_par_mismatch: "Parenthesis mismatch" 
-                 }
-         
-common_messages = { MyLexicalError: "Lexical error", MySyntaxError: "Syntax error" }          
-common_template = "{error} on line {l}, col {p}. {text}"
-
-def raise_error(errcode, filepos):
-    line, pos = filepos
-    errclass = MyLexicalError if errcode < lex_count else MySyntaxError
-    raise errclass(common_template.format(error = common_messages[errclass], 
-                                         l = line, p = pos, 
-                                         text = error_messages[errcode]))
+def raise_exception(e):
+    template = "{0} on line {1}, col {2}. {3}"
+    e.message = template.format(e.prefix, e.line, e.pos, e.message)
+    raise e

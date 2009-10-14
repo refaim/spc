@@ -2,15 +2,15 @@
 
 import re
 
-keywords_count = 20
-kw_begin, kw_break, kw_const, kw_continue, kw_do, kw_else, kw_end, kw_float,\
+keywords_count = 21
+kw_array, kw_begin, kw_break, kw_const, kw_continue, kw_do, kw_else, kw_end, kw_float,\
 kw_for, kw_function, kw_if, kw_integer, kw_nil, kw_procedure, kw_record,\
 kw_repeat, kw_then, kw_until, kw_var, kw_while = range(keywords_count)
 
 keywords = { "begin": kw_begin, "break": kw_break, "const": kw_const, "continue": kw_continue, "do": kw_do, "else": kw_else,
              "end": kw_end, "float": kw_float, "for": kw_for, "function": kw_function, "if": kw_if, "integer": kw_integer, 
              "nil": kw_nil, "procedure": kw_procedure, "record": kw_record, "repeat": kw_repeat, 
-             "then": kw_then, "until": kw_until, "var": kw_var, "while": kw_while
+             "then": kw_then, "until": kw_until, "var": kw_var, "while": kw_while, "array": kw_array
            }
 
 delimiters_count = 20

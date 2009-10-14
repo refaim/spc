@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from constants import lexems_str
-from exceptions import MyLexicalError
+from exceptions import LexError
 
 def get_token_array(tokenizer):
     t = tokenizer.get_token()
@@ -11,7 +11,7 @@ def get_token_array(tokenizer):
             tokens.append(t)
             tokenizer.next_token()
             t = tokenizer.get_token()
-    except MyLexicalError as lexerr:
+    except LexError as lexerr:
         return tokens, lexerr        
     return tokens, None
 
@@ -182,4 +182,3 @@ def print_syntax_tree(root):
     for s in out:
         print(s.rstrip(" "))
     print(b_horz * widths[root])
-

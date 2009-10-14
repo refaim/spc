@@ -3,7 +3,7 @@
 from string import printable, digits, hexdigits
 
 from constants import *
-import exceptions
+from exceptions import raise_exception, BlockCommentEofError, StringEofError
 
 class Token:
     def __init__(self, type = None, text = "", value = "", line = 0, pos = 0, error = False):
@@ -164,7 +164,7 @@ class Tokenizer:
             while ch != "}" and ch:
                 ch = self._getch()
             if ch == "}": return None
-            exceptions.raise_error(exceptions.lex_eof_bc, filepos)
+            raise_exception(BlockCommentEofError(filepos))
 
         def read_second(ch):
             if self._getch() != "*":
@@ -177,7 +177,7 @@ class Tokenizer:
                 if ch == "*":
                     found = self._getch() == ")"
             if found: return None 
-            exceptions.raise_error(exceptions.lex_eof_bc, filepos)
+            raise_exception(BlockCommentEofError(filepos))
 
         methods = [read_first, read_second]
         return methods[ch == "("](ch)
@@ -210,7 +210,7 @@ class Tokenizer:
             s = "".join(c for c in s)
             return Token(type = tt_string_const, text = s)
         else:
-            exceptions.raise_error(exceptions.lex_eof_str, filepos)
+            raise_exception(StringEofError(filepos))
 
     def _read_char_const(self, ch):
         s, ch = [ch], self._getch()
