@@ -180,4 +180,6 @@ def print_syntax_tree(root):
     print_node(root, 0, y, 0, widths[root])
 
     for s in out:
-        print(s)
+        print(s.rstrip(" "))
+    print(b_horz * widths[root])
+

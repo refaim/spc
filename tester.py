@@ -2,11 +2,19 @@
 
 import os
 from subprocess import Popen as popen
+from getopt import getopt
+from sys import argv
 
-test_path = "tests\\lexer\\"
-t_ext = ".in"
-a_ext = ".a"
-o_ext = ".o"
+t_ext, a_ext, o_ext = ".in", ".a", ".o"
+
+opts, args = getopt(argv[1:], "le")
+opt = opts[0][0]
+if opt == "-l":
+    test_path = "tests\\lexer\\"
+elif opt == "-e":
+    test_path = "tests\\parser\\"
+else:
+    exit()
 
 test_dir = os.walk(test_path)
 for root, dirs, files in test_dir:
@@ -15,7 +23,7 @@ for root, dirs, files in test_dir:
         if ext.lower() != t_ext: continue
 
         fout = open(test_path + fname + o_ext, "w")
-        app = popen(args = "python spc.py --lex {0}{1}".format(test_path, entry), 
+        app = popen(args = "python spc.py {0} {1}{2}".format(opt, test_path, entry),
                     stdout = fout).communicate()
         fout.close()
         msg = "Test #{0} ".format(fname)

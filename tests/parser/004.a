@@ -1,0 +1,1 @@
+spc: tests\parser\004.in: Syntax error on line 1, col 1. Expected constant expression or identifier
