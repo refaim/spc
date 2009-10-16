@@ -15,15 +15,7 @@
 |  5, 1       |  $00000                 |  0                         |  Integer      |                        |
 |  6, 1       |  $abcdef01805872987095  |  811323473293387199180949  |  Integer      |                        |
 |  7, 1       |  $aaac12312b            |  733031313707              |  Integer      |                        |
-|  7, 12      |  k                      |                            |  Identifier   |                        |
-|  7, 13      |  123                    |  123                       |  Integer      |                        |
-|  7, 16      |  s                      |                            |  Identifier   |                        |
-|  7, 17      |  1                      |  1                         |  Integer      |                        |
-|  7, 18      |  h                      |                            |  Identifier   |                        |
-|  7, 19      |  23                     |  23                        |  Integer      |                        |
-|  7, 21      |  df                     |                            |  Identifier   |                        |
-|  7, 23      |  2                      |  2                         |  Integer      |                        |
-|  7, 24      |  goius                  |                            |  Identifier   |                        |
+|  7, 12      |  k123s1h23df2goius      |                            |  Identifier   |                        |
 |  8, 1       |  $9871                  |  39025                     |  Integer      |                        |
 |  8, 6       |  %                      |                            |  Wrong token  |  Illegal character     |
 |  8, 7       |  $                      |                            |  Wrong token  |  Wrong integer number  |

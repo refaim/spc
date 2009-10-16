@@ -29,8 +29,7 @@
 |  14, 1      |  0e                 |                  |  Wrong token  |  Wrong float number    |
 |  14, 3      |  -                  |                  |  Minus        |                        |
 |  14, 4      |  0                  |  0               |  Integer      |                        |
-|  15, 1      |  e                  |                  |  Identifier   |                        |
-|  15, 2      |  1                  |  1               |  Integer      |                        |
+|  15, 1      |  e1                 |                  |  Identifier   |                        |
 |  16, 1      |  2e2                |  200.0           |  Float        |                        |
 |  16, 4      |  e                  |                  |  Identifier   |                        |
 |  17, 1      |  2e                 |                  |  Wrong token  |  Wrong float number    |
