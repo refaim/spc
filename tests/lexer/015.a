@@ -15,7 +15,7 @@
 |  1, 16      |  #6578       |               |  Wrong token        |  Wrong character constant  |
 |  1, 21      |  *           |               |  Asterix            |                            |
 |  1, 22      |  gdfga       |               |  Identifier         |                            |
-|  1, 28      |  while       |               |  Keyword            |                            |
+|  1, 28      |  while       |               |  While (keyword)    |                            |
 |  1, 34      |  +           |               |  Plus               |                            |
 |  1, 35      |  123         |  123          |  Integer            |                            |
 |  1, 38      |  -           |               |  Minus              |                            |

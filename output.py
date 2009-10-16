@@ -1,7 +1,32 @@
 # -*- coding: utf-8 -*-
 
-from constants import lexems_str
 from errors import LexError
+from token import tt, dlm, keywords
+
+lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
+               tt.float: "Float", tt.char_const: "Character constant",
+               tt.string_const: "String constant", tt.wrong: "Wrong token",
+ 
+               dlm.plus: "Plus", dlm.lesser: "Less", dlm.assign: "Assignmnent",
+               dlm.lparen: "Left parenthesis", dlm.minus: "Minus",
+               dlm.greater: "Greater", dlm.semicolon: "Semicolon",
+               dlm.rparen: "Right parenthesis", dlm.mul: "Asterix",
+               dlm.lesser_or_equal: "Less or equal", dlm.colon: "Colon",
+               dlm.lsbracket: "Left square bracket", dlm.div: "Div",
+               dlm.greater_or_equal: "Greater or equal", dlm.dot: "Dot",
+               dlm.rsbracket: "Right square bracket", dlm.equal: "Equal",
+               dlm.comma: "Comma", dlm.not_equal: "Not equal",
+               dlm.double_dot: "Double dot"
+             }
+
+def get_string_repr(lexem):
+    s = str(lexem).lower()
+    if lexem in lexems_str:
+        return lexems_str[lexem]
+    elif s in keywords:
+        return "{0} (keyword)".format(s).capitalize()
+    else:
+        return ""
 
 def get_token_array(tokenizer):
     t = tokenizer.get_token()
@@ -42,7 +67,7 @@ def print_token_array(tokens):
 
     linepos_template = "{0}, {1}"
     def values(tok):
-        return [linepos_template.format(tok.line, tok.pos), tok.text, str(tok.value), lexems_str[tok.type], tok.errmsg]
+        return [linepos_template.format(tok.line, tok.pos), tok.text, str(tok.value), get_string_repr(tok.type), tok.errmsg]
     
     def print_line(out, row, col):
         left_border = b_vert if col == 0 else ""

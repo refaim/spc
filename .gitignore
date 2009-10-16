@@ -2,3 +2,4 @@
 *~
 tests/lexer/*.o
 tests/parser/*.o
+lib/*.pyc

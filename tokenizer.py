@@ -1,50 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from string import printable, digits, hexdigits
+from string import digits, hexdigits
+from re import compile
 
-from constants import *
 from errors import raise_exception, BlockCommentEofError, StringEofError
-
-class Token:
-    def __init__(self, type = None, text = "", value = "", line = 0, pos = 0, error = False):
-        self.error = error
-        self._type, self.text = type, text
-        self._setval(value)
-        self.line, self.pos = line, pos
-
-    def _getval(self):        
-        return self._value              
-
-    def _setval(self, v):
-
-        def make_string(text):
-            return '"{0}"'.format(text[1:len(text)-1].replace("''", "'"))
-        def make_char(c):
-            return c if c in printable else c.encode("cp1251")
-        def make_int(n):
-            return eval(n.replace("$", "0x")) if n.startswith("$") else int(n)
-
-        value_makers = { tt_string_const: make_string, tt_char_const: make_char, 
-                         tt_float: eval, tt_integer: make_int }
-
-        if not self.error and self.type in value_makers:
-            if v == "": v = self.text
-            self._value = value_makers[self.type](v)
-        else: 
-            self._value = ""
-
-    def _gettype(self):
-        return tt_wrong if self.error else self._type
-
-    def _settype(self, t):
-        self._type = t
-
-    def _geterrmsg(self):
-        return error_msg[self._type] if self.error else ""
-
-    value = property(_getval, _setval)
-    type = property(_gettype, _settype)
-    errmsg = property(_geterrmsg)
+from token import Token, keywords, delimiters, tt
 
 class Tokenizer:
     def __init__(self, program):
@@ -99,7 +59,7 @@ class Tokenizer:
             elif ch == "'": tok = self._read_string_const(ch)
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters: tok = self._read_delimiter(ch)
-            else: tok = Token(type = tt_unknown, text = ch, error = True)
+            else: tok = Token(type = tt.unknown_literal, text = ch, error = True)
             
             found = tok != None
 
@@ -113,27 +73,35 @@ class Tokenizer:
         s, ch = ch, self._getch()
         while ch.isalnum() or ch == "_":
             s, ch = s + ch, self._getch()
-        ttype = tt_keyword if s.lower() in keywords else tt_identifier
+        l = s.lower()
+        ttype = keywords[l] if l in keywords else tt.identifier
         self._putch()
         return Token(type = ttype, text = s)
         
-    def _read_number(self, ch):       
+    def _read_number(self, ch):
+        hex_re = compile(r"\$[0-9a-fA-F]+")
+        dec_re = compile(r"\d+")
+        float_re = compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
+        thex, tdec, tfloat = range(3)
+
+        numerical_regexps = { thex: hex_re, tdec: dec_re, tfloat: float_re }
+
         float_part = ".eE"
-        valid_chars = { tt_hex: hexdigits, tt_integer: digits, tt_float: digits + float_part }
+        valid_chars = { thex: hexdigits, tdec: digits, tfloat: digits + float_part }
 
         num, ch = [ch], self._getch()
-        ttype = tt_hex if num == ["$"] else (tt_float if ch in float_part else tt_integer)
+        ttype = thex if num == ["$"] else (tfloat if ch in float_part else tdec)
         while ch and ch in valid_chars[ttype]:
 
             # десятичная точка, минус или экспонента могут встретиться только один раз
-            if ttype == tt_float and ch in float_part: 
+            if ttype == tfloat and ch in float_part:
                 valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
 
             num.append(ch)
             ch = self._getch()
 
-            if ttype != tt_hex and ch in float_part: 
-                ttype = tt_float
+            if ttype != thex and ch in float_part:
+                ttype = tfloat
                 valid_chars[ttype] += "-"
 
         num = "".join(c for c in num)
@@ -141,9 +109,7 @@ class Tokenizer:
         error = not (matches and "".join(matches[0]).startswith(num))
         self._putch()
 
-        if ttype == tt_hex:
-            ttype = tt_integer
-
+        ttype = tt.integer if ttype in [thex, tdec] else tt.float
         return Token(type = ttype, text = num, error = error)
 
     def _read_comment(self, ch):
@@ -207,7 +173,7 @@ class Tokenizer:
             ch = self._getch()
         if s_end and line == self._cline:
             s = "".join(c for c in s)
-            return Token(type = tt_string_const, text = s)
+            return Token(type = tt.string_const, text = s)
         else:
             raise_exception(StringEofError(filepos))
 
@@ -223,4 +189,4 @@ class Tokenizer:
         except ValueError:
             error = True
         self._putch()
-        return Token(type = tt_char_const, text = s, value = ch, error = error)
+        return Token(type = tt.char_const, text = s, value = ch, error = error)

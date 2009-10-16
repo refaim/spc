@@ -6,7 +6,7 @@ from getopt import getopt, GetoptError
 from tokenizer import Tokenizer
 from synanalyzer import Parser
 from errors import CompileError
-import utils
+import output
 
 cname_s = "Small Pascal Compiler (by Roman Kharitonov)"
 help_s = "usage: spc [OPTION]... [FILENAME]..."
@@ -43,15 +43,15 @@ def common(args, action):
         print(empty_args_s)
 
 def lex(tokenizer):
-    tokens, error = utils.get_token_array(tokenizer)
-    utils.print_token_array(tokens)
+    tokens, error = output.get_token_array(tokenizer)
+    output.print_token_array(tokens)
     if error: raise error
 
 def e_parse(tokenizer):
     parser = Parser(tokenizer)
     e = parser.parse_expr()
     while e:
-        utils.print_syntax_tree(e)
+        output.print_syntax_tree(e)
         e = parser.parse_expr()
             
 opts_actions = [help, lex, e_parse]

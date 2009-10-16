@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from syn import *
-from constants import *
-from tokenizer import Token
 from errors import raise_exception, UnexpectedTokenError, ParMismatchError
+from token import Token, tt, dlm
+from syn import *
 
-operators = [[tt_plus, tt_minus], [tt_mul, tt_div]]
+operators = [[dlm.plus, dlm.minus], [dlm.mul, dlm.div]]
 max_priority = len(operators) - 1
 
 class Parser:
@@ -38,14 +37,14 @@ class Parser:
         filepos = self._tokenizer.curfilepos
         if filepos == None: exit()
 
-        if self.token.type == tt_lparen:
+        if self.token.type == dlm.lparen:
             self.next_token()
             result = self.parse_expr()
-            if self.token.type != tt_rparen:
+            if self.token.type != dlm.rparen:
                 raise_exception(ParMismatchError(filepos))
-        elif self.token.type == tt_identifier:
+        elif self.token.type == tt.identifier:
             result = SynVar(self.token)
-        elif self.token.type in [tt_integer, tt_float, tt_string_const]:
+        elif self.token.type in [tt.integer, tt.float, tt.string_const]:
             result = SynConst(self.token)
         else:
             raise_exception(UnexpectedTokenError(filepos))
