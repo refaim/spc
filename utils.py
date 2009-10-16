@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from constants import lexems_str
-from exceptions import LexError
+from errors import LexError
 
 def get_token_array(tokenizer):
     t = tokenizer.get_token()

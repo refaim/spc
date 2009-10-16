@@ -3,12 +3,13 @@
 from string import printable, digits, hexdigits
 
 from constants import *
-from exceptions import raise_exception, BlockCommentEofError, StringEofError
+from errors import raise_exception, BlockCommentEofError, StringEofError
 
 class Token:
     def __init__(self, type = None, text = "", value = "", line = 0, pos = 0, error = False):
         self.error = error
-        self.type, self.text, self.value = type, text, value
+        self._type, self.text = type, text
+        self._setval(value)
         self.line, self.pos = line, pos
 
     def _getval(self):        
@@ -18,16 +19,14 @@ class Token:
 
         def make_string(text):
             return '"{0}"'.format(text[1:len(text)-1].replace("''", "'"))
-
         def make_char(c):
-            return c if c in printable else c.encode()
-
+            return c if c in printable else c.encode("cp1251")
         def make_int(n):
             return eval(n.replace("$", "0x")) if n.startswith("$") else int(n)
 
         value_makers = { tt_string_const: make_string, tt_char_const: make_char, 
                          tt_float: eval, tt_integer: make_int }
-        
+
         if not self.error and self.type in value_makers:
             if v == "": v = self.text
             self._value = value_makers[self.type](v)
@@ -93,7 +92,7 @@ class Tokenizer:
             if ch.isspace(): continue
             line, pos = self._cline + 1, self._cpos + 1
 
-            if ch.isidentifier(): tok = self._read_identifier(ch)
+            if ch.isalpha() or ch == "_": tok = self._read_identifier(ch)
             elif ch.isdigit() or ch == "$": tok = self._read_number(ch)
             elif ch == "/": tok = self._read_comment(ch)
             elif ch in ["{", "("]: tok = self._read_block_comment(ch)
@@ -112,7 +111,7 @@ class Tokenizer:
 
     def _read_identifier(self, ch):
         s, ch = ch, self._getch()
-        while ch.isidentifier():
+        while ch.isalnum() or ch == "_":
             s, ch = s + ch, self._getch()
         ttype = tt_keyword if s.lower() in keywords else tt_identifier
         self._putch()

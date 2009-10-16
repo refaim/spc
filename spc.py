@@ -5,7 +5,7 @@ from getopt import getopt, GetoptError
 
 from tokenizer import Tokenizer
 from synanalyzer import Parser
-from exceptions import CompileError
+from errors import CompileError
 import utils
 
 cname_s = "Small Pascal Compiler (by Roman Kharitonov)"

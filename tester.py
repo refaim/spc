@@ -37,7 +37,7 @@ for root, dirs, files in test_dir:
             print(msg + "NO ANSWER")
             continue
         
-        print(msg + "OK") if fout.read() == fans.read() else print(msg + "FAIL")
+        print(msg + "OK") if fout.read() == fans.read() else (msg + "FAIL")
         
         fout.close() 
         fans.close()

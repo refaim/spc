@@ -3,7 +3,7 @@
 from syn import *
 from constants import *
 from tokenizer import Token
-from exceptions import raise_exception, UnexpectedTokenError, ParMismatchError
+from errors import raise_exception, UnexpectedTokenError, ParMismatchError
 
 operators = [[tt_plus, tt_minus], [tt_mul, tt_div]]
 max_priority = len(operators) - 1
