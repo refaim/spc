@@ -2,6 +2,7 @@
 
 from errors import LexError
 from token import tt, dlm, keywords
+from syn import SynBinaryOp
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
                tt.float: "Float", tt.char_const: "Character constant",
@@ -110,43 +111,41 @@ def print_token_array(tokens):
     for s in out:
         print(s)
 
-from syn import *
 def print_syntax_tree(root):
 
-    heights = {}
-    widths = {}
+    def binary(node):
+        return isinstance(node, SynBinaryOp)
 
-    std_node_height = 3
-    std_binop_width = 7
+    def calc_dimensions(node):
+        std_node_height = 3
+        std_borders_width = 4
 
-    def dims(node):
-        if isinstance(node, SynBinaryOp):
-            (wl, hl), (wr, hr) = dims(node.opleft), dims(node.opright)
-            w = wl + wr + std_binop_width
+        strlen = len(str(node)) + std_borders_width
+        if binary(node):
+            (wl, hl), (wr, hr) = calc_dimensions(node.opleft), calc_dimensions(node.opright)
+            w = wl + wr + strlen + 2
             h = max(hl, hr) + std_node_height
         else:
-            w = len(str(node)) + 4
+            w = strlen
             h = std_node_height
         widths[node], heights[node] = w, h
         return w, h
 
-    dims(root)
+    heights, widths = {}, {}
+
+    calc_dimensions(root)
     out = [' ' * widths[root]] * heights[root]
 
     def frame(text, b1, b2 = ""):
-        l = []
         if b2 == "":
             b2 = b1
-        l.append(b1)
-        l.append(text)
-        l.append(b2)
-        return l
+        return [b1, text, b2]
 
     def selfwidth(node):
         return widths[node] - widths[node.opleft] - widths[node.opright]
 
     def print_node(node, x, y, lbound, rbound):
-        if isinstance(node, SynBinaryOp):
+        if binary(node):
             print_binary(node, x, y, lbound, rbound)
         else:
             print_simple(node, x, y)
@@ -164,27 +163,27 @@ def print_syntax_tree(root):
         text = b_cross + indent + str(node) + indent + b_cross
 
         # left branch
-        if isinstance(node.opleft, SynBinaryOp):
+        if binary(node.opleft):
             shift = selfwidth(node.opleft) // 2
             lbpos = y - widths[node.opleft.opright] - shift
             new_left_y = lbpos - shift - 1
         else:
             shift = widths[node.opleft] // 2
             lbpos = y - shift
-            new_left_y = max(0, lbpos - shift)
+            new_left_y = lbpos - shift#max(0, lbpos - shift, lbpos)
         lblen = y - lbpos
         lb = b_cross + b_horz * lblen
 
         # right branch
         rside = y + selfwidth(node)
-        if isinstance(node.opright, SynBinaryOp):
+        if binary(node.opright):
             shift = selfwidth(node.opright) // 2
-            rbpos = rside + widths[node.opright.opleft] + shift
-            new_right_y = rbpos - shift * 2 + 1
+            rbpos = rside + widths[node.opright.opleft] + shift 
+            new_right_y = rbpos - shift + 1
         else:
             shift = widths[node.opright] // 2
             rbpos = rside + shift
-            new_right_y = min(rbpos, rbpos - shift - 1)
+            new_right_y = rbpos - max(shift // 2 + shift % 2, shift - 2) #min(rbpos, rbpos - shift - 1)
         rblen = rbpos - rside + 1
         rb = b_horz * rblen + b_cross
 
@@ -198,10 +197,10 @@ def print_syntax_tree(root):
             out[x] = out[x][:lbpos] + s + out[x][rbpos:]
             x += 1
 
-        print_node(node.opright, x, new_right_y, rside, rbound)
         print_node(node.opleft, x, new_left_y, lbound, y)
+        print_node(node.opright, x, new_right_y, rside, rbound)
 
-    y = widths[root.opleft] if isinstance(root, SynBinaryOp) else 0
+    y = widths[root.opleft] if binary(root) else 0
     print_node(root, 0, y, 0, widths[root])
 
     for s in out:
