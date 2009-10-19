@@ -76,7 +76,7 @@ class Tokenizer:
         l = s.lower()
         ttype = keywords[l] if l in keywords else tt.identifier
         self._putch()
-        return Token(type = ttype, text = s)
+        return Token(type = ttype, text = s, value = l)
         
     def _read_number(self, ch):
         hex_re = compile(r"\$[0-9a-fA-F]+")

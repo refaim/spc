@@ -15,7 +15,7 @@
 |  5, 1       |  $00000                 |  0                         |  Integer      |                        |
 |  6, 1       |  $abcdef01805872987095  |  811323473293387199180949  |  Integer      |                        |
 |  7, 1       |  $aaac12312b            |  733031313707              |  Integer      |                        |
-|  7, 12      |  k123s1h23df2goius      |                            |  Identifier   |                        |
+|  7, 12      |  k123s1h23df2goius      |  k123s1h23df2goius         |  Identifier   |                        |
 |  8, 1       |  $9871                  |  39025                     |  Integer      |                        |
 |  8, 6       |  %                      |                            |  Wrong token  |  Illegal character     |
 |  8, 7       |  $                      |                            |  Wrong token  |  Wrong integer number  |

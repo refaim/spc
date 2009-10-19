@@ -12,12 +12,12 @@
 |  4, 9       |  ' '            |  " "          |  String constant  |
 |  5, 1       |  'a''''b''''c'  |  "a''b''c"    |  String constant  |
 |  6, 1       |  'a'            |  "a"          |  String constant  |
-|  6, 4       |  b              |               |  Identifier       |
+|  6, 4       |  b              |  b            |  Identifier       |
 |  6, 5       |  'c'            |  "c"          |  String constant  |
-|  6, 8       |  d              |               |  Identifier       |
+|  6, 8       |  d              |  d            |  Identifier       |
 |  6, 9       |  'e'            |  "e"          |  String constant  |
 |  7, 1       |  'a'''          |  "a'"         |  String constant  |
-|  7, 6       |  b              |               |  Identifier       |
+|  7, 6       |  b              |  b            |  Identifier       |
 |             |                 |               |                   |
 +-------------+-----------------+---------------+-------------------+
 spc: tests\lexer\010.in: Lexical error on line 7, col 7. Unexpected end of file in string literal

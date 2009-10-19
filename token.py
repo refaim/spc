@@ -59,11 +59,13 @@ class Token:
         value_makers = { tt.string_const: make_string, tt.char_const: make_char,
                          tt.float: eval, tt.integer: make_int }
 
-        if not self.error and self.type in value_makers:
-            if v == "": v = self.text
-            self._value = value_makers[self.type](v)
-        else:
-            self._value = ""
+        self._value = ""
+        if not self.error:
+            if self.type in value_makers:
+                if v == "": v = self.text
+                self._value = value_makers[self.type](v)
+            else:
+                self._value = v
 
     def _gettype(self):
         return tt.wrong if self.error else self._type
