@@ -14,11 +14,13 @@ try_s = "try 'spc --help' for more options"
 empty_args_s = "no input files"
 errmsg_s = "spc: {0}: {1}"
 
-opts_count = 3
-short_opts = "hle"
-long_opts = ["help", "lex", "expr-parse"]
-max_opt_len = 10
-opts_descr = ["display this help text", "perform lexical analysis", "parse arithmetic expressions"]
+short_opts = "hled"
+long_opts = ["help", "lex", "expr-parse", "expr-with-decl"]
+opts_count = len(long_opts)
+max_opt_len = max([len(opt) for opt in long_opts])
+opts_descr = ["display this help text", "perform lexical analysis",
+              "parse arithmetic expressions",
+              "parse expressions with declarations on pseudolanguage"]
 
 def help():
     print("{0}\n{1}\n".format(cname_s, help_s))
@@ -53,8 +55,16 @@ def e_parse(tokenizer):
     while e:
         output.print_syntax_tree(e)
         e = parser.parse_expr()
-            
-opts_actions = [help, lex, e_parse]
+
+def ed_parse(tokenizer):
+    parser = Parser(tokenizer)    
+    parser.parse_decl()
+    #e = parser.parse_expr()
+    #while e:
+    #    output.print_syntax_tree(e)
+    #    e = parser.parse_expr()
+
+opts_actions = [help, lex, e_parse, ed_parse]
 try:
     opts, args = getopt(argv[1:], short_opts, long_opts)
     if len(opts) == 0: help()

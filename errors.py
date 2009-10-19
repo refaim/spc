@@ -17,6 +17,8 @@ class UnexpectedTokenError(SynError):
     message = "Expected constant expression or identifier"
 class ParMismatchError(SynError):
     message = "Parenthesis mismatch"
+class DeclarationError(SynError):
+    message = "Identifier expected"
 
 def raise_exception(e):
     template = "{0} on line {1}, col {2}. {3}"

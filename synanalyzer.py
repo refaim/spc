@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from errors import raise_exception, UnexpectedTokenError, ParMismatchError
-from token import Token, tt, dlm
+from errors import raise_exception,\
+    UnexpectedTokenError, ParMismatchError, DeclarationError
+from token import Token, tt, dlm, kw
 from syn import *
 
 operators = [[dlm.plus, dlm.minus], [dlm.mul, dlm.div]]
@@ -10,14 +11,33 @@ max_priority = len(operators) - 1
 class Parser:
     def __init__(self, tokenizer):
         self._tokenizer = tokenizer
-
+        self._symtable = {}
+        
     @property
     def token(self):
         t = self._tokenizer.get_token()
         return t if t else Token()
 
+    @property
+    def filepos(self):
+        return self._tokenizer.curfilepos
+
     def next_token(self):
         self._tokenizer.next_token()
+
+    def parse_decl(self):
+        allowed = { "array": kw.array, "function": kw.function,
+                    "record": kw.record, "var": kw.var }
+        while self.token.value in allowed:
+            itype = allowed[self.token.value]
+            self.next_token()
+            if self.token.type == tt.identifier:
+                self._symtable[self.token.value] = itype
+            else:
+                raise_exception(DeclarationError(self.filepos))
+            self.next_token()
+        # тут будет вызов новой функции для парсинга выражений
+        print(self._symtable)
 
     def parse_expr(self, priority = 0):
         if priority < max_priority:
@@ -34,7 +54,7 @@ class Parser:
         return result
 
     def parse_factor(self):
-        filepos = self._tokenizer.curfilepos
+        filepos = self.filepos
         if filepos == None: exit()
 
         if self.token.type == dlm.lparen:

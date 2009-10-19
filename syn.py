@@ -6,8 +6,7 @@ class SynExpr(SynNode): pass
 
 class SynBinaryOp(SynExpr):
     def __init__(self, opleft, optype, opright):
-        self.optype = optype
-        self.opleft, self.opright = opleft, opright
+        self.optype, self.opleft, self.opright = optype, opleft, opright
 
     def __str__(self):
         return self.optype.text
