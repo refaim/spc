@@ -53,7 +53,6 @@ def print_token_array(tokens):
     
     colcount = 5
     headers = ["Line, pos", "Token text", "Token value", "Token type", "Error"]
-    right_align = [0]
 
     # разделители + пустые строки + заголовок + основной массив
     rowcount = 3 + 4 + 1 + len(tokens)
