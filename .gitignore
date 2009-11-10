@@ -1,5 +1,8 @@
 *.pyc
-*~
-tests/lexer/*.o
-tests/parser/*.o
 lib/*.pyc
+
+*~
+
+tests/lexer/*.o
+tests/expr/*.o
+tests/plang/*.o
