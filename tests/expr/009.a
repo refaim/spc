@@ -1,1 +1,1 @@
-spc: tests\expr\009.in: Syntax error on line 1, col 1. Parenthesis mismatch
+spc: tests/expr/009.in: Syntax error on line 1, col 1. Parenthesis mismatch

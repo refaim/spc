@@ -1,5 +1,0 @@
-+---+
-| a |
-+---+
------
-spc: tests\parser\013.in: Syntax error on line 1, col 3. Expected constant expression or identifier

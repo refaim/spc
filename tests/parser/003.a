@@ -1,8 +1,0 @@
-      +-----+
-   +--+  -  +---+
-   |  +-----+   |
- +---+       +---+
- | a |       | b |
- +---+       +---+
------------------
-spc: tests\parser\003.in: Syntax error on line 1, col 4. Expected constant expression or identifier
