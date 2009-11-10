@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from string import digits, hexdigits
-from re import compile
+from re import compile as re_compile
 
 from errors import raise_exception, BlockCommentEofError, StringEofError
 from token import Token, keywords, delimiters, tt
 
-class Tokenizer:
+class Tokenizer(object):
     def __init__(self, program):
         self._token = None
         self._eof = False
@@ -40,7 +40,7 @@ class Tokenizer:
             return (self._cline + 1, self._cpos + 1)
         else:
             return None
-            
+
     def get_token(self):       
         return self._token
 
@@ -51,7 +51,7 @@ class Tokenizer:
             ch = self._getch()
             if ch.isspace(): continue
             line, pos = self._cline + 1, self._cpos + 1
-
+            
             if ch.isalpha() or ch == "_": tok = self._read_identifier(ch)
             elif ch.isdigit() or ch == "$": tok = self._read_number(ch)
             elif ch == "/": tok = self._read_comment(ch)
@@ -79,9 +79,9 @@ class Tokenizer:
         return Token(type = ttype, text = s, value = l)
         
     def _read_number(self, ch):
-        hex_re = compile(r"\$[0-9a-fA-F]+")
-        dec_re = compile(r"\d+")
-        float_re = compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
+        hex_re = re_compile(r"\$[0-9a-fA-F]+")
+        dec_re = re_compile(r"\d+")
+        float_re = re_compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
         thex, tdec, tfloat = range(3)
 
         numerical_regexps = { thex: hex_re, tdec: dec_re, tfloat: float_re }

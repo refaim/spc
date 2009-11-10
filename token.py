@@ -38,7 +38,7 @@ for i in range(len(ds)):
     delimiters[ds[i]] = dlm[i]
 del ds
 
-class Token:
+class Token(object):
     def __init__(self, type = None, text = "", value = "", line = 0, pos = 0, error = False):
         self._type, self.text, self.error = type, text, error
         self.line, self.pos = line, pos
