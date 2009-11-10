@@ -1,0 +1,1 @@
+spc: tests\expr\005.in: Syntax error on line 1, col 5. Expected constant expression or identifier
