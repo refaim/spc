@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from sys import argv
+from sys import argv, stderr
 from getopt import getopt, GetoptError
 
 from tokenizer import Tokenizer
-from synanalyzer import Parser
+from synanalyzer import BasicParser, PseudoLangParser
 from errors import CompileError
 import output
 
@@ -20,14 +20,14 @@ opts_count = len(long_opts)
 max_opt_len = max([len(opt) for opt in long_opts])
 opts_descr = ["display this help text", "perform lexical analysis",
               "parse arithmetic expressions",
-              "parse expressions with declarations on pseudolanguage"]
+              "parse expressions with declarations in pseudolanguage"]
 
 def help():
     print("{0}\n{1}\n".format(cname_s, help_s))
     for i in range(opts_count):
         space_count = max_opt_len - len(long_opts[i])
         print("-{0}, --{1}  {2}{3}".format(short_opts[i], long_opts[i], " " * space_count, opts_descr[i]))
-    exit()
+    exit(0)
 
 def common(args, action):
     if action == help: help()
@@ -50,19 +50,21 @@ def lex(tokenizer):
     if error: raise error
 
 def e_parse(tokenizer):
-    parser = Parser(tokenizer)
+    parser = BasicParser(tokenizer)
     e = parser.parse_expr()
     while e:
         output.print_syntax_tree(e)
         e = parser.parse_expr()
 
 def ed_parse(tokenizer):
-    parser = Parser(tokenizer)    
+    parser = PseudoLangParser(tokenizer)    
     parser.parse_decl()
-    #e = parser.parse_expr()
-    #while e:
-    #    output.print_syntax_tree(e)
-    #    e = parser.parse_expr()
+    for pair in parser.symtable.items():
+        print(pair)
+    e = parser.parse_identifier()
+    while e:
+        output.print_syntax_tree(e)
+        e = parser.parse_identifier()
 
 opts_actions = [help, lex, e_parse, ed_parse]
 try:
