@@ -9,7 +9,7 @@ from token import Token, keywords, delimiters, tt
 class Tokenizer(object):
     def __init__(self, program):
         self._token = None
-        self._eof = False
+        self.eof = False
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
@@ -18,8 +18,8 @@ class Tokenizer(object):
     def _getline(self):
         line = self._file.readline()
         self._cline += 1
-        self._eof = line == ""
-        if not self._eof:
+        self.eof = line == ""
+        if not self.eof:
             if line[len(line) - 1] != '\n':
                 line += '\n'
         self._cpos = -1
@@ -27,31 +27,31 @@ class Tokenizer(object):
 
     def _getch(self):
         self._cpos += 1
-        if not self._eof and self._cpos == len(self._text):
+        if not self.eof and self._cpos == len(self._text):
             self._text = self._getline()
-        return self._text[self._cpos] if not self._eof else ""
+        return self._text[self._cpos] if not self.eof else ""
 
     def _putch(self, count = 1):
         self._cpos -= count
 
     @property
     def curfilepos(self):
-        if not self._eof:
+        if not self.eof:
             return (self._cline + 1, self._cpos + 1)
         else:
             return None
 
-    def get_token(self):       
+    def get_token(self):
         return self._token
 
     def next_token(self):
         found = False
         ch = 1
-        while not found and not self._eof:
+        while not found and not self.eof:
             ch = self._getch()
             if ch.isspace(): continue
             line, pos = self._cline + 1, self._cpos + 1
-            
+
             if ch.isalpha() or ch == "_": tok = self._read_identifier(ch)
             elif ch.isdigit() or ch == "$": tok = self._read_number(ch)
             elif ch == "/": tok = self._read_comment(ch)
@@ -60,11 +60,11 @@ class Tokenizer(object):
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters: tok = self._read_delimiter(ch)
             else: tok = Token(type = tt.unknown_literal, text = ch, error = True)
-            
+
             found = tok != None
 
-        if found and ch != "": 
-            tok.line, tok.pos = line, pos 
+        if found and ch != "":
+            tok.line, tok.pos = line, pos
             self._token = tok
         else:
             self._token = None
@@ -77,7 +77,7 @@ class Tokenizer(object):
         ttype = keywords[l] if l in keywords else tt.identifier
         self._putch()
         return Token(type = ttype, text = s, value = l)
-        
+
     def _read_number(self, ch):
         hex_re = re_compile(r"\$[0-9a-fA-F]+")
         dec_re = re_compile(r"\d+")
@@ -120,7 +120,7 @@ class Tokenizer(object):
             self._putch()
             return self._read_delimiter(ch)
 
-    def _read_block_comment(self, ch):       
+    def _read_block_comment(self, ch):
         # first - {}, second - (**)
         filepos = self.curfilepos
 
@@ -141,7 +141,7 @@ class Tokenizer(object):
                 ch = self._getch()
                 if ch == "*":
                     found = self._getch() == ")"
-            if found: return None 
+            if found: return None
             raise_exception(BlockCommentEofError(filepos))
 
         methods = [read_first, read_second]
@@ -153,18 +153,18 @@ class Tokenizer(object):
         text = possible if possible in delimiters else first
         if text == first: self._putch()
         return Token(type = delimiters[text], text = text)
-  
+
     def _read_string_const(self, ch):
         filepos = self.curfilepos
         s, ch = [ch], self._getch()
         s_end = False
         line = self._cline
-        while not s_end and not self._eof:
+        while not s_end and not self.eof:
             if ch == "'":
                 pos = self._cpos
                 while ch == "'": ch = self._getch()
                 ap_count = self._cpos - pos
-                s.append("'" * ap_count) 
+                s.append("'" * ap_count)
                 if ap_count % 2 != 0:
                     s_end = True
                     self._putch()

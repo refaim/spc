@@ -1,1 +1,5 @@
-rm -Rf *.pyc *~ *.swp tests/lexer/*.o tests/expr/*.o tests/plang/*.o
+find -name '*.pyc' -delete
+find -name '*~' -delete
+find -name '*.swp' -delete
+find -name '*.o' -delete
+find -name '*.o.gif' -delete

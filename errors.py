@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 class CompileError(BaseException):
-    def __init__(self, filepos):
+    def __init__(self, filepos, params = []):
         self.line, self.pos = filepos
+        self.params = params
 
 class LexError(CompileError):
     prefix = "Lexical error"
@@ -15,12 +16,31 @@ class SynError(CompileError):
     prefix = "Syntax error"
 class UnexpectedTokenError(SynError):
     message = "Expected constant expression or identifier"
+class ReservedNameError(SynError):
+    message = "Identifier '{0}' is reserved and not allowed to use"
+class BracketsMismatchError(SynError):
+    message = "Brackets mismatch"
 class ParMismatchError(SynError):
     message = "Parenthesis mismatch"
-class DeclarationError(SynError):
+class IdentifierNotFoundError(SynError):
     message = "Identifier expected"
+class UndeclaredIdentifier(SynError):
+    message = "Undeclared identifier '{0}'"
+class CallError(SynError):
+    message = "Called object is not a procedure or function"
+class SubscriptError(SynError):
+    message = "Subscripted object is neither array nor string"
+class RecordError(SynError):
+    message = "Request of field in something not a record"
 
 def raise_exception(e):
     template = "{0} on line {1}, col {2}. {3}"
+    if len(e.params) != 0:
+        # создание кортежа из последовательности единичной длины
+        # приводит к появлению запятой после элемента:
+        # tuple([1]) == (1,)
+        # tuple([1, 2, ..., n]) == (1, 2, ..., n)
+        e.params = e.params[0] if len(e.params) == 1 else tuple(e.params)
+        e.message = e.message.format(e.params)
     e.message = template.format(e.prefix, e.line, e.pos, e.message)
     raise e

@@ -9,11 +9,19 @@ class SynBinaryOp(SynExpr):
         self.optype, self.opleft, self.opright = optype, opleft, opright
 
     def __str__(self):
-        return self.optype.text
+        text = self.optype.text
+        return text if text != "[" else "[]"
 
 class SynUnaryOp(SynExpr):
     def __init__(self, optype, operand):
         self.optype, self.operand = optype, operand
+
+class SynFunctionCall(SynExpr):
+    def __init__(self, func, args = []):
+        self.func, self.args = func, args
+
+    def __str__(self):
+        return "()"
 
 class SynConst(SynExpr):
     def __init__(self, const):

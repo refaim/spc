@@ -2,7 +2,6 @@
 
 from string import printable
 from sys import path as syspath
-syspath.append("lib")
 
 from enum import Enum
 
@@ -32,7 +31,7 @@ ds = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ";", ":",\
 dlm = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
            "greater", "lesser_or_equal", "greater_or_equal", "assign",\
            "semicolon", "colon", "dot", "comma", "double_dot", "lparen",\
-           "rparen", "lsbracket", "rsbracket")
+           "rparen", "lbracket", "rbracket")
 
 for i in range(len(ds)):
     delimiters[ds[i]] = dlm[i]

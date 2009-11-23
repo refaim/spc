@@ -1,1 +1,1 @@
-/home/roman/work/spc/tests/expr/cmp.sh
+diff $1.o $1.a

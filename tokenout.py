@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+
+from errors import LexError
+from token import tt, dlm, keywords
+
+lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
+               tt.float: "Float", tt.char_const: "Character constant",
+               tt.string_const: "String constant", tt.wrong: "Wrong token",
+
+               dlm.plus: "Plus", dlm.lesser: "Less", dlm.assign: "Assignmnent",
+               dlm.lparen: "Left parenthesis", dlm.minus: "Minus",
+               dlm.greater: "Greater", dlm.semicolon: "Semicolon",
+               dlm.rparen: "Right parenthesis", dlm.mul: "Asterix",
+               dlm.lesser_or_equal: "Less or equal", dlm.colon: "Colon",
+               dlm.lbracket: "Left bracket", dlm.div: "Div",
+               dlm.greater_or_equal: "Greater or equal", dlm.dot: "Dot",
+               dlm.rbracket: "Right bracket", dlm.equal: "Equal",
+               dlm.comma: "Comma", dlm.not_equal: "Not equal",
+               dlm.double_dot: "Double dot"
+             }
+
+def get_string_repr(lexem):
+    s = str(lexem).lower()
+    if lexem in lexems_str:
+        return lexems_str[lexem]
+    elif s in keywords:
+        return "{0} (keyword)".format(s).capitalize()
+    else:
+        return ""
+
+def get_tokens(tokenizer):
+    t = tokenizer.get_token()
+    tokens = []
+    try:
+        while t != None:
+            tokens.append(t)
+            tokenizer.next_token()
+            t = tokenizer.get_token()
+    except LexError as lexerr:
+        return tokens, lexerr
+    return tokens, None
+
+space = " "
+indent_len = 2
+indent = indent_len * space
+b_horz, b_vert, b_cross = "-", "|", "+"
+
+def print_tokens(tokens):
+
+    if len(tokens) == 0:
+        exit()
+
+    colcount = 5
+    headers = ["Line, pos", "Token text", "Token value", "Token type", "Error"]
+
+    # разделители + пустые строки + заголовок + основной массив
+    rowcount = 3 + 4 + 1 + len(tokens)
+
+    # номера строк
+    empty_lines = [1, 3, 5, 5 + len(tokens) + 1]
+    borders = [0, 4, rowcount - 1]
+    header = 2
+
+    # перед токенами два разделителя, три пустых строки и заголовок
+    tokens_shift = (len(empty_lines) - 1) + (len(borders) - 1) + 1
+
+    linepos_template = "{0}, {1}"
+    def values(tok):
+        return [linepos_template.format(tok.line, tok.pos), tok.text, str(tok.value), get_string_repr(tok.type), tok.errmsg]
+
+    def print_line(out, row, col):
+        left_border = b_vert if col == 0 else ""
+        left, right = left_border + indent, indent + b_vert
+        emptyline = left + max_value_lens[col] * space + right
+
+        if row in borders:
+            length = max_value_lens[col] + len(left + right)
+            right_border = b_cross if col == colcount - 1 else ""
+            out[row] += b_cross + b_horz * (length - len(left_border + b_vert)) + right_border
+        elif row in empty_lines:
+            out[row] += emptyline
+        elif row == header:
+            a, b = max_value_lens[col], len(headers[col])
+            lshift = (a - b) // 2 if a > b else 0
+            rshift = max_value_lens[col] - len(headers[col]) - lshift
+            out[row] += left + space * lshift + headers[col] + space * rshift + right
+        else:
+            tok = tokens[row - tokens_shift]
+            value = values(tok)[col]
+            rshift = max_value_lens[col] - len(value)
+            out[row] += left + value + space * rshift + right
+
+    max_value_lens = [0] * colcount
+
+    errors_present = False
+    for tok in tokens:
+        if tok.error: errors_present = True
+        for i in range(colcount):
+            max_value_lens[i] = max(len(headers[i]), len(values(tok)[i]), max_value_lens[i])
+
+    if not errors_present:
+        colcount -= 1
+
+    out = [""] * rowcount
+    for row in range(rowcount):
+        for col in range(colcount):
+            print_line(out, row, col)
+
+    for s in out:
+        print(s)
