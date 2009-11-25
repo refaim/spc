@@ -1,0 +1,3 @@
+Symbol table:
+a: var
+spc: tests/plang/010.in: Syntax error on line 2, col 2. Request of field in something not a record

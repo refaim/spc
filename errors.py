@@ -7,6 +7,14 @@ class CompileError(BaseException):
 
 class LexError(CompileError):
     prefix = "Lexical error"
+class IllegalCharError(LexError):
+    message = "Illegal character '{0}'"
+class CharConstError(LexError):
+    message = "Invalid character constant"
+class IntError(LexError):
+    message = "Invalid integer constant"
+class FloatError(LexError):
+    message = "Invalid float constant"
 class BlockCommentEofError(LexError):
     message = "Unexpected end of file in block comment"
 class StringEofError(LexError):
@@ -15,19 +23,19 @@ class StringEofError(LexError):
 class SynError(CompileError):
     prefix = "Syntax error"
 class UnexpectedTokenError(SynError):
-    message = "Expected constant expression or identifier"
+    message = "Unexpected character '{0}'"
+class IdentifierExpError(SynError):
+    message = "Identifier expected"
+class UndeclaredIdentifierError(SynError):
+    message = "Undeclared identifier '{0}'"
 class ReservedNameError(SynError):
-    message = "Identifier '{0}' is reserved and not allowed to use"
+    message = "Identifier '{0}' is reserved and not allowed for using"
 class BracketsMismatchError(SynError):
     message = "Brackets mismatch"
 class ParMismatchError(SynError):
     message = "Parenthesis mismatch"
-class IdentifierNotFoundError(SynError):
-    message = "Identifier expected"
-class UndeclaredIdentifier(SynError):
-    message = "Undeclared identifier '{0}'"
 class CallError(SynError):
-    message = "Called object is not a procedure or function"
+    message = "Called object is neither procedure nor function"
 class SubscriptError(SynError):
     message = "Subscripted object is neither array nor string"
 class RecordError(SynError):

@@ -15,33 +15,31 @@ for elm in kw:
     keywords[str(elm)] = elm
 
 
-tt = Enum("identifier", "integer", "float", "char_const",\
-          "string_const", "unknown_literal", "wrong")
-
-errors = { tt.integer: "Wrong integer number", tt.float: "Wrong float number",
-           tt.char_const: "Wrong character constant",
-           tt.unknown_literal: "Illegal character" }
-
+tt = Enum("identifier", "integer", "float", "char_const", "string_const")
 
 delimiters = {}
 
 ds = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ";", ":",\
-      ".", ",", "..", "(", ")", "[", "]"]
+      ".", ",", "..", "(", ")", "[", "]", "^"]
 
 dlm = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
            "greater", "lesser_or_equal", "greater_or_equal", "assign",\
            "semicolon", "colon", "dot", "comma", "double_dot", "lparen",\
-           "rparen", "lbracket", "rbracket")
+           "rparen", "lbracket", "rbracket", "caret")
 
 for i in range(len(ds)):
     delimiters[ds[i]] = dlm[i]
 del ds
 
 class Token(object):
-    def __init__(self, type = None, text = "", value = "", line = 0, pos = 0, error = False):
+    def __init__(self, type = None, text = "", value = "", line = -1, pos = -1, error = False):
         self._type, self.text, self.error = type, text, error
         self.line, self.pos = line, pos
         self._setval(value)
+
+    @property
+    def linepos(self):
+        return (self.line, self.pos)
 
     def _getval(self):
         return self._value
@@ -59,22 +57,17 @@ class Token(object):
                          tt.float: eval, tt.integer: make_int }
 
         self._value = ""
-        if not self.error:
-            if self.type in value_makers:
-                if v == "": v = self.text
-                self._value = value_makers[self.type](v)
-            else:
-                self._value = v
+        if self.type in value_makers:
+            if v == "": v = self.text
+            self._value = value_makers[self.type](v)
+        else:
+            self._value = v
 
     def _gettype(self):
-        return tt.wrong if self.error else self._type
+        return self._type
 
     def _settype(self, t):
         self._type = t
-
-    @property
-    def errmsg(self):
-        return errors[self._type] if self.error else ""
 
     value = property(_getval, _setval)
     type = property(_gettype, _settype)

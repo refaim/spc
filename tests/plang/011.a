@@ -1,0 +1,3 @@
+Symbol table:
+a: var
+spc: tests/plang/011.in: Syntax error on line 2, col 2. Called object is neither procedure nor function

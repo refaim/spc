@@ -5,7 +5,7 @@ from token import tt, dlm, keywords
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
                tt.float: "Float", tt.char_const: "Character constant",
-               tt.string_const: "String constant", tt.wrong: "Wrong token",
+               tt.string_const: "String constant",
 
                dlm.plus: "Plus", dlm.lesser: "Less", dlm.assign: "Assignmnent",
                dlm.lparen: "Left parenthesis", dlm.minus: "Minus",
@@ -16,7 +16,7 @@ lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
                dlm.greater_or_equal: "Greater or equal", dlm.dot: "Dot",
                dlm.rbracket: "Right bracket", dlm.equal: "Equal",
                dlm.comma: "Comma", dlm.not_equal: "Not equal",
-               dlm.double_dot: "Double dot"
+               dlm.double_dot: "Double dot", dlm.caret: "Caret"
              }
 
 def get_string_repr(lexem):
@@ -50,8 +50,8 @@ def print_tokens(tokens):
     if len(tokens) == 0:
         exit()
 
-    colcount = 5
-    headers = ["Line, pos", "Token text", "Token value", "Token type", "Error"]
+    headers = ["Line, pos", "Token text", "Token value", "Token type"]
+    colcount = len(headers)
 
     # разделители + пустые строки + заголовок + основной массив
     rowcount = 3 + 4 + 1 + len(tokens)
@@ -64,9 +64,9 @@ def print_tokens(tokens):
     # перед токенами два разделителя, три пустых строки и заголовок
     tokens_shift = (len(empty_lines) - 1) + (len(borders) - 1) + 1
 
-    linepos_template = "{0}, {1}"
+    lp_template = "{0}, {1}"
     def values(tok):
-        return [linepos_template.format(tok.line, tok.pos), tok.text, str(tok.value), get_string_repr(tok.type), tok.errmsg]
+        return [lp_template.format(tok.line, tok.pos), tok.text, str(tok.value), get_string_repr(tok.type)]
 
     def print_line(out, row, col):
         left_border = b_vert if col == 0 else ""
@@ -92,18 +92,13 @@ def print_tokens(tokens):
 
     max_value_lens = [0] * colcount
 
-    errors_present = False
     for tok in tokens:
-        if tok.error: errors_present = True
-        for i in range(colcount):
+        for i in xrange(colcount):
             max_value_lens[i] = max(len(headers[i]), len(values(tok)[i]), max_value_lens[i])
 
-    if not errors_present:
-        colcount -= 1
-
     out = [""] * rowcount
-    for row in range(rowcount):
-        for col in range(colcount):
+    for row in xrange(rowcount):
+        for col in xrange(colcount):
             print_line(out, row, col)
 
     for s in out:

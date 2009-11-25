@@ -33,11 +33,18 @@ for root, dirs, files in test_dir:
         if ext != t_ext: continue
 
         fout = open(test_path + fname + o_ext, "w")
+        ferr = open(test_path + "tmp", "w")
         cmd = "{0} spc.py {1} {2}{3}"
         (out, err) = popen(args = cmd.format(
                                sys.executable, opt, test_path, entry),
-                           stdout = fout, stderr = fout,
+                           stdout = fout, stderr = ferr,
                            shell = True, universal_newlines = True).communicate()
+        ferr.close()
+        ferr = open(test_path + "tmp", "r")
+        for line in ferr.readlines():
+            fout.write(line)
+        ferr.close()
+        os.remove(test_path + "tmp")
         fout.close()
         msg = "Test #{0} ".format(fname)
         passed, answer_present = True, True

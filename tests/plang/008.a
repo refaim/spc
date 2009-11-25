@@ -1,0 +1,3 @@
+Symbol table:
+a: var
+spc: tests/plang/008.in: Syntax error on line 2, col 1. Undeclared identifier 'b'

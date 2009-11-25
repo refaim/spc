@@ -6,7 +6,6 @@ import os
 import syn
 
 class SyntaxTreePrinter(object):
-
     def __init__(self, trees, path):
         self.trees = trees
         self.ctr = 0
@@ -37,13 +36,15 @@ class SyntaxTreePrinter(object):
             self.current_graph.add_node(
                 pydot.Node(node_id, label = str(node), shape = node_shape))
 
-            if len(children) != 0:
-                # нельзя добавить потомков в граф в этом же цикле, потому как
-                # будет нарушен порядок добавления ребер, и при выводе
-                # вместо красивого дерева получится непонятная паутина
+            if len(children):
                 for child in children:
                     indices[child] = self.counter
-                    self.current_graph.add_edge(pydot.Edge(node_id, indices[child]))
+                    self.current_graph.add_edge(
+                        pydot.Edge(node_id, indices[child]))
+                # нельзя добавить ребра и вершины в одном цикле, потому что
+                # из-за рекурсивности add_to_current() будет нарушен порядок
+                # добавления ребер, и при выводе вместо красивого дерева
+                # получится непонятная паутина
                 map(add_to_current, children)
 
         indices, functions = {}, []
@@ -56,5 +57,9 @@ class SyntaxTreePrinter(object):
 
 
 def print_symbol_table(symtable):
-    for pair in symtable.items():
-        print("{0}: {1}".format(pair[0], pair[1]))
+    if len(symtable) != 0:
+        print("Symbol table:")
+        items = symtable.items()
+        items.sort()
+        for pair in items:
+            print("{0}: {1}".format(pair[0], pair[1]))

@@ -2,9 +2,8 @@
 
 from string import digits, hexdigits
 from re import compile as re_compile
-
-from errors import raise_exception, BlockCommentEofError, StringEofError
-from token import Token, keywords, delimiters, tt
+from token import Token, keywords, delimiters, tt
+from errors import *
 
 class Tokenizer(object):
     def __init__(self, program):
@@ -13,6 +12,7 @@ class Tokenizer(object):
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
+        self._token_stack = []
         self.next_token()
 
     def _getline(self):
@@ -34,23 +34,22 @@ class Tokenizer(object):
     def _putch(self, count = 1):
         self._cpos -= count
 
-    @property
-    def curfilepos(self):
-        if not self.eof:
-            return (self._cline + 1, self._cpos + 1)
-        else:
-            return None
-
     def get_token(self):
         return self._token
 
+    def push_token_back(self):
+        self._token_stack.append(self._token)
+
     def next_token(self):
+        if len(self._token_stack) != 0:
+            return self._token_stack.pop()
+
         found = False
         ch = 1
         while not found and not self.eof:
             ch = self._getch()
             if ch.isspace(): continue
-            line, pos = self._cline + 1, self._cpos + 1
+            self._tokenpos = self._cline + 1, self._cpos + 1
 
             if ch.isalpha() or ch == "_": tok = self._read_identifier(ch)
             elif ch.isdigit() or ch == "$": tok = self._read_number(ch)
@@ -59,12 +58,12 @@ class Tokenizer(object):
             elif ch == "'": tok = self._read_string_const(ch)
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters: tok = self._read_delimiter(ch)
-            else: tok = Token(type = tt.unknown_literal, text = ch, error = True)
-
-            found = tok != None
+            elif ch != "":
+                raise_exception(IllegalCharError((self._tokenpos), [ch]))
+            found = ch != "" and tok != None
 
         if found and ch != "":
-            tok.line, tok.pos = line, pos
+            tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:
             self._token = None
@@ -95,8 +94,7 @@ class Tokenizer(object):
 
             # десятичная точка, минус или экспонента могут встретиться только один раз
             if ttype == tfloat and ch in float_part:
-                valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
-
+                valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
             num.append(ch)
             ch = self._getch()
 
@@ -106,11 +104,14 @@ class Tokenizer(object):
 
         num = "".join(c for c in num)
         matches = numerical_regexps[ttype].findall(num)
-        error = not (matches and "".join(matches[0]).startswith(num))
-        self._putch()
+        error = not (matches and "".join(matches[0]).startswith(num))        self._putch()
 
         ttype = tt.integer if ttype in [thex, tdec] else tt.float
-        return Token(type = ttype, text = num, error = error)
+        if error:
+            etypes = { tt.integer: IntError, tt.float: FloatError }
+            raise_exception(etypes[ttype](self._tokenpos))
+
+        return Token(type = ttype, text = num)
 
     def _read_comment(self, ch):
         if ch == self._getch():
@@ -122,14 +123,13 @@ class Tokenizer(object):
 
     def _read_block_comment(self, ch):
         # first - {}, second - (**)
-        filepos = self.curfilepos
 
         def read_first(ch):
             ch = self._getch()
             while ch != "}" and ch:
                 ch = self._getch()
             if ch == "}": return None
-            raise_exception(BlockCommentEofError(filepos))
+            raise_exception(BlockCommentEofError(self._tokenpos))
 
         def read_second(ch):
             if self._getch() != "*":
@@ -142,7 +142,7 @@ class Tokenizer(object):
                 if ch == "*":
                     found = self._getch() == ")"
             if found: return None
-            raise_exception(BlockCommentEofError(filepos))
+            raise_exception(BlockCommentEofError(self._tokenpos))
 
         methods = [read_first, read_second]
         return methods[ch == "("](ch)
@@ -155,7 +155,6 @@ class Tokenizer(object):
         return Token(type = delimiters[text], text = text)
 
     def _read_string_const(self, ch):
-        filepos = self.curfilepos
         s, ch = [ch], self._getch()
         s_end = False
         line = self._cline
@@ -175,7 +174,7 @@ class Tokenizer(object):
             s = "".join(c for c in s)
             return Token(type = tt.string_const, text = s)
         else:
-            raise_exception(StringEofError(filepos))
+            raise_exception(StringEofError(self._tokenpos))
 
     def _read_char_const(self, ch):
         s, ch = [ch], self._getch()
@@ -188,5 +187,8 @@ class Tokenizer(object):
             ch = chr(int(s[1:]))
         except ValueError:
             error = True
+        except OverflowError:
+            error = True
+        if error: raise_exception(CharConstError(self._tokenpos))
         self._putch()
-        return Token(type = tt.char_const, text = s, value = ch, error = error)
+        return Token(type = tt.char_const, text = s, value = ch)

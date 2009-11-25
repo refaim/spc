@@ -1,0 +1,12 @@
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  Line, pos  |  Token text  |  Token value  |  Token type  |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  1, 1       |  e1          |  e1           |  Identifier  |
+|  2, 1       |  2e2         |  200.0        |  Float       |
+|  2, 4       |  e           |  e            |  Identifier  |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+spc: tests/lexer/005c.in: Lexical error on line 3, col 1. Invalid float constant

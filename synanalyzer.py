@@ -16,20 +16,12 @@ class BasicParser(object):
         t = self._tokenizer.get_token()
         return t if t else Token()
 
-    @property
-    def filepos(self):
-        return self._tokenizer.curfilepos
-
-    @property
-    def eof(self):
-        return self._tokenizer.eof
-
-    #def e(self, error, fp = None, params = []):
-    #    if fp == None: fp = self.filepos
-    #    raise_exception(error(fp, params))
+    def e(self, error, params = [], fp = None):
+        if fp == None: fp = self.token.linepos
+        raise_exception(error(fp, params))
 
     def next_token(self):
-        self.prevpos = self.filepos
+        self.prevpos = self.token.linepos
         self._tokenizer.next_token()
 
     def parse_expr(self, priority = 0):
@@ -47,23 +39,26 @@ class BasicParser(object):
         return result
 
     def parse_factor(self):
-        filepos = self.filepos
-        if filepos == None: return None
+        if self.token.type == None: return None
+        filepos = self.token.linepos
 
         if self.token.type == dlm.lparen:
             self.next_token()
             result = self.parse_expr()
             if self.token.type != dlm.rparen:
-                raise_exception(ParMismatchError(filepos))
-        elif self.token.type == tt.identifier:
+                self.e(ParMismatchError, fp = filepos)
+        elif self.token.type == tt.identifier or self.token.type in kw:
             result = self.parse_identifier()
         elif self.token.type in [tt.integer, tt.float, tt.string_const]:
             result = SynConst(self.token)
         else:
-            raise_exception(UnexpectedTokenError(filepos))
+            self.e(UnexpectedTokenError, [self.token.text])
 
-        #plang = isinstance(self, PseudoLangParser)
-        #if not plang or (plang and not isinstance(result, SynVar)):
+        # это такой маленький костыль
+        if isinstance(self, PseudoLangParser) and\
+           not isinstance(result, SynConst):
+            self._tokenizer.push_token_back()
+
         self.next_token()
         return result
 
@@ -83,16 +78,14 @@ class PseudoLangParser(BasicParser):
                     "record": kw.record, "var": kw.var }
         while self.token.value in allowed:
             idtype = allowed[self.token.value]
-            filepos = self.filepos
             self.next_token()
             idname = self.token.value
             if self.token.type == tt.identifier:
                 self._symtable[idname] = idtype
             elif idname in allowed:
-                raise_exception(ReservedNameError(self.filepos, [idname]))
+                self.e(ReservedNameError, [idname])
             else:
-                if self.filepos != None: filepos = self.filepos
-                raise_exception(IdentifierNotFoundError(filepos))
+                self.e(IdentifierExpError)
             self.next_token()
 
     def parse_identifier(self):
@@ -107,7 +100,7 @@ class PseudoLangParser(BasicParser):
                 self.in_symbol = False
                 res = SynBinaryOp(result, op, self.parse_expr())
                 if self.token.type != dlm.rbracket:
-                    raise_exception(BracketsMismatshError(self.prevpos))
+                    self.e(BracketsMismatchError, fp = self.prevpos)
                 self.next_token()
                 return res
 
@@ -119,7 +112,7 @@ class PseudoLangParser(BasicParser):
                     self.next_token()
                     args.append(self.parse_expr())
                 if len(args) and self.token.type != dlm.rparen:
-                    raise_exception(ParMismatchError(self.prevpos))
+                    self.e(ParMismatchError, fp = self.prevpos)
                 self.next_token()
                 return SynFunctionCall(func, args)
 
@@ -134,22 +127,23 @@ class PseudoLangParser(BasicParser):
         if self.token.type == tt.identifier:
             varname = self.token.value
             if not self.in_symbol and varname not in self._symtable:
-                raise_exception(UndeclaredIdentifier(self.filepos, [varname]))
+                self.e(UndeclaredIdentifierError, [varname])
             result = SynVar(self.token)
             self.next_token()
             if self.token.type in start_symbols:
                 symtype, symerror = start_symbols[self.token.type]
-                while not self.eof and (self.in_symbol or self._symtable[varname] == symtype):
+                while self.token.type in start_symbols and\
+                     (self.in_symbol or self._symtable[varname] == symtype):
                     symtype, symerror = start_symbols[self.token.type]
                     op = self.token
                     self.next_token()
                     result = parse_symbol(symtype, op)
                     self.in_symbol = True
                 else:
-                    if not self.in_symbol: raise_exception(symerror(self.filepos))
+                    if not self.in_symbol: self.e(symerror)
             self.in_symbol = False
             return result
         elif self.in_symbol:
-            raise_exception(IdentifierNotFoundError(self.filepos))
+            self.e(IdentifierExpError)
         else:
             return self.parse_expr()

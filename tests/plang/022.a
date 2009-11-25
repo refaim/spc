@@ -1,0 +1,3 @@
+Symbol table:
+f: function
+spc: tests/plang/022.in: Syntax error on line 2, col 3. Parenthesis mismatch
