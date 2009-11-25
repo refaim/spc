@@ -6,3 +6,6 @@ lib/*.pyc
 tests/lexer/*.o
 tests/expr/*.o
 tests/plang/*.o
+
+tests/expr/*.o.gif
+tests/plang/*.o.gif
