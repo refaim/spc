@@ -2,7 +2,7 @@
 
 from string import digits, hexdigits
 from re import compile as re_compile
-from token import Token, keywords, delimiters, operations, tt
+from token import Token, keywords, delimiters, operations, tt
 from errors import *
 
 class Tokenizer(object):
@@ -100,7 +100,7 @@ class Tokenizer(object):
 
             # десятичная точка, минус или экспонента могут встретиться только один раз
             if ttype == tfloat and ch in float_part:
-                valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
+                valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
             num.append(ch)
             ch = self._getch()
 
@@ -110,7 +110,8 @@ class Tokenizer(object):
 
         num = "".join(c for c in num)
         matches = numerical_regexps[ttype].findall(num)
-        error = not (matches and "".join(matches[0]).startswith(num))        self._putch()
+        error = not (matches and "".join(matches[0]).startswith(num))
+        self._putch()
 
         ttype = tt.integer if ttype in [thex, tdec] else tt.float
         if error:
@@ -153,7 +154,8 @@ class Tokenizer(object):
         methods = [read_first, read_second]
         return methods[ch == "("](ch)
 
-    def _read_delimiter(self, ch):        char_set = delimiters if ch in delimiters else operations
+    def _read_delimiter(self, ch):
+        char_set = delimiters if ch in delimiters else operations
         first, second = ch, self._getch()
         possible = first + second
         if possible == ":=": char_set = operations
