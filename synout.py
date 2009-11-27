@@ -20,13 +20,9 @@ class SyntaxTreePrinter(object):
     def write(self):
 
         def add_to_current(node):
-            if isinstance(node, syn.SynBinaryOp):
-                children = [node.opleft, node.opright]
-            elif isinstance(node, syn.SynFunctionCall):
-                children = [node.func] + node.args
+            children = node.get_children()
+            if isinstance(self. syn.SynFunctionCall):
                 functions.append(node.func)
-            else:
-                children = []
 
             node_shape = "ellipse" if children != [] else "box"
             if node in functions:
