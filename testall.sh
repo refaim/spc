@@ -1,5 +1,8 @@
 echo "Lexical analyzer:"
-python2.6 tester.py -l 
+python tester.py -l 
 echo
 echo "Syntax analyzer (arithmetic expressions):"
-python2.6 tester.py -e
+python tester.py -e
+echo
+echo "Syntax analyzer (simple declarations):"
+python tester.py -d
