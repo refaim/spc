@@ -2,7 +2,7 @@
 
 from string import digits, hexdigits
 from re import compile as re_compile
-from token import Token, keywords, delimiters, tt
+from token import Token, keywords, delimiters, operations, tt
 from errors import *
 
 class Tokenizer(object):
@@ -57,7 +57,8 @@ class Tokenizer(object):
             elif ch in ["{", "("]: tok = self._read_block_comment(ch)
             elif ch == "'": tok = self._read_string_const(ch)
             elif ch == "#": tok = self._read_char_const(ch)
-            elif ch in delimiters: tok = self._read_delimiter(ch)
+            elif ch in delimiters or ch in operations:
+                tok = self._read_delimiter(ch)
             elif ch != "":
                 raise_exception(IllegalCharError((self._tokenpos), [ch]))
             found = ch != "" and tok != None
@@ -73,6 +74,12 @@ class Tokenizer(object):
         while ch.isalnum() or ch == "_":
             s, ch = s + ch, self._getch()
         l = s.lower()
+        if l in keywords:
+            ttype = keywords[l]
+        elif l in operations:
+            ttype = operations[l]
+        else:
+            ttype = tt.identifier
         ttype = keywords[l] if l in keywords else tt.identifier
         self._putch()
         return Token(type = ttype, text = s, value = l)
@@ -147,12 +154,13 @@ class Tokenizer(object):
         methods = [read_first, read_second]
         return methods[ch == "("](ch)
 
-    def _read_delimiter(self, ch):
+    def _read_delimiter(self, ch):        char_set = delimiters if ch in delimiters else operations
         first, second = ch, self._getch()
         possible = first + second
-        text = possible if possible in delimiters else first
+        if possible == ":=": char_set = operations
+        text = possible if possible in char_set else first
         if text == first: self._putch()
-        return Token(type = delimiters[text], text = text)
+        return Token(type = char_set[text], text = text)
 
     def _read_string_const(self, ch):
         s, ch = [ch], self._getch()

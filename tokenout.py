@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 
 from errors import LexError
-from token import tt, dlm, keywords
+from token import tt, op, dlm, keywords
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
                tt.float: "Float", tt.char_const: "Character constant",
                tt.string_const: "String constant",
 
-               dlm.plus: "Plus", dlm.lesser: "Less", dlm.assign: "Assignmnent",
-               dlm.lparen: "Left parenthesis", dlm.minus: "Minus",
-               dlm.greater: "Greater", dlm.semicolon: "Semicolon",
-               dlm.rparen: "Right parenthesis", dlm.mul: "Asterix",
-               dlm.lesser_or_equal: "Less or equal", dlm.colon: "Colon",
-               dlm.lbracket: "Left bracket", dlm.div: "Div",
-               dlm.greater_or_equal: "Greater or equal", dlm.dot: "Dot",
-               dlm.rbracket: "Right bracket", dlm.equal: "Equal",
-               dlm.comma: "Comma", dlm.not_equal: "Not equal",
-               dlm.double_dot: "Double dot", dlm.caret: "Caret"
+               dlm.lparen: "Left parenthesis", dlm.semicolon: "Semicolon",
+               dlm.rparen: "Right parenthesis", dlm.colon: "Colon",
+               dlm.lbracket: "Left bracket", dlm.rbracket: "Right bracket",
+               dlm.comma: "Comma", dlm.double_dot: "Double dot",
+               dlm.caret: "Caret",
+
+               op.plus: "Plus", op.lesser: "Less", op.assign: "Assignment",
+               op.minus: "Minus", op.mul: "Asterix", op.div: "Div",
+               op.greater_or_equal: "Greater or equal", op.dot: "Dot",
+               op.lesser_or_equal: "Less or equal", op.not_equal: "Not equal",
+               op.greater: "Greater", op.equal: "Equal",
+               op.shr: "Right shift", op.shl: "Left shift",
+               op.logic_not: "Not", op.logic_and: "And", op.logic_or: "Or"
              }
 
 def get_string_repr(lexem):

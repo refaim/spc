@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from token import Token, tt, dlm, kw
+from token import Token, tt, dlm, kw, op
 from errors import *
 from syn import *
 
-operators = [[dlm.plus, dlm.minus], [dlm.mul, dlm.div]]
+operators = [[op.equal], [op.plus, op.minus], [op.mul, op.div]]
 max_priority = len(operators) - 1
 
 class BasicParser(object):
@@ -55,23 +55,18 @@ class BasicParser(object):
             self.e(UnexpectedTokenError, [self.token.text])
 
         # это такой маленький костыль
-        if isinstance(self, PseudoLangParser) and\
-           not isinstance(result, SynConst):
-            self._tokenizer.push_token_back()
+        need_next = not isinstance(self, PseudoLangParser) or\
+            isinstance(result, SynConst)
 
-        self.next_token()
+        if need_next: self.next_token()
         return result
 
     def parse_identifier(self):
         return SynVar(self.token)
 
 class PseudoLangParser(BasicParser):
-    @property
-    def symtable(self):
-        return self._symtable
-
     def parse_decl(self):
-        self._symtable = {}
+        self.symtable = {}
         self.in_symbol = False
 
         allowed = { "array": kw.array, "function": kw.function,
@@ -81,7 +76,7 @@ class PseudoLangParser(BasicParser):
             self.next_token()
             idname = self.token.value
             if self.token.type == tt.identifier:
-                self._symtable[idname] = idtype
+                self.symtable[idname] = idtype
             elif idname in allowed:
                 self.e(ReservedNameError, [idname])
             else:
@@ -126,14 +121,14 @@ class PseudoLangParser(BasicParser):
 
         if self.token.type == tt.identifier:
             varname = self.token.value
-            if not self.in_symbol and varname not in self._symtable:
+            if not self.in_symbol and varname not in self.symtable:
                 self.e(UndeclaredIdentifierError, [varname])
             result = SynVar(self.token)
             self.next_token()
             if self.token.type in start_symbols:
                 symtype, symerror = start_symbols[self.token.type]
                 while self.token.type in start_symbols and\
-                     (self.in_symbol or self._symtable[varname] == symtype):
+                     (self.in_symbol or self.symtable[varname] == symtype):
                     symtype, symerror = start_symbols[self.token.type]
                     op = self.token
                     self.next_token()

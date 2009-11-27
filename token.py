@@ -5,29 +5,30 @@ from sys import path as syspath
 
 from enum import Enum
 
-keywords = {}
+tt = Enum("identifier", "integer", "float", "char_const", "string_const")
 
+keywords = {}
 kw = Enum("array", "begin", "break", "const", "continue", "do", "else", "end",\
           "float", "for", "function", "if", "integer", "procedure", "record",\
           "repeat", "then", "until", "var", "while")
-
 for elm in kw:
     keywords[str(elm)] = elm
 
-
-tt = Enum("identifier", "integer", "float", "char_const", "string_const")
+operations = {}
+ops = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ".", "and",\
+       "or", "not", "shr", "shl"]
+op = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
+          "greater", "lesser_or_equal", "greater_or_equal", "assign", "dot",\
+          "logic_and", "logic_or", "logic_not", "shr", "shl")
+for i in xrange(len(ops)):
+    operations[ops[i]] = op[i]
+del ops
 
 delimiters = {}
-
-ds = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ";", ":",\
-      ".", ",", "..", "(", ")", "[", "]", "^"]
-
-dlm = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
-           "greater", "lesser_or_equal", "greater_or_equal", "assign",\
-           "semicolon", "colon", "dot", "comma", "double_dot", "lparen",\
-           "rparen", "lbracket", "rbracket", "caret")
-
-for i in range(len(ds)):
+ds = [";", ":", ",", "..", "(", ")", "[", "]", "^"]
+dlm = Enum("semicolon", "colon", "comma", "double_dot", "lparen", "rparen",\
+           "lbracket", "rbracket", "caret")
+for i in xrange(len(ds)):
     delimiters[ds[i]] = dlm[i]
 del ds
 
