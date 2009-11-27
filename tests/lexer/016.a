@@ -1,17 +1,1 @@
-+-------------+--------------+---------------+-------------------+
-|             |              |               |                   |
-|  Line, pos  |  Token text  |  Token value  |    Token type     |
-|             |              |               |                   |
-+-------------+--------------+---------------+-------------------+
-|             |              |               |                   |
-|  1, 1       |  *           |               |  Asterix          |
-|  1, 2       |  gdfga       |  gdfga        |  Identifier       |
-|  1, 8       |  while       |  while        |  While (keyword)  |
-|  1, 14      |  +           |               |  Plus             |
-|  1, 15      |  123         |  123          |  Integer          |
-|  1, 18      |  -           |               |  Minus            |
-|  1, 19      |  32          |  32           |  Integer          |
-|  1, 21      |  /           |               |  Div              |
-|  1, 22      |  132         |  132          |  Integer          |
-|             |              |               |                   |
-+-------------+--------------+---------------+-------------------+
+spc: tests/lexer/016.in: Lexical error on line 1, col 1. Invalid character constant

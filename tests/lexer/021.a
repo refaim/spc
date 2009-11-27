@@ -1,0 +1,47 @@
++-------------+--------------+---------------+---------------------+
+|             |              |               |                     |
+|  Line, pos  |  Token text  |  Token value  |     Token type      |
+|             |              |               |                     |
++-------------+--------------+---------------+---------------------+
+|             |              |               |                     |
+|  1, 1       |  +           |               |  Plus               |
+|  1, 2       |  ^           |               |  Caret              |
+|  1, 3       |  =           |               |  Equal              |
+|  1, 4       |  :=          |               |  Assignment         |
+|  1, 6       |  -           |               |  Minus              |
+|  1, 7       |  =           |               |  Equal              |
+|  1, 8       |  )           |               |  Right parenthesis  |
+|  1, 9       |  (           |               |  Left parenthesis   |
+|  1, 10      |  /           |               |  Div                |
+|  1, 11      |  *           |               |  Asterix            |
+|  1, 12      |  [           |               |  Left bracket       |
+|  1, 13      |  ]           |               |  Right bracket      |
+|  1, 14      |  ,           |               |  Comma              |
+|  1, 15      |  ^           |               |  Caret              |
+|  1, 16      |  .           |               |  Dot                |
+|  1, 17      |  :           |               |  Colon              |
+|  1, 18      |  ;           |               |  Semicolon          |
+|  1, 19      |  <>          |               |  Not equal          |
+|  1, 21      |  <=          |               |  Less or equal      |
+|  1, 23      |  =           |               |  Equal              |
+|  1, 24      |  >=          |               |  Greater or equal   |
+|  1, 26      |  =           |               |  Equal              |
+|  1, 27      |  >           |               |  Greater            |
+|  1, 28      |  <           |               |  Less               |
+|  1, 29      |  <>          |               |  Not equal          |
+|  1, 31      |  >           |               |  Greater            |
+|  1, 32      |  <           |               |  Less               |
+|  1, 33      |  *           |               |  Asterix            |
+|  1, 34      |  +           |               |  Plus               |
+|  1, 35      |  -           |               |  Minus              |
+|  1, 36      |  >           |               |  Greater            |
+|  1, 37      |  <=          |               |  Less or equal      |
+|  1, 39      |  :=          |               |  Assignment         |
+|  1, 41      |  =           |               |  Equal              |
+|  1, 42      |  :           |               |  Colon              |
+|  1, 43      |  :=          |               |  Assignment         |
+|  1, 45      |  <>          |               |  Not equal          |
+|  1, 47      |  =           |               |  Equal              |
+|  1, 48      |  :=          |               |  Assignment         |
+|             |              |               |                     |
++-------------+--------------+---------------+---------------------+

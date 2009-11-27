@@ -1,23 +1,12 @@
-+-------------+-----------------+---------------+-------------------+
-|             |                 |               |                   |
-|  Line, pos  |   Token text    |  Token value  |    Token type     |
-|             |                 |               |                   |
-+-------------+-----------------+---------------+-------------------+
-|             |                 |               |                   |
-|  1, 1       |  ''             |  ""           |  String constant  |
-|  2, 1       |  ''''           |  "'"          |  String constant  |
-|  3, 1       |  ''''''         |  "''"         |  String constant  |
-|  4, 1       |  ' '            |  " "          |  String constant  |
-|  4, 5       |  ' '            |  " "          |  String constant  |
-|  4, 9       |  ' '            |  " "          |  String constant  |
-|  5, 1       |  'a''''b''''c'  |  "a''b''c"    |  String constant  |
-|  6, 1       |  'a'            |  "a"          |  String constant  |
-|  6, 4       |  b              |  b            |  Identifier       |
-|  6, 5       |  'c'            |  "c"          |  String constant  |
-|  6, 8       |  d              |  d            |  Identifier       |
-|  6, 9       |  'e'            |  "e"          |  String constant  |
-|  7, 1       |  'a'''          |  "a'"         |  String constant  |
-|  7, 6       |  b              |  b            |  Identifier       |
-|             |                 |               |                   |
-+-------------+-----------------+---------------+-------------------+
-spc: tests/lexer/010.in: Lexical error on line 7, col 7. Unexpected end of file in string literal
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  Line, pos  |  Token text  |  Token value  |  Token type  |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  1, 1       |  e1          |  e1           |  Identifier  |
+|  2, 1       |  2e2         |  200.0        |  Float       |
+|  2, 4       |  e           |  e            |  Identifier  |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+spc: tests/lexer/010.in: Lexical error on line 3, col 1. Invalid float constant

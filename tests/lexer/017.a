@@ -13,4 +13,4 @@
 |  4, 1       |  #22         |              |  Character constant  |
 |             |              |               |                      |
 +-------------+--------------+---------------+----------------------+
-spc: tests/lexer/007d.in: Lexical error on line 4, col 4. Illegal character '%'
+spc: tests/lexer/017.in: Lexical error on line 4, col 4. Illegal character '%'

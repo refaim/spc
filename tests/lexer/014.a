@@ -1,11 +1,1 @@
-+-------------+--------------+---------------+---------------------+
-|             |              |               |                     |
-|  Line, pos  |  Token text  |  Token value  |     Token type      |
-|             |              |               |                     |
-+-------------+--------------+---------------+---------------------+
-|             |              |               |                     |
-|  5, 12      |  *           |               |  Asterix            |
-|  5, 13      |  )           |               |  Right parenthesis  |
-|             |              |               |                     |
-+-------------+--------------+---------------+---------------------+
-spc: tests/lexer/014.in: Lexical error on line 9, col 1. Unexpected end of file in block comment
+spc: tests/lexer/014.in: Lexical error on line 1, col 1. Invalid character constant

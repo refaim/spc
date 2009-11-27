@@ -1,17 +1,11 @@
-+-------------+---------------+---------------+-------------------+
-|             |               |               |                   |
-|  Line, pos  |  Token text   |  Token value  |    Token type     |
-|             |               |               |                   |
-+-------------+---------------+---------------+-------------------+
-|             |               |               |                   |
-|  1, 1       |  abc          |  abc          |  Identifier       |
-|  1, 5       |  bc           |  bc           |  Identifier       |
-|  1, 8       |  bac          |  bac          |  Identifier       |
-|  2, 1       |  while        |  while        |  While (keyword)  |
-|  2, 7       |  do           |  do           |  Do (keyword)     |
-|  2, 10      |  if           |  if           |  If (keyword)     |
-|  2, 13      |  then         |  then         |  Then (keyword)   |
-|  3, 1       |  forforbegin  |  forforbegin  |  Identifier       |
-|  4, 1       |  end          |  end          |  End (keyword)    |
-|             |               |               |                   |
-+-------------+---------------+---------------+-------------------+
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  Line, pos  |  Token text  |  Token value  |  Token type  |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+|             |              |               |              |
+|  1, 1       |  $0          |  0            |  Integer     |
+|  1, 3       |  $0          |  0            |  Integer     |
+|             |              |               |              |
++-------------+--------------+---------------+--------------+
+spc: tests/lexer/006.in: Lexical error on line 1, col 5. Invalid integer constant
