@@ -1,7 +1,7 @@
 
 # -*- coding: utf-8 -*-
 
-from sys import argv, stderr
+from sys import argv
 from getopt import getopt, GetoptError
 
 from tokenizer import Tokenizer
@@ -14,7 +14,7 @@ cname_s = "Small Pascal Compiler (by Roman Kharitonov)"
 help_s = "usage: spc [OPTION]... [FILENAME]..."
 try_s = "try 'spc --help' for more options"
 empty_args_s = "no input files"
-errmsg_s = "spc: {0}: {1}\n"
+errmsg_s = "spc: {0}: {1}"
 
 short_opts = "hled"
 long_opts = ["help", "lex", "expr-parse", "expr-with-decl"]
@@ -41,9 +41,9 @@ def common(args, action):
             action(tz, arg)
             program.close()
         except IOError as ioerr:
-            stderr.write(errmsg_s.format(arg, ioerr.args[1]))
+            print(errmsg_s.format(arg, ioerr.args[1]))
         except CompileError as cerr:
-            stderr.write(errmsg_s.format(arg, cerr.message))
+            print(errmsg_s.format(arg, cerr.message))
     if len(args) == 0:
         print(empty_args_s)
 
