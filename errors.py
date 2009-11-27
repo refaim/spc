@@ -35,9 +35,9 @@ class BracketsMismatchError(SynError):
 class ParMismatchError(SynError):
     message = "Parenthesis mismatch"
 class CallError(SynError):
-    message = "Called object is neither procedure nor function"
+    message = "Called object is neither a procedure nor a function"
 class SubscriptError(SynError):
-    message = "Subscripted object is neither array nor string"
+    message = "Subscripted object is neither an array nor a string"
 class RecordError(SynError):
     message = "Request of field in something not a record"
 
