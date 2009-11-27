@@ -19,7 +19,9 @@ lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
                op.lesser_or_equal: "Less or equal", op.not_equal: "Not equal",
                op.greater: "Greater", op.equal: "Equal",
                op.shr: "Right shift", op.shl: "Left shift",
-               op.logic_not: "Not", op.logic_and: "And", op.logic_or: "Or"
+               op.logic_not: "Not", op.logic_and: "And", op.logic_or: "Or",
+               op.logic_xor: "Xor",
+               op.int_div: "Integer div", op.int_mod: "Integer mod"
              }
 
 def get_string_repr(lexem):

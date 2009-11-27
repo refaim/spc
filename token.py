@@ -16,10 +16,11 @@ for elm in kw:
 
 operations = {}
 ops = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ".", "and",\
-       "or", "not", "shr", "shl"]
+       "or", "xor", "not", "shr", "shl", "div", "mod"]
 op = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
           "greater", "lesser_or_equal", "greater_or_equal", "assign", "dot",\
-          "logic_and", "logic_or", "logic_not", "shr", "shl")
+          "logic_and", "logic_or", "logic_xor", "logic_not", "shr", "shl",\
+          "int_div", "int_mod")
 for i in xrange(len(ops)):
     operations[ops[i]] = op[i]
 del ops

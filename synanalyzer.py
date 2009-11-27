@@ -4,8 +4,13 @@ from token import Token, tt, dlm, kw, op
 from errors import *
 from syn import *
 
-operators = [[op.equal], [op.plus, op.minus], [op.mul, op.div]]
-max_priority = len(operators) - 1
+#unary_ops = [op.minus, op.plus, op.logic_not]
+binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,
+              op.greater_or_equal, op.lesser_or_equal],
+             [op.plus, op.minus, op.logic_or],
+             [op.mul, op.div, op.shl, op.shr, op.int_div, op.int_mod,
+              op.logic_and]]
+max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
     def __init__(self, tokenizer):
@@ -29,13 +34,14 @@ class ExprParser(object):
             result = self.parse_expr(priority + 1)
         else:
             result = self.parse_factor()
-        while self.token.type in operators[priority]:
+        while self.token.type in binary_ops[priority]:
             opr = self.token
             self.next_token()
             if priority < max_priority:
                 result = SynBinaryOp(result, opr, self.parse_expr(priority + 1))
             else:
                 result = SynBinaryOp(result, opr, self.parse_factor())
+                #result = SynUnaryOp(opr, self.parse_factor())
         return result
 
     def parse_factor(self):
@@ -51,12 +57,16 @@ class ExprParser(object):
             result = self.parse_identifier()
         elif self.token.type in [tt.integer, tt.float, tt.string_const]:
             result = SynConst(self.token)
+        #elif self.token.type in unary_ops:
+        #    opr = self.token
+        #    self.next_token()
+        #    result = SynUnaryOp(opr, self.parse_factor())
         else:
             self.e(UnexpectedTokenError, [self.token.text])
 
         # это такой маленький костыль
-        need_next = not isinstance(self, SimpleParser) or\
-            isinstance(result, SynConst)
+        need_next = (not isinstance(self, SimpleParser) or\
+            isinstance(result, SynConst)) #and not isinstance(result, SynUnaryOp)
         if need_next: self.next_token()
         return result
 
@@ -69,7 +79,7 @@ class SimpleParser(ExprParser):
         self.in_symbol = False
 
         allowed = { "array": kw.array, "function": kw.function,
-                    "record": kw.record, "var": kw.var }
+                         "record": kw.record, "var": kw.var }
         while self.token.value in allowed:
             idtype = allowed[self.token.value]
             self.next_token()

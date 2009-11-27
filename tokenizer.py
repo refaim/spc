@@ -12,7 +12,7 @@ class Tokenizer(object):
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
-        self._token_stack = []
+        #self._token_stack = []
         self.next_token()
 
     def _getline(self):
@@ -37,12 +37,12 @@ class Tokenizer(object):
     def get_token(self):
         return self._token
 
-    def push_token_back(self):
-        self._token_stack.append(self._token)
+    #def push_token_back(self):
+    #    self._token_stack.append(self._token)
 
     def next_token(self):
-        if len(self._token_stack) != 0:
-            return self._token_stack.pop()
+        #if len(self._token_stack) != 0:
+        #    return self._token_stack.pop()
 
         found = False
         ch = 1
@@ -80,7 +80,6 @@ class Tokenizer(object):
             ttype = operations[l]
         else:
             ttype = tt.identifier
-        ttype = keywords[l] if l in keywords else tt.identifier
         self._putch()
         return Token(type = ttype, text = s, value = l)
 
