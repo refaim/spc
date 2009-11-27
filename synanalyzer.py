@@ -30,12 +30,12 @@ class BasicParser(object):
         else:
             result = self.parse_factor()
         while self.token.type in operators[priority]:
-            op = self.token
+            opr = self.token
             self.next_token()
             if priority < max_priority:
-                result = SynBinaryOp(result, op, self.parse_expr(priority + 1))
+                result = SynBinaryOp(result, opr, self.parse_expr(priority + 1))
             else:
-                result = SynBinaryOp(result, op, self.parse_factor())
+                result = SynBinaryOp(result, opr, self.parse_factor())
         return result
 
     def parse_factor(self):
@@ -57,7 +57,6 @@ class BasicParser(object):
         # это такой маленький костыль
         need_next = not isinstance(self, PseudoLangParser) or\
             isinstance(result, SynConst)
-
         if need_next: self.next_token()
         return result
 
@@ -85,15 +84,15 @@ class PseudoLangParser(BasicParser):
 
     def parse_identifier(self):
 
-        def parse_symbol(symtype, op):
+        def parse_symbol(symtype, opr):
 
             def parse_record():
                 self.in_symbol = True
-                return SynBinaryOp(result, op, self.parse_identifier())
+                return SynBinaryOp(result, opr, self.parse_identifier())
 
             def parse_array():
                 self.in_symbol = False
-                res = SynBinaryOp(result, op, self.parse_expr())
+                res = SynBinaryOp(result, opr, self.parse_expr())
                 if self.token.type != dlm.rbracket:
                     self.e(BracketsMismatchError, fp = self.prevpos)
                 self.next_token()
@@ -115,7 +114,7 @@ class PseudoLangParser(BasicParser):
                          kw.function: parse_function }
             return symtypes[symtype]()
 
-        start_symbols = { dlm.dot: (kw.record, RecordError),
+        start_symbols = { op.dot: (kw.record, RecordError),
                           dlm.lparen: (kw.function, CallError),
                           dlm.lbracket: (kw.array, SubscriptError) }
 
@@ -130,9 +129,9 @@ class PseudoLangParser(BasicParser):
                 while self.token.type in start_symbols and\
                      (self.in_symbol or self.symtable[varname] == symtype):
                     symtype, symerror = start_symbols[self.token.type]
-                    op = self.token
+                    opr = self.token
                     self.next_token()
-                    result = parse_symbol(symtype, op)
+                    result = parse_symbol(symtype, opr)
                     self.in_symbol = True
                 else:
                     if not self.in_symbol: self.e(symerror)

@@ -21,7 +21,7 @@ class SyntaxTreePrinter(object):
 
         def add_to_current(node):
             children = node.get_children()
-            if isinstance(self. syn.SynFunctionCall):
+            if isinstance(node, syn.SynFunctionCall):
                 functions.append(node.func)
 
             node_shape = "ellipse" if children != [] else "box"
