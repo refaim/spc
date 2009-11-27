@@ -7,7 +7,7 @@ from syn import *
 operators = [[op.equal], [op.plus, op.minus], [op.mul, op.div]]
 max_priority = len(operators) - 1
 
-class BasicParser(object):
+class ExprParser(object):
     def __init__(self, tokenizer):
         self._tokenizer = tokenizer
 
@@ -55,7 +55,7 @@ class BasicParser(object):
             self.e(UnexpectedTokenError, [self.token.text])
 
         # это такой маленький костыль
-        need_next = not isinstance(self, PseudoLangParser) or\
+        need_next = not isinstance(self, SimpleParser) or\
             isinstance(result, SynConst)
         if need_next: self.next_token()
         return result
@@ -63,7 +63,7 @@ class BasicParser(object):
     def parse_identifier(self):
         return SynVar(self.token)
 
-class PseudoLangParser(BasicParser):
+class SimpleParser(ExprParser):
     def parse_decl(self):
         self.symtable = {}
         self.in_symbol = False

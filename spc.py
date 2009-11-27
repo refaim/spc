@@ -5,7 +5,7 @@ from sys import argv
 from getopt import getopt, GetoptError
 
 from tokenizer import Tokenizer
-from synanalyzer import BasicParser, PseudoLangParser
+from synanalyzer import ExprParser, SimpleParser
 from errors import CompileError
 import tokenout
 import synout
@@ -22,7 +22,7 @@ opts_count = len(long_opts)
 max_opt_len = max([len(opt) for opt in long_opts])
 opts_descr = ["display this help text", "perform lexical analysis",
               "parse arithmetic expressions",
-              "parse expressions with declarations in pseudolanguage"]
+              "parse expressions with simple declarations"]
 
 def help():
     print("{0}\n{1}\n".format(cname_s, help_s))
@@ -67,10 +67,10 @@ def common_parse(parser, fname):
         raise err
 
 def e_parse(tokenizer, fname):
-    common_parse(BasicParser(tokenizer), fname)
+    common_parse(ExprParser(tokenizer), fname)
 
 def ewd_parse(tokenizer, fname):
-    parser = PseudoLangParser(tokenizer)
+    parser = SimpleParser(tokenizer)
     parser.parse_decl()
     synout.print_symbol_table(parser.symtable)
     common_parse(parser, fname)
