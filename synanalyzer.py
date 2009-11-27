@@ -78,15 +78,15 @@ class SimpleParser(ExprParser):
         self.symtable = {}
         self.in_symbol = False
 
-        allowed = { "array": kw.array, "function": kw.function,
+        simple_types = { "array": kw.array, "function": kw.function,
                          "record": kw.record, "var": kw.var }
-        while self.token.value in allowed:
-            idtype = allowed[self.token.value]
+        while self.token.value in simple_types:
+            idtype = simple_types[self.token.value]
             self.next_token()
             idname = self.token.value
             if self.token.type == tt.identifier:
                 self.symtable[idname] = idtype
-            elif idname in allowed:
+            elif idname in simple_types:
                 self.e(ReservedNameError, [idname])
             else:
                 self.e(IdentifierExpError)
