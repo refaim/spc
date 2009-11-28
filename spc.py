@@ -67,6 +67,7 @@ def error(msg, fname = None):
 
 def main(argv):
     # разбор опций командной строки
+    # для корректной работы функции process() опция help должна быть первой в словаре
     option = {'help':        'h',
               'lex':         'l',
               'expr':        'e',
@@ -95,10 +96,9 @@ def main(argv):
     def process(opt, arg):
         with open(arg, 'r', buffering = 10) as source:
             worker = Compiler(source, arg)
-            actions = { 'lex':  worker.tokenize,
-                        'expr': worker.parse_expressions,
-                        'decl-simple': worker.parse_simple_decl }
-            actions[opt]()
+            actions = [worker.tokenize,
+                       worker.parse_expressions, worker.parse_simple_decl]
+            actions[option.keys().index(opt)]()
 
     job = ((opt, arg) for arg in args for opt in option.keys() if present(opt))
     try:
