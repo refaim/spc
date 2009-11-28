@@ -1,11 +1,10 @@
-﻿# -*- coding: utf-8 -*-
+#!/usr/bin/python
+# -*- mode: python; coding: utf-8 -*- author: Roman Kharitonov refaim.vl@gmail.com
 
-import os
-import sys
-import shutil
-
-from subprocess import Popen as popen, PIPE
+import sys, os, shutil
 from getopt import getopt, GetoptError
+
+from spc import main as run_compiler
 
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
@@ -32,13 +31,11 @@ for root, dirs, files in test_dir:
         fname, ext = os.path.splitext(entry)
         if ext != t_ext: continue
 
-        fout = open(test_path + fname + o_ext, "w")
-        cmd = "{0} spc.py {1} {2}{3}"
-        (out, err) = popen(args = cmd.format(
-                               sys.executable, opt, test_path, entry),
-                           stdout = fout, shell = True, stderr = PIPE,
-                           universal_newlines = True).communicate()
-        fout.close()
+        old = sys.stdout
+        with open(test_path + fname + o_ext, "w") as sys.stdout:
+            run_compiler([opt, test_path + entry])
+        sys.stdout = old
+
         msg = "Test #{0} ".format(fname)
         passed, answer_present = True, True
 
@@ -72,9 +69,9 @@ for root, dirs, files in test_dir:
         fout = open(test_path + fname + o_ext, "rU")
         passed = passed and fout.read() == fans.read()
         print(msg + "OK") if passed else (msg + "FAIL")
-        if err:
-            print(err)
-            exit(1)
+        #if err:
+        #    print(err)
+        #    exit(1)
 
         fout.close()
         fans.close()

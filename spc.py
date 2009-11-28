@@ -1,86 +1,112 @@
+#!/usr/bin/python
+# -*- mode: python; coding: utf-8 -*- author: Roman Kharitonov refaim.vl@gmail.com
 
-# -*- coding: utf-8 -*-
+'''
+Small Pascal Compiler (by Roman Kharitonov)
+Usage: spc [option] [filename1] [filename2] [...]
 
-from sys import argv
-from getopt import getopt, GetoptError
+-h, --help           display this help text
+-l, --lex            perform lexical analysis
+-e, --expr           parse arithmetic expressions
+-d, --decl-simple    parse expressions with simple declarations
+'''
 
+import sys, os
+import getopt
+
+from common import *
 from tokenizer import Tokenizer
 from synanalyzer import ExprParser, SimpleParser
 from errors import CompileError
-import tokenout
-import synout
+import tokenout, synout
 
-cname_s = "Small Pascal Compiler (by Roman Kharitonov)"
-help_s = "usage: spc [OPTION]... [FILENAME]..."
-try_s = "try 'spc --help' for more options"
-empty_args_s = "no input files"
-errmsg_s = "spc: {0}: {1}"
+class Compiler(object):
+    def __init__(self, program, fname):
+        self.tokenizer = Tokenizer(program)
+        self.fname = fname
 
-short_opts = "hled"
-long_opts = ["help", "lex", "expr-parse", "expr-with-decl"]
-opts_count = len(long_opts)
-max_opt_len = max([len(opt) for opt in long_opts])
-opts_descr = ["display this help text", "perform lexical analysis",
-              "parse arithmetic expressions",
-              "parse expressions with simple declarations"]
+    def tokenize(self):
+        tokens, error = tokenout.get_tokens(self.tokenizer)
+        tokenout.print_tokens(tokens)
+        if error: raise error
 
-def help():
-    print("{0}\n{1}\n".format(cname_s, help_s))
-    for i in range(opts_count):
-        space_count = max_opt_len - len(long_opts[i])
-        print("-{0}, --{1}  {2}{3}".format(
-            short_opts[i], long_opts[i], " " * space_count, opts_descr[i]))
-    exit(0)
-
-def common(args, action):
-    if action == help: help()
-    for arg in args:
+    def common_parse(self):
+        expressions, fail = [], False
         try:
-            program = open(arg, "r", buffering = 1)
-            tz = Tokenizer(program)
-            action(tz, arg)
-            program.close()
-        except IOError as ioerr:
-            print(errmsg_s.format(arg, ioerr.args[1]))
-        except CompileError as cerr:
-            print(errmsg_s.format(arg, cerr.message))
-    if len(args) == 0:
-        print(empty_args_s)
+           e = self.parser.parse_expr()
+           while e:
+               expressions.append(e)
+               e = self.parser.parse_expr()
+        except CompileError as error:
+            fail = True
+        printer = synout.SyntaxTreePrinter(expressions, self.fname)
+        printer.write()
+        if fail: raise error
 
-def lex(tokenizer, fname):
-    tokens, error = tokenout.get_tokens(tokenizer)
-    tokenout.print_tokens(tokens)
-    if error: raise error
+    def parse_expressions(self):
+        self.parser = ExprParser(self.tokenizer)
+        self.common_parse()
 
-def common_parse(parser, fname):
-    expressions, error = [], False
+    def parse_simple_decl(self):
+        self.parser = SimpleParser(self.tokenizer)
+        self.parser.parse_decl()
+        synout.print_symbol_table(self.parser.symtable)
+        self.common_parse()
+
+def usage():
+    print __doc__
+    return 0
+
+def error(msg, fname = None):
+    ''' Вывод сообщения об ошибке '''
+    if fname:
+        print('spc: {0}: {1}'.format(fname, msg))
+    else:
+        print('spc: {0}'.format(msg))
+    return 2
+
+def main(argv):
+    # разбор опций командной строки
+    option = {'help':        'h',
+              'lex':         'l',
+              'expr':        'e',
+              'decl-simple': 'd'}
     try:
-        e = parser.parse_expr()
-        while e:
-            expressions.append(e)
-            e = parser.parse_expr()
-    except CompileError as err:
-        error = True
-    printer = synout.SyntaxTreePrinter(expressions, fname)
-    printer.write()
-    if error:
-        raise err
+        opts, args = getopt.getopt(
+            argv, ''.join(option.values()), option.keys())
+    except getopt.GetoptError, e:
+        return error(str(e) + ', try --help for more options')
 
-def e_parse(tokenizer, fname):
-    common_parse(ExprParser(tokenizer), fname)
+    # обработка опций командной строки
+    optuple = lambda o: ('-' + option[o], '--' + o) # 'opt' -> ('-o', '--opt')
+    present = lambda o: some(first(opt) in optuple(o) for opt in opts)
+    checkcomb = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
 
-def ewd_parse(tokenizer, fname):
-    parser = SimpleParser(tokenizer)
-    parser.parse_decl()
-    synout.print_symbol_table(parser.symtable)
-    common_parse(parser, fname)
+    if present('help') or empty(opts): return usage()
+    if not checkcomb(option.keys()):
+        return error('use only one of this options: ' +
+                     ', '.join(first(opt) for opt in opts))
 
-opts_actions = [help, lex, e_parse, ewd_parse]
-try:
-    opts, args = getopt(argv[1:], short_opts, long_opts)
-    if len(opts) == 0: help()
-    for option in opts:
-        index = short_opts.index(option[0].lstrip('-')[0])
-        common(args, opts_actions[index])
-except GetoptError as opterr:
-    print("{0}, {1}".format(opterr, try_s))
+    if empty(args): return error('no input files')
+    for path in args:
+        if not os.path.exists(path):
+            return error('no such file or directory', path)
+
+    def process(opt, arg):
+        with open(arg, 'r', buffering = 10) as source:
+            worker = Compiler(source, arg)
+            actions = { 'lex':  worker.tokenize,
+                        'expr': worker.parse_expressions,
+                        'decl-simple': worker.parse_simple_decl }
+            actions[opt]()
+
+    job = ((opt, arg) for arg in args for opt in option.keys() if present(opt))
+    try:
+        for opt, arg in job:
+            process(opt, arg)
+    except CompileError, e:
+        return error(e.message, arg)
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
