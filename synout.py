@@ -3,6 +3,7 @@
 import pydot
 import os
 
+from common import *
 import syn
 
 class SyntaxTreePrinter(object):
@@ -24,7 +25,7 @@ class SyntaxTreePrinter(object):
             if isinstance(node, syn.SynFunctionCall):
                 functions.append(node.func)
 
-            node_shape = "ellipse" if children != [] else "box"
+            node_shape = "box" if empty(children) else "ellipse"
             if node in functions:
                 node_shape = "diamond"
 
@@ -53,7 +54,7 @@ class SyntaxTreePrinter(object):
 
 
 def print_symbol_table(symtable):
-    if len(symtable) != 0:
+    if not empty(symtable):
         print("Symbol table:")
         items = symtable.items()
         items.sort()

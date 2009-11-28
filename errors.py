@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from common import *
+
 class CompileError(BaseException):
     def __init__(self, filepos, params = []):
         self.line, self.pos = filepos
@@ -43,12 +45,12 @@ class RecordError(SynError):
 
 def raise_exception(e):
     template = "{0} on line {1}, col {2}. {3}"
-    if len(e.params) != 0:
+    if not empty(e.params):
         # создание кортежа из последовательности единичной длины
         # приводит к появлению запятой после элемента:
         # tuple([1]) == (1,)
         # tuple([1, 2, ..., n]) == (1, 2, ..., n)
-        e.params = e.params[0] if len(e.params) == 1 else tuple(e.params)
+        e.params = first(e.params) if len(e.params) == 1 else tuple(e.params)
         e.message = e.message.format(e.params)
     e.message = template.format(e.prefix, e.line, e.pos, e.message)
     raise e

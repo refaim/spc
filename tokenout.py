@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from common import *
 from errors import LexError
 from token import tt, op, dlm, keywords
 
@@ -37,7 +38,7 @@ def get_tokens(tokenizer):
     t = tokenizer.get_token()
     tokens = []
     try:
-        while t != None:
+        while t:
             tokens.append(t)
             tokenizer.next_token()
             t = tokenizer.get_token()
@@ -52,8 +53,8 @@ b_horz, b_vert, b_cross = "-", "|", "+"
 
 def print_tokens(tokens):
 
-    if len(tokens) == 0:
-        exit()
+    if empty(tokens):
+        return
 
     headers = ["Line, pos", "Token text", "Token value", "Token type"]
     colcount = len(headers)
@@ -102,6 +103,7 @@ def print_tokens(tokens):
             max_value_lens[i] = max(len(headers[i]), len(values(tok)[i]), max_value_lens[i])
 
     out = [""] * rowcount
+
     for row in xrange(rowcount):
         for col in xrange(colcount):
             print_line(out, row, col)
