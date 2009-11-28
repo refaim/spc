@@ -34,18 +34,6 @@ def get_string_repr(lexem):
     else:
         return ""
 
-def get_tokens(tokenizer):
-    t = tokenizer.get_token()
-    tokens = []
-    try:
-        while t:
-            tokens.append(t)
-            tokenizer.next_token()
-            t = tokenizer.get_token()
-    except LexError as lexerr:
-        return tokens, lexerr
-    return tokens, None
-
 space = " "
 indent_len = 2
 indent = indent_len * space

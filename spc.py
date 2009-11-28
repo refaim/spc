@@ -26,22 +26,21 @@ class Compiler(object):
         self.fname = fname
 
     def tokenize(self):
-        tokens, error = tokenout.get_tokens(self.tokenizer)
-        tokenout.print_tokens(tokens)
-        if error: raise error
+        tokens = []
+        try:
+            for token in self.tokenizer:
+                tokens.append(token)
+        finally:
+            tokenout.print_tokens(tokens)
 
     def common_parse(self):
-        expressions, fail = [], False
+        expressions = []
         try:
-           e = self.parser.parse_expr()
-           while e:
-               expressions.append(e)
-               e = self.parser.parse_expr()
-        except CompileError as error:
-            fail = True
-        printer = synout.SyntaxTreePrinter(expressions, self.fname)
-        printer.write()
-        if fail: raise error
+            for expr in self.parser:
+                expressions.append(expr)
+        finally:
+            printer = synout.SyntaxTreePrinter(expressions, self.fname)
+            printer.write()
 
     def parse_expressions(self):
         self.parser = ExprParser(self.tokenizer)
@@ -95,9 +94,8 @@ def main(argv):
 
     def process(opt, arg):
         with open(arg, 'r', buffering = 10) as source:
-            worker = Compiler(source, arg)
-            actions = [worker.tokenize,
-                       worker.parse_expressions, worker.parse_simple_decl]
+            c = Compiler(source, arg)
+            actions = [c.tokenize, c.parse_expressions, c.parse_simple_decl]
             actions[option.keys().index(opt)]()
 
     job = ((opt, arg) for arg in args for opt in option.keys() if present(opt))

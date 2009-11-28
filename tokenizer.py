@@ -13,7 +13,18 @@ class Tokenizer(object):
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
         #self._token_stack = []
+        #self.next_token()
+
+    def __iter__(self):
+        return self
+
+    def next(self):
         self.next_token()
+        result = self.get_token()
+        if result:
+            return result
+        else:
+            raise StopIteration
 
     def _getline(self):
         line = self._file.readline()

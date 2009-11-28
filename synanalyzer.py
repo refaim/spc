@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from token import Token, tt, dlm, kw, op
+from common import *
 from errors import *
 from syn import *
+from token import Token, tt, dlm, op, kw
 
 #unary_ops = [op.minus, op.plus, op.logic_not]
 binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,
-              op.greater_or_equal, op.lesser_or_equal],
+               op.greater_or_equal, op.lesser_or_equal],
              [op.plus, op.minus, op.logic_or],
              [op.mul, op.div, op.shl, op.shr, op.int_div, op.int_mod,
               op.logic_and]]
@@ -14,7 +15,18 @@ max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
     def __init__(self, tokenizer):
+        tokenizer.next_token()
         self._tokenizer = tokenizer
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        result = self.parse_expr()
+        if result:
+            return result
+        else:
+            raise StopIteration
 
     @property
     def token(self):
@@ -41,11 +53,10 @@ class ExprParser(object):
                 result = SynBinaryOp(result, opr, self.parse_expr(priority + 1))
             else:
                 result = SynBinaryOp(result, opr, self.parse_factor())
-                #result = SynUnaryOp(opr, self.parse_factor())
         return result
 
     def parse_factor(self):
-        if self.token.type == None: return None
+        if self.token.type is None: return None
         filepos = self.token.linepos
 
         if self.token.type == dlm.lparen:
@@ -53,7 +64,7 @@ class ExprParser(object):
             result = self.parse_expr()
             if self.token.type != dlm.rparen:
                 self.e(ParMismatchError, fp = filepos)
-        elif self.token.type == tt.identifier or self.token.type in kw:
+        elif self.token.type == tt.identifier:
             result = self.parse_identifier()
         elif self.token.type in [tt.integer, tt.float, tt.string_const]:
             result = SynConst(self.token)
@@ -66,8 +77,10 @@ class ExprParser(object):
 
         # это такой маленький костыль
         need_next = (not isinstance(self, SimpleParser) or\
-            isinstance(result, SynConst)) #and not isinstance(result, SynUnaryOp)
-        if need_next: self.next_token()
+            isinstance(result, SynConst))# and not isinstance(result, SynUnaryOp)
+            #or self.token.type == dlm.rparen
+        if need_next:
+            self.next_token()
         return result
 
     def parse_identifier(self):
@@ -115,7 +128,7 @@ class SimpleParser(ExprParser):
                 while self.token.type == dlm.comma:
                     self.next_token()
                     args.append(self.parse_expr())
-                if len(args) and self.token.type != dlm.rparen:
+                if not empty(args) and self.token.type != dlm.rparen:
                     self.e(ParMismatchError, fp = self.prevpos)
                 self.next_token()
                 return SynFunctionCall(func, args)
