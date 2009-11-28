@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- mode: python; coding: utf-8 -*- author: Roman Kharitonov refaim.vl@gmail.com
 
-'''
+'''\
 Small Pascal Compiler (by Roman Kharitonov)
 Usage: spc [option] [filename1] [filename2] [...]
 
