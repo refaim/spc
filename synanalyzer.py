@@ -15,23 +15,16 @@ max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
     def __init__(self, tokenizer):
-        tokenizer.next_token()
         self._tokenizer = tokenizer
 
     def __iter__(self):
-        return self
-
-    def next(self):
-        result = self.parse_expr()
-        if result:
-            return result
-        else:
-            raise StopIteration
+        while self.token.type != tt.eof:
+            yield self.parse_expr()
 
     @property
     def token(self):
-        t = self._tokenizer.get_token()
-        return t if t else Token()
+        token = self._tokenizer.get_token()
+        return token if token else Token(tt.eof)
 
     def e(self, error, params = [], fp = None):
         if fp == None: fp = self.token.linepos
@@ -56,7 +49,7 @@ class ExprParser(object):
         return result
 
     def parse_factor(self):
-        if self.token.type is None: return None
+        if self.token.type == tt.eof: return None
         filepos = self.token.linepos
 
         if self.token.type == dlm.lparen:

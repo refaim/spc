@@ -12,19 +12,12 @@ class Tokenizer(object):
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
-        #self._token_stack = []
-        #self.next_token()
+        self.next_token()
 
     def __iter__(self):
-        return self
-
-    def next(self):
-        self.next_token()
-        result = self.get_token()
-        if result:
-            return result
-        else:
-            raise StopIteration
+        while not self.eof:
+            yield self.get_token()
+            self.next_token()
 
     def _getline(self):
         line = self._file.readline()
@@ -48,13 +41,7 @@ class Tokenizer(object):
     def get_token(self):
         return self._token
 
-    #def push_token_back(self):
-    #    self._token_stack.append(self._token)
-
     def next_token(self):
-        #if len(self._token_stack) != 0:
-        #    return self._token_stack.pop()
-
         found = False
         ch = 1
         while not found and not self.eof:

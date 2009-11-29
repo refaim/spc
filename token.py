@@ -5,7 +5,7 @@ from sys import path as syspath
 
 from enum import Enum
 
-tt = Enum("identifier", "integer", "float", "char_const", "string_const")
+tt = Enum("identifier", "integer", "float", "char_const", "string_const", "eof")
 
 keywords = {}
 kw = Enum("array", "begin", "break", "const", "continue", "do", "else", "end",\
