@@ -8,7 +8,7 @@ Usage: spc [option] [filename1] [filename2] [...]
 -h, --help           display this help text
 -l, --lex            perform lexical analysis
 -e, --expr           parse arithmetic expressions
--d, --decl-simple    parse expressions with simple declarations
+-d, --decl-simple    parse expressions with simple declarations\
 '''
 
 import sys, os
@@ -53,7 +53,7 @@ class Compiler(object):
         self.common_parse()
 
 def usage():
-    print __doc__
+    print(__doc__)
     return 0
 
 def error(msg, fname = None):
@@ -80,10 +80,11 @@ def main(argv):
     # обработка опций командной строки
     optuple = lambda o: ('-' + option[o], '--' + o) # 'opt' -> ('-o', '--opt')
     present = lambda o: some(first(opt) in optuple(o) for opt in opts)
-    checkcomb = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
+    # проверка на наличие нескольких опций, пишущих в файлы/stdout
+    opcheck = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
 
     if present('help') or empty(opts): return usage()
-    if not checkcomb(option.keys()):
+    if not opcheck(option.keys()):
         return error('use only one of this options: ' +
                      ', '.join(first(opt) for opt in opts))
 

@@ -2,7 +2,7 @@
 
 from common import *
 
-class CompileError(BaseException):
+class CompileError(Exception):
     def __init__(self, filepos, params = []):
         self.line, self.pos = filepos
         self.params = params
