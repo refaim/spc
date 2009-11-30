@@ -56,7 +56,5 @@ class SyntaxTreePrinter(object):
 def print_symbol_table(symtable):
     if not empty(symtable):
         print("Symbol table:")
-        items = symtable.items()
-        items.sort()
-        for pair in items:
+        for pair in sort(symtable.items()):
             print("{0}: {1}".format(pair[0], pair[1]))

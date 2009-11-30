@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
 
-class SynNode:
+class SynNode: pass
+
+class SynExpr(SynNode):
     def get_children(self):
         return []
 
-class SynExpr(SynNode): pass
+class SynUnaryOp(SynExpr):
+    def __init__(self, optype, operand):
+        self.optype, self.operand = optype, operand
+
+    def __str__(self):
+        return self.optype.text
+
+    def get_children(self):
+        return [self.operand]
 
 class SynBinaryOp(SynExpr):
     def __init__(self, opleft, optype, opright):
@@ -16,6 +26,9 @@ class SynBinaryOp(SynExpr):
 
     def get_children(self):
         return [self.opleft, self.opright]
+
+class SynDotOp(SynBinaryOp):
+    pass
 
 class SynFunctionCall(SynExpr):
     def __init__(self, func, args = []):

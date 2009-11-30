@@ -12,6 +12,7 @@ class Tokenizer(object):
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
+        self._skip_next = False
         self.next_token()
 
     def __iter__(self):
@@ -38,10 +39,17 @@ class Tokenizer(object):
     def _putch(self, count = 1):
         self._cpos -= count
 
+    def freeze(self):
+        self._skip_next = True
+
     def get_token(self):
         return self._token
 
     def next_token(self):
+        if self._skip_next:
+            self._skip_next = False
+            return
+
         found = False
         ch = 1
         while not found and not self.eof:
@@ -65,7 +73,7 @@ class Tokenizer(object):
             tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:
-            self._token = None
+            self._token = Token(tt.eof)
 
     def _read_identifier(self, ch):
         s, ch = ch, self._getch()
