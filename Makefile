@@ -4,3 +4,8 @@ clean:
 	find -name '*.swp' -delete
 	find -name '*.o' -delete
 	find -name '*.o.gif' -delete
+
+test:
+	echo "Lexical analyzer:" && ./tester.py -l && echo 
+	echo "Syntax analyzer (arithmetic expressions):" && ./tester.py -e && echo
+	echo "Syntax analyzer (simple declarations):" && ./tester.py -d
