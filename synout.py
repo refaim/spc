@@ -51,10 +51,3 @@ class SyntaxTreePrinter(object):
             add_to_current(root)
             self.graph.add_subgraph(self.current_graph)
         self.graph.write_gif(self.filename + ".gif")
-
-
-def print_symbol_table(symtable):
-    if not empty(symtable):
-        print("Symbol table:")
-        for pair in sort(symtable.items()):
-            print("{0}: {1}".format(pair[0], pair[1]))

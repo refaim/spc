@@ -1,5 +1,6 @@
 #!/usr/bin/python
-# -*- mode: python; coding: utf-8 -*- author: Roman Kharitonov refaim.vl@gmail.com
+# -*- mode: python; coding: utf-8 -*-
+# author: Roman Kharitonov refaim.vl@gmail.com
 
 '''\
 Small Pascal Compiler (by Roman Kharitonov)
@@ -8,17 +9,19 @@ Usage: spc [option] [filename1] [filename2] [...]
 -h, --help           display this help text
 -l, --lex            perform lexical analysis
 -e, --expr           parse arithmetic expressions
--d, --decl-simple    parse expressions with simple declarations\
+-s, --simple-decl    parse expressions with simple declarations
+-d, --decl           parse normal Pascal declarations\
 '''
 
 import sys, os
 import getopt
 
 from common import *
-from tokenizer import Tokenizer
-from synanalyzer import ExprParser, SimpleParser
 from errors import CompileError
-import tokenout, synout
+from tokenizer import Tokenizer
+import tokenout
+from synanalyzer import ExprParser, SimpleParser
+from synout import SyntaxTreePrinter
 
 class Compiler(object):
     def __init__(self, program, fname):
@@ -39,8 +42,7 @@ class Compiler(object):
             for expr in self.parser:
                 expressions.append(expr)
         finally:
-            printer = synout.SyntaxTreePrinter(expressions, self.fname)
-            printer.write()
+            SyntaxTreePrinter(expressions, self.fname).write()
 
     def parse_expressions(self):
         self.parser = ExprParser(self.tokenizer)
@@ -49,8 +51,11 @@ class Compiler(object):
     def parse_simple_decl(self):
         self.parser = SimpleParser(self.tokenizer)
         self.parser.parse_decl()
-        synout.print_symbol_table(self.parser.symtable)
+        self.parser.symtable.write()
         self.common_parse()
+
+    def parse_decl(self):
+        raise NotImplementedError
 
 def usage():
     print(__doc__)
@@ -70,7 +75,8 @@ def main(argv):
     option = {'help':        'h',
               'lex':         'l',
               'expr':        'e',
-              'decl-simple': 'd'}
+              'simple-decl': 's',
+              'decl':        'd'}
     try:
         opts, args = getopt.getopt(
             argv, ''.join(option.values()), option.keys())
@@ -96,8 +102,11 @@ def main(argv):
     def process(opt, arg):
         with open(arg, 'r', buffering = 10) as source:
             c = Compiler(source, arg)
-            actions = [c.tokenize, c.parse_expressions, c.parse_simple_decl]
-            actions[option.keys().index(opt)]()
+            action = { 'lex':         c.tokenize,
+                       'expr':        c.parse_expressions,
+                       'simple-decl': c.parse_simple_decl,
+                       'decl':        c.parse_decl         }
+            action[opt]()
 
     job = ((opt, arg) for arg in args for opt in option.keys() if present(opt))
     try:

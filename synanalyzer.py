@@ -3,6 +3,7 @@
 from common import *
 from errors import *
 from syn import *
+from sym import *
 from token import Token, tt, dlm, op, kw
 
 #unary_ops = [op.minus, op.plus, op.logic_not]
@@ -81,7 +82,7 @@ class ExprParser(object):
 
 class SimpleParser(ExprParser):
     def parse_decl(self):
-        self.symtable = {}
+        self.symtable = SimpleSymTable()
         self.in_symbol = False
 
         simple_types = { "array": kw.array, "function": kw.function,
@@ -156,3 +157,6 @@ class SimpleParser(ExprParser):
             return self.parse_complex_expr(result)
         else:
             return result
+
+class Parser(ExprParser):
+    pass

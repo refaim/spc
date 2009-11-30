@@ -8,4 +8,4 @@ clean:
 test:
 	echo "Lexical analyzer:" && ./tester.py -l && echo 
 	echo "Syntax analyzer (arithmetic expressions):" && ./tester.py -e && echo
-	echo "Syntax analyzer (simple declarations):" && ./tester.py -d
+	echo "Syntax analyzer (simple declarations):" && ./tester.py -s

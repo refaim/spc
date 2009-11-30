@@ -4,13 +4,14 @@
 import sys, os, shutil
 from getopt import getopt, GetoptError
 
+from common import *
 from spc import main as run_compiler
 
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
 paths = ["tests/lexer/", "tests/expr/", "tests/plang/"]
-binary_file_exts = {"-e": ".gif", "-d": ".gif"}
-short_opts = "led"
+binary_file_exts = {"-e": ".gif", "-s": ".gif"}
+short_opts = "les"
 
 def has_binary_output(option):
     return option in binary_file_exts
