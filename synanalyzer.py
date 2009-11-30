@@ -100,8 +100,7 @@ class SimpleParser(ExprParser):
 
     def parse_complex_expr(self, result):
 
-        def parse_record(symtype, opr):
-            self.in_symbol = True
+        def parse_record(opr):
             if self.token.type == tt.identifier:
                 res = SynDotOp(result, opr, SynVar(self.token))
             else:
@@ -109,7 +108,7 @@ class SimpleParser(ExprParser):
             self.next_token()
             return res
 
-        def parse_array(symtype, opr):
+        def parse_array(opr):
             self.in_symbol = False
             res = SynBinaryOp(result, opr, self.parse_expr())
             if self.token.type != dlm.rbracket:
@@ -117,7 +116,7 @@ class SimpleParser(ExprParser):
             self.next_token()
             return res
 
-        def parse_func(symtype, opr):
+        def parse_func(opr):
             self.in_symbol = False
             func = result
             args = [self.parse_expr()] if self.token.type != dlm.rparen else []
@@ -129,33 +128,30 @@ class SimpleParser(ExprParser):
             self.next_token()
             return SynFunctionCall(func, args)
 
-        start_symbols = {op.dot: (kw.record, RecordError, parse_record),
-                         dlm.lparen: (kw.function, CallError, parse_func),
-                         dlm.lbracket: (kw.array, SubscriptError, parse_array)}
+        start_symbols = {op.dot: (kw.record, parse_record, RecordError),
+                         dlm.lparen: (kw.function, parse_func, CallError),
+                         dlm.lbracket: (kw.array, parse_array, SubscriptError)}
 
-        varname = str(result)
+        var = str(result)
         if self.token.type in start_symbols:
-            symtype, symerror, symfunc = start_symbols[self.token.type]
+            symtype, symfunc, symerror = start_symbols[self.token.type]
             while self.token.type in start_symbols and \
-                 (self.in_symbol or self.symtable[varname] == symtype):
-                symtype, symerror, symfunc = start_symbols[self.token.type]
+                 (self.in_symbol or self.symtable[var] == symtype):
+                symtype, symfunc, symerror = start_symbols[self.token.type]
                 opr = self.token
                 self.next_token()
-                result = symfunc(symtype, opr)
+                result = symfunc(opr)
                 self.in_symbol = True
             else:
                 if not self.in_symbol: self.e(symerror)
-        self.in_symbol = False
         return result
 
     def parse_identifier(self):
         complex_ops = (op.dot, dlm.lparen, dlm.lbracket)
-        if self.token.type == tt.identifier:
-            if not self.in_symbol and self.token.value not in self.symtable:
-                self.e(UndeclaredIdentifierError, [self.token.value])
-            result = SynVar(self.token)
-            self.next_token()
-
+        if self.token.value not in self.symtable:
+            self.e(UndeclaredIdentifierError, [self.token.value])
+        result = SynVar(self.token)
+        self.next_token()
         if self.token.type in complex_ops:
             return self.parse_complex_expr(result)
         else:
