@@ -1,4 +1,0 @@
-Symbol table:
-a: array
-r: record
-spc: tests/plang/027.in: Syntax error on line 5, col 5. Identifier expected

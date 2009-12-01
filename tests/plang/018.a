@@ -1,3 +1,0 @@
-Symbol table:
-r: record
-spc: tests/plang/018.in: Syntax error on line -1, col -1. Identifier expected

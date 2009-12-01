@@ -1,4 +1,0 @@
-Symbol table:
-a: array
-f: function
-spc: tests/plang/028.in: Syntax error on line 7, col 5. Unexpected character ']'

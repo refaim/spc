@@ -1,0 +1,3 @@
+Symbol table:
+a: array
+spc: tests/sdecl/015.in: Syntax error on line 2, col 3. Unexpected character ']'
