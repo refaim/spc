@@ -81,10 +81,12 @@ class ExprParser(object):
         return SynVar(self.token)
 
 class SimpleParser(ExprParser):
-    def parse_decl(self):
+    def __init__(self, tokenizer):
+        ExprParser.__init__(self, tokenizer)
         self.symtable = SimpleSymTable()
         self.in_symbol = False
 
+    def parse_decl(self):
         simple_types = { "array": kw.array, "function": kw.function,
                          "record": kw.record, "var": kw.var }
         while self.token.value in simple_types:
@@ -159,4 +161,59 @@ class SimpleParser(ExprParser):
             return result
 
 class Parser(ExprParser):
-    pass
+    def __init__(self, tokenizer):
+        ExprParser.__init__(self, tokenizer)
+        self.symtable = SymTable()
+        basetypes = [SymTypeInt, SymTypeFloat]
+        for entry in basetypes:
+            self.symtable.insert(entry())
+
+    def e(self, error, params = [], fp = None):
+        if error is ExpError:
+            tok = self.token
+            params.append(tok.value if tok.value else tok.text)
+        ExprParser.e(self, error, params, fp)
+
+    def check_for_token(self, ttype):
+        if self.token.type != ttype:
+            self.e(ExpError, [str(ttype)])
+
+    def parse_varlist(self):
+        self.next_token()
+        res = [self.parse_identifier()]
+        while self.token.type == dlm.comma:
+            self.next_token()
+            res.append(self.parse_identifier())
+        return res
+
+    def parse_type(self):
+        self.next_token()
+        # заглушка
+        if self.token.type not in (tt.identifier, kw.integer, kw.float):
+            self.e(ExpError, ['Identifier'])
+        typename = self.token.value
+        if typename in self.symtable:
+            self.next_token()
+            return self.symtable[typename]
+        else:
+            self.e(UnknownTypeError, [typename])
+
+    def parse_decl(self):
+        while self.token.type == kw.var:
+            variables = self.parse_varlist()
+            self.check_for_token(dlm.colon)
+            vartype = self.parse_type()
+            self.check_for_token(dlm.semicolon)
+            for var in variables:
+                self.symtable.insert(SymVar(var, vartype))
+            self.next_token()
+
+    def parse_identifier(self):
+        self.check_for_token(tt.identifier)
+        varname = self.token.value
+        if varname in kw:
+            self.e(ReservedNameError)
+        if varname in self.symtable:
+            self.e(RedeclaredIdentifierError, [varname])
+        self.next_token()
+        return varname

@@ -65,7 +65,7 @@ class Tokenizer(object):
             tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:
-            self._token = Token(tt.eof)
+            self._token = Token(type = tt.eof, value = 'EOF')
 
     def _read_identifier(self, ch):
         s, ch = ch, self._getch()

@@ -6,7 +6,8 @@ from enum import Enum
 from common import *
 
 # SymbolType
-st = Enum("symtype", "variable", "array", "record", "function", "integer", "float")
+st = Enum("symtype", "variable", "array", "record", "function", "range", \
+          "integer", "float")
 
 class Symbol(object):
     def __init__(self, sname):
@@ -14,33 +15,61 @@ class Symbol(object):
 
     def is_type(self): return False
     def get_name(self): return self._name
-    def get_type(self): st.symtype
 
-class SymVariable(Symbol):
-    def __init__(self, stype, sname):
+    @property
+    def symtype(self): return st.symtype
+
+class SymVar(Symbol):
+    def __init__(self, sname, stype):
         Symbol.__init__(self, sname)
         self._type = stype
 
-    def get_type(self): return st.variable
+    @property
+    def symtype(self): return st.variable
+
+class SymFunction(Symbol):
+    def __init__(self, ftype, fname):
+        Symbol.__init__(self, fname)
+        self._ftype = ftype
+        self.args = SymbolTable()
+
+    @property
+    def symtype(self): return st.function
+
+class SymArray(Symbol):
+    pass#def __init__
 
 class SymType(Symbol):
     def is_type(self): return True
-    def get_type(self): return st.symtype
+
+    @property
+    def symtype(self): return st.symtype
 
 class SymTypeArray(SymType):
-    def get_type(self): return st.array
+    @property
+    def symtype(self): return st.array
 
 class SymTypeRecord(SymType):
-    def get_type(self): return st.record
+    @property
+    def symtype(self): return st.record
 
 class SymTypeFunction(SymType):
-    def get_type(self): return st.function
+    @property
+    def symtype(self): return st.function
 
 class SymTypeInt(SymType):
-    def get_type(self): return st.integer
+    def __init__(self): SymType.__init__(self, 'integer')
+    @property
+    def symtype(self): return st.integer
 
 class SymTypeFloat(SymType):
-    def get_type(self): return st.float
+    def __init__(self): SymType.__init__(self, 'float')
+    @property
+    def symtype(self): return st.float
+
+class SymTypeRange(SymType):
+    @property
+    def symtype(self): return st.range
 
 # для контроля
 class SymTableError(Exception): pass

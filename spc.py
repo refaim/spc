@@ -20,7 +20,7 @@ from common import *
 from errors import CompileError
 from tokenizer import Tokenizer
 import tokenout
-from synanalyzer import ExprParser, SimpleParser
+from synanalyzer import ExprParser, SimpleParser, Parser
 from synout import SyntaxTreePrinter
 
 class Compiler(object):
@@ -48,14 +48,17 @@ class Compiler(object):
         self.parser = ExprParser(self.tokenizer)
         self.common_parse()
 
-    def parse_simple_decl(self):
-        self.parser = SimpleParser(self.tokenizer)
+    def get_symbol_table(self, ParserClass):
+        self.parser = ParserClass(self.tokenizer)
         self.parser.parse_decl()
         self.parser.symtable.write()
+
+    def parse_simple_decl(self):
+        self.get_symbol_table(SimpleParser)
         self.common_parse()
 
     def parse_decl(self):
-        raise NotImplementedError
+        self.get_symbol_table(Parser)
 
 def usage():
     print(__doc__)

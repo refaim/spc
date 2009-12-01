@@ -30,6 +30,10 @@ class IdentifierExpError(SynError):
     message = "Identifier expected"
 class UndeclaredIdentifierError(SynError):
     message = "Undeclared identifier '{0}'"
+class UnknownTypeError(SynError):
+    message = "Unknown type '{0}'"
+class RedeclaredIdentifierError(SynError):
+    message = "Redeclared identifier '{0}'"
 class ReservedNameError(SynError):
     message = "Identifier '{0}' is reserved and not allowed for using"
 class BracketsMismatchError(SynError):
@@ -42,15 +46,14 @@ class SubscriptError(SynError):
     message = "Subscripted object is neither an array nor a string"
 class RecordError(SynError):
     message = "Request of field in something not a record"
+class ExpError(SynError):
+    message = "'{0[0]}' expected, but '{0[1]}' found"
 
 def raise_exception(e):
     template = "{0} on line {1}, col {2}. {3}"
     if not empty(e.params):
-        # создание кортежа из последовательности единичной длины
-        # приводит к появлению запятой после элемента:
-        # tuple([1]) == (1,)
-        # tuple([1, 2, ..., n]) == (1, 2, ..., n)
-        e.params = first(e.params) if len(e.params) == 1 else tuple(e.params)
+        if len(e.params) == 1:
+            e.params = first(e.params)
         e.message = e.message.format(e.params)
     e.message = template.format(e.prefix, e.line, e.pos, e.message)
     raise e
