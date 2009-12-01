@@ -9,7 +9,7 @@ from spc import main as run_compiler
 
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
-paths = ["tests/lexer/", "tests/expr/", "tests/plang/"]
+paths = ["tests/lexer/", "tests/expr/", "tests/sdecl/"]
 binary_file_exts = {"-e": ".gif", "-s": ".gif"}
 short_opts = "les"
 
