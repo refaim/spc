@@ -20,7 +20,8 @@ from common import *
 from errors import CompileError
 from tokenizer import Tokenizer
 import tokenout
-from synanalyzer import ExprParser, SimpleParser, Parser
+from simplesynanalyzer import SimpleParser
+from synanalyzer import ExprParser, Parser
 from synout import SyntaxTreePrinter
 
 class Compiler(object):
