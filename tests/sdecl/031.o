@@ -1,4 +1,0 @@
-Symbol table:
-f: function
-r: record
-spc: tests/sdecl/031.in: Syntax error on line 5, col 5. Identifier expected

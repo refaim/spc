@@ -1,3 +1,0 @@
-Symbol table:
-a: var
-spc: tests/sdecl/009.in: Syntax error on line 2, col 2. Subscripted object is neither an array nor a string

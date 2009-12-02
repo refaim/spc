@@ -1,1 +1,0 @@
-spc: tests/sdecl/004.in: Syntax error on line 1, col 5. Identifier 'var' is reserved and not allowed for using
