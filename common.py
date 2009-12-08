@@ -19,3 +19,6 @@ def sort(seq):
         seq.sort()
         return seq
     return None
+
+def try_get(elm, seq):
+    return seq[elm] if elm in seq else None
