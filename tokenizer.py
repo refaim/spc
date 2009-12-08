@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import re
 from string import digits, hexdigits
-from re import compile as re_compile
-from token import Token, keywords, delimiters, operations, tt
+
 from errors import *
+from token import Token, keywords, delimiters, operations, tt
 
 class Tokenizer(object):
     def __init__(self, program):
@@ -82,9 +83,9 @@ class Tokenizer(object):
         return Token(type = ttype, text = s, value = l)
 
     def _read_number(self, ch):
-        hex_re = re_compile(r"\$[0-9a-fA-F]+")
-        dec_re = re_compile(r"\d+")
-        float_re = re_compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
+        hex_re = re.compile(r"\$[0-9a-fA-F]+")
+        dec_re = re.compile(r"\d+")
+        float_re = re.compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
         thex, tdec, tfloat = range(3)
 
         numerical_regexps = { thex: hex_re, tdec: dec_re, tfloat: float_re }
@@ -183,19 +184,12 @@ class Tokenizer(object):
         else:
             raise_exception(StringEofError(self._tokenpos))
 
+    def _get_match(self, pattern):
+        return re.compile(pattern).match(self._text, self._cpos + 1).group()
+
     def _read_char_const(self, ch):
-        s, ch = [ch], self._getch()
-        while ch.isdigit():
-            s.append(ch)
-            ch = self._getch()
-        s = "".join(c for c in s)
-        error = False
-        try:
-            ch = chr(int(s[1:]))
-        except ValueError:
-            error = True
-        except OverflowError:
-            error = True
-        if error: raise_exception(CharConstError(self._tokenpos))
-        self._putch()
-        return Token(type = tt.char_const, text = s, value = ch)
+        char = self._get_match(r'([0-9]*)')
+        if not char.isdigit() or char > '255':
+            raise_exception(CharConstError(self._tokenpos))
+        self._cpos += len(char)
+        return Token(tt.char_const, '#' + char, chr(int(char)))
