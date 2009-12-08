@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import re
-from string import digits, hexdigits
+from string import digits, hexdigits, letters
 
+from common import *
 from errors import *
 from token import Token, keywords, delimiters, operations, tt
 
@@ -60,27 +61,13 @@ class Tokenizer(object):
                 tok = self._read_delimiter(ch)
             elif ch != "":
                 raise_exception(IllegalCharError((self._tokenpos), [ch]))
-            found = ch != "" and tok != None
+            found = ch != "" and not tok is None
 
         if found and ch != "":
             tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:
             self._token = Token(type = tt.eof, value = 'EOF')
-
-    def _read_identifier(self, ch):
-        s, ch = ch, self._getch()
-        while ch.isalnum() or ch == "_":
-            s, ch = s + ch, self._getch()
-        l = s.lower()
-        if l in keywords:
-            ttype = keywords[l]
-        elif l in operations:
-            ttype = operations[l]
-        else:
-            ttype = tt.identifier
-        self._putch()
-        return Token(type = ttype, text = s, value = l)
 
     def _read_number(self, ch):
         hex_re = re.compile(r"\$[0-9a-fA-F]+")
@@ -185,11 +172,19 @@ class Tokenizer(object):
             raise_exception(StringEofError(self._tokenpos))
 
     def _get_match(self, pattern):
-        return re.compile(pattern).match(self._text, self._cpos + 1).group()
+        match = re.compile(pattern).match(self._text, self._cpos).group()
+        self._cpos += len(match) - 1
+        return match
+
+    def _read_identifier(self, ch):
+        name = self._get_match(r'(\w*)')
+        value = name.lower()
+        ttype = try_get(value, keywords) or try_get(value, operations) or \
+            tt.identifier
+        return Token(ttype, name, value)
 
     def _read_char_const(self, ch):
-        char = self._get_match(r'([0-9]*)')
-        if not char.isdigit() or char > '255':
+        char = self._get_match(r'(#\d*)').lstrip('#')
+        if not char.isdigit() or int(char) > 255:
             raise_exception(CharConstError(self._tokenpos))
-        self._cpos += len(char)
         return Token(tt.char_const, '#' + char, chr(int(char)))
