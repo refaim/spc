@@ -20,5 +20,5 @@ def sort(seq):
         return seq
     return None
 
-def try_get(elm, seq):
+def subscript(seq, elm):
     return seq[elm] if elm in seq else None

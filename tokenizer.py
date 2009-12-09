@@ -78,7 +78,9 @@ class Tokenizer(object):
             if empty(num):
                 num = self._get_match(r'\d+')
                 if self._getch() in '.eE':
-                    num, ttype = '', tt.float
+                    if self._getch() != '.':
+                        num, ttype = '', tt.float
+                    self._putch()
                 self._putch()
             else:
                 ttype = tt.float
@@ -122,13 +124,14 @@ class Tokenizer(object):
         return methods[ch == "("](ch)
 
     def _read_delimiter(self, ch):
-        char_set = delimiters if ch in delimiters else operations
-        first, second = ch, self._getch()
-        possible = first + second
-        if possible == ":=": char_set = operations
-        text = possible if possible in char_set else first
-        if text == first: self._putch()
-        return Token(type = char_set[text], text = text)
+        first, both = ch, ch + self._getch()
+        chars = dict(delimiters.items() + operations.items())
+        if both in chars:
+            text, ttype = both, chars[both]
+        else:
+            text, ttype = first, chars[first]
+            self._putch()
+        return Token(ttype, text)
 
     def _read_string_const(self, ch):
         s, ch = [ch], self._getch()
