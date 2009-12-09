@@ -51,10 +51,10 @@ class Tokenizer(object):
             if ch.isspace(): continue
             self._tokenpos = self._cline + 1, self._cpos + 1
 
-            if ch.isalpha() or ch == "_": tok = self._read_identifier(ch)
-            elif ch.isdigit() or ch == "$": tok = self._read_number(ch)
+            if ch in letters + "_": tok = self._read_identifier(ch)
+            elif ch in digits + "$": tok = self._read_number(ch)
             elif ch == "/": tok = self._read_comment(ch)
-            elif ch in ["{", "("]: tok = self._read_block_comment(ch)
+            elif ch in "{(": tok = self._read_block_comment(ch)
             elif ch == "'": tok = self._read_string_const(ch)
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters or ch in operations:
@@ -70,41 +70,22 @@ class Tokenizer(object):
             self._token = Token(type = tt.eof, value = 'EOF')
 
     def _read_number(self, ch):
-        hex_re = re.compile(r"\$[0-9a-fA-F]+")
-        dec_re = re.compile(r"\d+")
-        float_re = re.compile(r"(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)")
-        thex, tdec, tfloat = range(3)
-
-        numerical_regexps = { thex: hex_re, tdec: dec_re, tfloat: float_re }
-
-        float_part = ".eE"
-        valid_chars = { thex: hexdigits, tdec: digits, tfloat: digits + float_part }
-
-        num, ch = [ch], self._getch()
-        ttype = thex if num == ["$"] else (tfloat if ch in float_part else tdec)
-        while ch and ch in valid_chars[ttype]:
-
-            # десятичная точка, минус или экспонента могут встретиться только один раз
-            if ttype == tfloat and ch in float_part:
-                valid_chars[ttype] = valid_chars[ttype].replace(ch.lower(), "").replace(ch.upper(), "")
-            num.append(ch)
-            ch = self._getch()
-
-            if ttype != thex and ch in float_part:
-                ttype = tfloat
-                valid_chars[ttype] += "-"
-
-        num = "".join(c for c in num)
-        matches = numerical_regexps[ttype].findall(num)
-        error = not (matches and "".join(matches[0]).startswith(num))
-        self._putch()
-
-        ttype = tt.integer if ttype in [thex, tdec] else tt.float
-        if error:
-            etypes = { tt.integer: IntError, tt.float: FloatError }
+        ttype = tt.integer
+        if ch == '$':
+            num = self._get_match(r'(\$[\da-fA-F]*)')
+        else:
+            num = self._get_match(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
+            if empty(num):
+                num = self._get_match(r'\d+')
+                if self._getch() in '.eE':
+                    num, ttype = '', tt.float
+                self._putch()
+            else:
+                ttype = tt.float
+        etypes = { tt.integer: IntError, tt.float: FloatError }
+        if empty(num) or num == '$':
             raise_exception(etypes[ttype](self._tokenpos))
-
-        return Token(type = ttype, text = num)
+        return Token(ttype, num)
 
     def _read_comment(self, ch):
         if ch == self._getch():
@@ -172,19 +153,21 @@ class Tokenizer(object):
             raise_exception(StringEofError(self._tokenpos))
 
     def _get_match(self, pattern):
-        match = re.compile(pattern).match(self._text, self._cpos).group()
-        self._cpos += len(match) - 1
-        return match
+        match = re.compile(pattern).match(self._text, self._cpos)
+        if not match is None:
+            match = match.group()
+            self._cpos += len(match) - 1
+        return match or ''
 
     def _read_identifier(self, ch):
-        name = self._get_match(r'(\w*)')
+        name = self._get_match(r'(\w+)')
         value = name.lower()
-        ttype = try_get(value, keywords) or try_get(value, operations) or \
+        ttype = subscript(keywords, value) or subscript(operations, value) or \
             tt.identifier
         return Token(ttype, name, value)
 
     def _read_char_const(self, ch):
         char = self._get_match(r'(#\d*)').lstrip('#')
-        if not char.isdigit() or int(char) > 255:
+        if empty(char) or int(char) > 255:
             raise_exception(CharConstError(self._tokenpos))
         return Token(tt.char_const, '#' + char, chr(int(char)))

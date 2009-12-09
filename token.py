@@ -53,7 +53,7 @@ class Token(object):
         def make_char(c):
             return c if c in printable else c.encode("utf-8")
         def make_int(n):
-            return eval(n.replace("$", "0x")) if n.startswith("$") else int(n)
+            return eval(n.replace('$', '0x')) if n.startswith('$') else int(n)
 
         value_makers = { tt.string_const: make_string, tt.char_const: make_char,
                          tt.float: eval, tt.integer: make_int }
