@@ -1,78 +1,111 @@
 #!/usr/bin/python
-# -*- mode: python; coding: utf-8 -*- author: Roman Kharitonov refaim.vl@gmail.com
+# -*- mode: python; coding: utf-8 -*-
+# author: Roman Kharitonov refaim.vl@gmail.com
 
 import sys, os, shutil
-from getopt import getopt, GetoptError
+import glob, getopt
 
 from common import *
 from spc import main as run_compiler
 
+class TestError(Exception):
+    template = "Test #{0} {1}"
+    def __init__(self, name):
+        self.name = name
+
+class Fail(TestError):
+    message = "FAIL"
+class NoAnswer(TestError):
+    message = "NO ANSWER"
+
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
-paths = ["tests/lexer/", "tests/expr/", "tests/sdecl/"]
-binary_file_exts = {"-e": ".gif", "-s": ".gif"}
-short_opts = "les"
+class Tester(object):
+    def __init__(self, option, path):
+        self.option, self.path = option, path
+        self.suite = self.get_suite(path)
+        self.passed, self.answer_present = True, True
 
-def has_binary_output(option):
-    return option in binary_file_exts
+    def get_suite(self, path):
+        return sorted([t.replace('\\', '/') for t in glob.glob(path + '*' + t_ext)])
 
-try:
-    opts, args = getopt(sys.argv[1:], short_opts)
-    opt = opts[0][0]
-    index = short_opts.index(opt.lstrip('-'))
-    test_path = paths[index]
-except GetoptError as opterr:
-    print("{0}, {1}".format(opterr, "use short variants of compiler options"))
-    exit()
-
-test_dir = os.walk(test_path)
-for root, dirs, files in test_dir:
-    files.sort()
-    for entry in files:
-        fname, ext = os.path.splitext(entry)
-        if ext != t_ext: continue
-
-        old = sys.stdout
-        with open(test_path + fname + o_ext, "w") as sys.stdout:
-            run_compiler([opt, test_path + entry])
-        sys.stdout = old
-
-        msg = "Test #{0} ".format(fname)
-        passed, answer_present = True, True
-
-        if has_binary_output(opt):
-            b_ext = binary_file_exts[opt]
-            b_path = fname + b_ext
-            if os.path.exists(b_path):
-                shutil.move(b_path, test_path + fname + o_ext + b_ext)
-
-            b_path = "{0}{1}{2}".format(test_path + fname, "{0}", b_ext)
-            bans_path, bout_path = b_path.format(a_ext), b_path.format(o_ext)
-            exa, exo = os.path.exists(bans_path), os.path.exists(bout_path)
-            if exa == exo == True:
-                bans = open(bans_path, "rb")
-                bout = open(bout_path, "rb")
-                passed = bans.read() == bout.read()
-                bans.close()
-                bout.close()
+    def run(self):
+        for entry in self.suite:
+            self.testname = first(os.path.splitext(os.path.basename(entry)))
+            self.test = self.path + self.testname
+            self.run_test(entry)
+            try:
+                self.check()
+            except TestError as result:
+                print(result.template.format(result.name, result.message))
             else:
-                if exa and not exo:
-                    passed = False
-                elif exo and not exa:
-                    answer_present = False
+                print "Test #{0} OK".format(self.testname)
 
-        answer_present = answer_present and os.path.exists(test_path + fname + a_ext)
-        if not answer_present:
-            print(msg + "NO ANSWER")
-            continue
+    def run_test(self, path):
+        oldout = sys.stdout
+        with open(self.test + o_ext, "w") as sys.stdout:
+            run_compiler([self.option, path])
+        sys.stdout = oldout
 
-        fans = open(test_path + fname + a_ext, "rU")
-        fout = open(test_path + fname + o_ext, "rU")
-        passed = passed and fout.read() == fans.read()
-        print(msg + "OK") if passed else (msg + "FAIL")
-        #if err:
-        #    print(err)
-        #    exit(1)
+    def compare(self, first, second, mode):
+        with open(self.test + first, mode) as answer:
+            with open(self.test + second, mode) as output:
+                self.passed = output.read() == answer.read()
 
-        fout.close()
-        fans.close()
+    def check(self):
+        self.answer_present = os.path.exists(self.test + a_ext)
+        self.compare(a_ext, o_ext, 'rU')
+
+    def set_passed(self, value):
+        if not value:
+            raise Fail(self.testname)
+
+    def set_answer_present(self, value):
+        if not value:
+            raise NoAnswer(self.testname)
+
+    passed = property(fset = set_passed)
+    answer_present = property(fset = set_answer_present)
+
+class DotTester(Tester):
+    ext = '.gif'
+    def check(self):
+        try:
+            Tester.check(self)
+        finally:
+            output_present = os.path.exists(self.testname + self.ext)
+            if output_present:
+                shutil.move(self.testname + self.ext, self.test + o_ext + self.ext)
+        answer_present = os.path.exists(self.test + a_ext + self.ext)
+        self.answer_present = answer_present or not output_present
+        self.passed = output_present or not answer_present
+        if answer_present:
+            self.compare(a_ext + self.ext, o_ext + self.ext, 'rb')
+
+def error(msg):
+    print(msg)
+    return 2
+
+def main(argv):
+    optpaths = {'l': 'lexer',
+                'e': 'expr',
+                's': 'sdecl',
+                'd': 'decl'}
+    try:
+        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()))
+    except getopt.GetoptError, e:
+        return error(str(e) + ', use short variants of compiler options')
+    if len(opts) > 1:
+        return error('use only one option')
+    if not empty(args):
+        return error('arguments are not allowed')
+
+    option = first(first(opts))
+    path = 'tests/{0}/'.format(optpaths[second(option)])
+    tester_class = Tester if option == '-l' else DotTester
+    tester = tester_class(option, path)
+    tester.run()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
