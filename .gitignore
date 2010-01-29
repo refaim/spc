@@ -1,6 +1,6 @@
 *.pyc
 lib/*.pyc
-
+*.swp
 *~
 
 tests/lexer/*.o
