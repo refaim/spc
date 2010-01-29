@@ -75,7 +75,6 @@ def error(msg, fname = None):
 
 def main(argv):
     # разбор опций командной строки
-    # для корректной работы функции process() опция help должна быть первой в словаре
     option = {'help':        'h',
               'lex':         'l',
               'expr':        'e',
