@@ -21,23 +21,21 @@ class Tokenizer(object):
             yield self.get_token()
             self.next_token()
 
-    def _getline(self):
-        line = self._file.readline()
-        self._cline += 1
-        self.eof = line == ""
-        if not self.eof:
-            if line[len(line) - 1] != '\n':
-                line += '\n'
-        self._cpos = -1
-        return line
-
     def _getch(self):
         self._cpos += 1
         if not self.eof and self._cpos == len(self._text):
             self._text = self._getline()
         return self._text[self._cpos] if not self.eof else ""
 
-    def _putch(self, count = 1):
+    def _getline(self):
+        line = self._file.readline()
+        self._cline, self._cpos = self._cline + 1, -1
+        self.eof = empty(line)
+        if not self.eof and last(line) != '\n':
+           line += '\n'
+        return line
+
+    def _putch(self, count=1):
         self._cpos -= count
 
     def get_token(self):
@@ -45,8 +43,8 @@ class Tokenizer(object):
 
     def next_token(self):
         found = False
-        ch = 1
         while not found and not self.eof:
+            #self._match_regexp(r'(\s+|\\\n)+')
             ch = self._getch()
             if ch.isspace(): continue
             self._tokenpos = self._cline + 1, self._cpos + 1
@@ -59,38 +57,39 @@ class Tokenizer(object):
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters or ch in operations:
                 tok = self._read_delimiter(ch)
-            elif ch != "":
+            elif not empty(ch):
                 raise_exception(IllegalCharError((self._tokenpos), [ch]))
-            found = ch != "" and not tok is None
 
-        if found and ch != "":
+            found = not (empty(ch) or tok is None)
+
+        if found and not empty(ch):
             tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:
-            self._token = Token(type = tt.eof, value = 'EOF')
+            self._token = Token(tt.eof, value='EOF')
 
     def _read_number(self, ch):
         ttype = tt.integer
         if ch == '$':
-            num = self._get_match(r'(\$[\da-fA-F]*)')
+            num = self._match_regexp(r'(\$[\da-fA-F]*)')
         else:
-            num = self._get_match(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
-            if empty(num):
-                num = self._get_match(r'\d+')
+            num = self._match_regexp(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
+            if not empty(num):
+                ttype = tt.float
+            else:
+                num = self._match_regexp(r'\d+')
                 if self._getch() in '.eE':
                     if self._getch() != '.':
                         num, ttype = '', tt.float
                     self._putch()
                 self._putch()
-            else:
-                ttype = tt.float
         etypes = { tt.integer: IntError, tt.float: FloatError }
         if empty(num) or num == '$':
             raise_exception(etypes[ttype](self._tokenpos))
         return Token(ttype, num)
 
     def _read_comment(self, ch):
-        if ch == self._getch():
+        if self._getch() == '/':
             self._text = self._getline()
             return None
         else:
@@ -101,27 +100,25 @@ class Tokenizer(object):
         # first - {}, second - (**)
 
         def read_first(ch):
-            ch = self._getch()
-            while ch != "}" and ch:
+            while ch not in ('}', ''):
                 ch = self._getch()
-            if ch == "}": return None
+            if ch == '}': return None
             raise_exception(BlockCommentEofError(self._tokenpos))
 
         def read_second(ch):
-            if self._getch() != "*":
+            if self._getch() != '*':
                 self._putch()
                 return self._read_delimiter(ch)
-            ch = self._getch()
             found = False
-            while not found and ch:
+            while not (found or empty(ch)):
                 ch = self._getch()
-                if ch == "*":
-                    found = self._getch() == ")"
+                if ch == '*':
+                    found = self._getch() == ')'
             if found: return None
             raise_exception(BlockCommentEofError(self._tokenpos))
 
         methods = [read_first, read_second]
-        return methods[ch == "("](ch)
+        return methods[ch == '('](ch)
 
     def _read_delimiter(self, ch):
         first, both = ch, ch + self._getch()
@@ -151,26 +148,27 @@ class Tokenizer(object):
             ch = self._getch()
         if s_end and line == self._cline:
             s = "".join(c for c in s)
-            return Token(type = tt.string_const, text = s)
+            return Token(tt.string_const, s)
         else:
             raise_exception(StringEofError(self._tokenpos))
 
-    def _get_match(self, pattern):
+    def _match_regexp(self, pattern):
         match = re.compile(pattern).match(self._text, self._cpos)
-        if not match is None:
-            match = match.group()
-            self._cpos += len(match) - 1
-        return match or ''
+        if match is None:
+            return ''
+        match = match.group(0)
+        self._cpos += len(match) - 1
+        return match
 
     def _read_identifier(self, ch):
-        name = self._get_match(r'(\w+)')
+        name = self._match_regexp(r'(\w+)')
         value = name.lower()
         ttype = subscript(keywords, value) or subscript(operations, value) or \
             tt.identifier
         return Token(ttype, name, value)
 
     def _read_char_const(self, ch):
-        char = self._get_match(r'(#\d*)').lstrip('#')
+        char = self._match_regexp(r'(#\d*)').lstrip('#')
         if empty(char) or int(char) > 255:
             raise_exception(CharConstError(self._tokenpos))
         return Token(tt.char_const, '#' + char, chr(int(char)))
