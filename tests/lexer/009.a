@@ -6,6 +6,6 @@
 |             |              |               |              |
 |  1, 1       |  0e0         |  0.0          |  Float       |
 |  2, 1       |  1e1         |  10.0         |  Float       |
+|  3, 1       |  0e-0        |  0.0          |  Float       |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/009.in: Lexical error on line 3, col 1. Invalid float constant

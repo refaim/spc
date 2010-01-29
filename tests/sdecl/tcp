@@ -1,2 +1,0 @@
-cp $1.o $1.a
-cp $1.o.gif $1.a.gif
