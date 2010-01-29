@@ -11,7 +11,7 @@ class SyntaxTreePrinter(object):
         self.trees = trees
         self.ctr = 0
         self.graph = pydot.Dot()
-        self.filename, ext = os.path.splitext(os.path.basename(path))
+        self.filename = first(os.path.splitext(os.path.basename(path)))
 
     @property
     def counter(self):
@@ -25,15 +25,15 @@ class SyntaxTreePrinter(object):
             if isinstance(node, syn.SynFunctionCall):
                 functions.append(node.func)
 
-            node_shape = "box" if empty(children) else "ellipse"
+            node_shape = 'box' if empty(children) else 'ellipse'
             if node in functions:
-                node_shape = "diamond"
+                node_shape = 'diamond'
 
             node_id = indices[node]
             self.current_graph.add_node(
-                pydot.Node(node_id, label = str(node), shape = node_shape))
+                pydot.Node(node_id, label=str(node), shape=node_shape, fontname='Verdana'))
 
-            if len(children):
+            if not empty(children):
                 for child in children:
                     indices[child] = self.counter
                     self.current_graph.add_edge(
@@ -50,4 +50,5 @@ class SyntaxTreePrinter(object):
             indices[root] = self.counter
             add_to_current(root)
             self.graph.add_subgraph(self.current_graph)
-        self.graph.write_gif(self.filename + ".gif")
+        if not empty(self.graph.get_subgraph_list()):
+            self.graph.write_gif(self.filename + '.gif')
