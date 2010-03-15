@@ -87,7 +87,7 @@ class SimpleSymTable(UserDict):
     def write(self):
         if empty(self): return
         print("Symbol table:")
-        for sym, symtype in sort(self.items()):
+        for sym, symtype in sorted(self.items()):
             print("{0}: {1}".format(sym, symtype))
 
 class SymTable(SimpleSymTable):
@@ -112,8 +112,7 @@ class SymTable(SimpleSymTable):
                 tname = t.get_type().get_name()
                 print('{0}: {1}'.format(shift + n, tname))
                 if t.get_type().has_symtable():
-                    newshift = shift + '\t'
-                    t.get_type().symtable.write(newshift)
+                    t.get_type().symtable.write(shift + '\t')
             else:
                 if n not in ('float', 'integer'):
                     print(shift + n)
