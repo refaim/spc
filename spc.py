@@ -13,7 +13,8 @@ Usage: spc [option] [filename1] [filename2] [...]
 -d, --decl           parse normal Pascal declarations\
 '''
 
-import sys, os
+import sys
+import os
 import getopt
 
 from common import *
@@ -67,7 +68,7 @@ def usage():
 
 def error(msg, fname = None):
     ''' Вывод сообщения об ошибке '''
-    if fname:
+    if fname is not None:
         print('spc: {0}: {1}'.format(fname, msg))
     else:
         print('spc: {0}'.format(msg))
@@ -92,12 +93,14 @@ def main(argv):
     # проверка на наличие нескольких опций, пишущих в файлы/stdout
     opcheck = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
 
-    if present('help') or empty(opts): return usage()
+    if present('help') or empty(opts):
+        return usage()
     if not opcheck(option.keys()):
         return error('use only one of this options: ' +
                      ', '.join(first(opt) for opt in opts))
 
-    if empty(args): return error('no input files')
+    if empty(args):
+        return error('no input files')
     for path in args:
         if not os.path.exists(path):
             return error('no such file or directory', path)
