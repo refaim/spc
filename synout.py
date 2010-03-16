@@ -33,16 +33,15 @@ class SyntaxTreePrinter(object):
             self.current_graph.add_node(
                 pydot.Node(node_id, label=str(node), shape=node_shape, fontname='Verdana'))
 
-            if not empty(children):
-                for child in children:
-                    indices[child] = self.counter
-                    self.current_graph.add_edge(
-                        pydot.Edge(node_id, indices[child]))
-                # нельзя добавить ребра и вершины в одном цикле, потому что
-                # из-за рекурсивности add_to_current() будет нарушен порядок
-                # добавления ребер, и при выводе вместо красивого дерева
-                # получится непонятная паутина
-                map(add_to_current, children)
+            for child in children:
+                indices[child] = self.counter
+                self.current_graph.add_edge(
+                    pydot.Edge(node_id, indices[child]))
+            # нельзя добавить ребра и вершины в одном цикле, потому что
+            # из-за рекурсивности add_to_current() будет нарушен порядок
+            # добавления ребер, и при выводе вместо красивого дерева
+            # получится непонятная паутина
+            map(add_to_current, children)
 
         indices, functions = {}, []
         for root in self.trees:
