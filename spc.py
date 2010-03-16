@@ -66,8 +66,7 @@ def usage():
     print(__doc__)
     return 0
 
-def error(msg, fname = None):
-    ''' Вывод сообщения об ошибке '''
+def error(msg, fname=None):
     if fname is not None:
         print('spc: {0}: {1}'.format(fname, msg))
     else:
@@ -75,32 +74,31 @@ def error(msg, fname = None):
     return 2
 
 def main(argv):
-    actions = { 'lex':         Compiler.tokenize,
-                'expr':        Compiler.parse_expressions,
-                'simple-decl': Compiler.parse_simple_decl,
-                'decl':        Compiler.parse_decl         }
+    compiler_actions = { 'lex':         Compiler.tokenize,
+                         'expr':        Compiler.parse_expressions,
+                         'simple-decl': Compiler.parse_simple_decl,
+                         'decl':        Compiler.parse_decl         }
 
-    options = {'help' : 'h'}
-    for key in actions.keys():
-        options[key] = first(key)
+    compiler_options = {'help' : 'h'}
+    for key in compiler_actions:
+        compiler_options[key] = first(key)
 
     try:
         opts, args = getopt.getopt(
-            argv, ''.join(options.values()), options.keys())
+            argv, ''.join(compiler_options.values()), compiler_options.keys())
+
+        # [('-a', ''), ('-b', '')] -> ['-a', '-b']
+        opts = map(first, opts)
     except getopt.GetoptError, e:
         return error(str(e) + ', try --help for more options')
 
-    # обработка опций командной строки
-    optuple = lambda o: ('-' + options[o], '--' + o) # 'opt' -> ('-o', '--opt')
-    present = lambda o: some(first(opt) in optuple(o) for opt in opts)
-    # проверка на наличие нескольких опций, пишущих в файлы/stdout
-    opcheck = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
+    present = lambda o: ('-' + first(o)) in opts
 
     if present('help') or empty(opts):
         return usage()
-    if not opcheck(options.keys()):
+    if len(opts) > 1:
         return error('use only one of this options: ' +
-                     ', '.join(first(opt) for opt in opts))
+                     ', '.join(set(opt for opt in opts)))
 
     if empty(args):
         return error('no input files')
@@ -110,16 +108,13 @@ def main(argv):
         if not os.path.isfile(path):
             return error('{0} is a directory, not a file'.format(path))
 
-    def process(opt, arg):
-        with open(arg, 'r', buffering = 10) as source:
-            actions[opt](Compiler(source, arg))
-
-    job = ((opt, arg) for arg in args for opt in options.keys() if present(opt))
+    job = ((opt, arg) for arg in args for opt in compiler_options if present(opt))
     try:
-        for opt, arg in job:
-            process(opt, arg)
+        for option, fname in job:
+            with open(fname, buffering=10) as source:
+                compiler_actions[option](Compiler(source, fname))
     except CompileError, e:
-        return error(e.message, arg)
+        return error(e.message, fname)
     return 0
 
 if __name__ == '__main__':
