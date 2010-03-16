@@ -104,6 +104,8 @@ def main(argv):
     for path in args:
         if not os.path.exists(path):
             return error('no such file or directory', path)
+        if not os.path.isfile(path):
+            return error('{0} is a directory, not a file'.format(path))
 
     def process(opt, arg):
         with open(arg, 'r', buffering = 10) as source:
