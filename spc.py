@@ -75,27 +75,30 @@ def error(msg, fname = None):
     return 2
 
 def main(argv):
-    # разбор опций командной строки
-    option = {'help':        'h',
-              'lex':         'l',
-              'expr':        'e',
-              'simple-decl': 's',
-              'decl':        'd'}
+    actions = { 'lex':         Compiler.tokenize,
+                'expr':        Compiler.parse_expressions,
+                'simple-decl': Compiler.parse_simple_decl,
+                'decl':        Compiler.parse_decl         }
+
+    options = {'help' : 'h'}
+    for key in actions.keys():
+        options[key] = first(key)
+
     try:
         opts, args = getopt.getopt(
-            argv, ''.join(option.values()), option.keys())
+            argv, ''.join(options.values()), options.keys())
     except getopt.GetoptError, e:
         return error(str(e) + ', try --help for more options')
 
     # обработка опций командной строки
-    optuple = lambda o: ('-' + option[o], '--' + o) # 'opt' -> ('-o', '--opt')
+    optuple = lambda o: ('-' + options[o], '--' + o) # 'opt' -> ('-o', '--opt')
     present = lambda o: some(first(opt) in optuple(o) for opt in opts)
     # проверка на наличие нескольких опций, пишущих в файлы/stdout
     opcheck = lambda lst: sum(int(present(opt) or False) for opt in lst) == 1
 
     if present('help') or empty(opts):
         return usage()
-    if not opcheck(option.keys()):
+    if not opcheck(options.keys()):
         return error('use only one of this options: ' +
                      ', '.join(first(opt) for opt in opts))
 
@@ -109,14 +112,9 @@ def main(argv):
 
     def process(opt, arg):
         with open(arg, 'r', buffering = 10) as source:
-            c = Compiler(source, arg)
-            action = { 'lex':         c.tokenize,
-                       'expr':        c.parse_expressions,
-                       'simple-decl': c.parse_simple_decl,
-                       'decl':        c.parse_decl         }
-            action[opt]()
+            actions[opt](Compiler(source, arg))
 
-    job = ((opt, arg) for arg in args for opt in option.keys() if present(opt))
+    job = ((opt, arg) for arg in args for opt in options.keys() if present(opt))
     try:
         for opt, arg in job:
             process(opt, arg)
