@@ -20,9 +20,10 @@ import getopt
 from common import *
 from errors import CompileError
 from tokenizer import Tokenizer
-import tokenout
 from simplesynanalyzer import SimpleParser
 from synanalyzer import ExprParser, Parser
+
+from tokenout import print_tokens
 from synout import SyntaxTreePrinter
 
 class Compiler(object):
@@ -36,9 +37,9 @@ class Compiler(object):
             for token in self.tokenizer:
                 tokens.append(token)
         finally:
-            tokenout.print_tokens(tokens)
+            print_tokens(tokens)
 
-    def common_parse(self):
+    def _common_parse(self):
         expressions = []
         try:
             for expr in self.parser:
@@ -48,19 +49,19 @@ class Compiler(object):
 
     def parse_expressions(self):
         self.parser = ExprParser(self.tokenizer)
-        self.common_parse()
+        self._common_parse()
 
-    def get_symbol_table(self, ParserClass):
+    def parse_simple_decl(self):
+        self._get_symbol_table(SimpleParser)
+        self._common_parse()
+
+    def parse_decl(self):
+        self._get_symbol_table(Parser)
+
+    def _get_symbol_table(self, ParserClass):
         self.parser = ParserClass(self.tokenizer)
         self.parser.parse_decl()
         self.parser.symtable.write()
-
-    def parse_simple_decl(self):
-        self.get_symbol_table(SimpleParser)
-        self.common_parse()
-
-    def parse_decl(self):
-        self.get_symbol_table(Parser)
 
 def usage():
     print(__doc__)
@@ -94,11 +95,8 @@ def main(argv):
 
     present = lambda o: ('-' + first(o)) in opts
 
-    if present('help') or empty(opts):
+    if present('help') or empty(opts) or len(opts) > 1:
         return usage()
-    if len(opts) > 1:
-        return error('use only one of this options: ' +
-                     ', '.join(set(opt for opt in opts)))
 
     if empty(args):
         return error('no input files')
