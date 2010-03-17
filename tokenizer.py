@@ -44,7 +44,6 @@ class Tokenizer(object):
     def next_token(self):
         found = False
         while not found and not self.eof:
-            #self._match_regexp(r'(\s+|\\\n)+')
             ch = self._getch()
             if ch.isspace(): continue
             self._tokenpos = self._cline + 1, self._cpos + 1
@@ -71,22 +70,33 @@ class Tokenizer(object):
     def _read_number(self, ch):
         ttype = tt.integer
         if ch == '$':
-            num = self._match_regexp(r'(\$[\da-fA-F]*)')
-        else:
-            num = self._match_regexp(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
-            if not empty(num):
-                ttype = tt.float
+            # hex
+            numstring = self._match_regexp(r'(\$[\da-fA-F]*)')
+            if numstring == '$':
+                numstring = ''
             else:
-                num = self._match_regexp(r'\d+')
+                value = eval('0x' + numstring[1:])
+        else:
+            # try float
+            numstring = self._match_regexp(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
+            # try int
+            if empty(numstring):
+                numstring = self._match_regexp(r'\d+')
+                value = int(numstring)
+                # check for float
                 if self._getch() in '.eE':
                     if self._getch() != '.':
-                        num, ttype = '', tt.float
+                        numstring = ''
+                        ttype = tt.float
                     self._putch()
                 self._putch()
+            else:
+                 ttype, value = tt.float, eval(numstring)
+
         etypes = { tt.integer: IntError, tt.float: FloatError }
-        if empty(num) or num == '$':
+        if empty(numstring):
             raise_exception(etypes[ttype](self._tokenpos))
-        return Token(ttype, num)
+        return Token(ttype, numstring, value)
 
     def _read_comment(self, ch):
         if self._getch() == '/':
@@ -148,7 +158,8 @@ class Tokenizer(object):
             ch = self._getch()
         if s_end and line == self._cline:
             s = "".join(c for c in s)
-            return Token(tt.string_const, s)
+            value = '"' + s[1:-1].replace("''", "'") + '"'
+            return Token(tt.string_const, s, value)
         else:
             raise_exception(StringEofError(self._tokenpos))
 
