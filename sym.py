@@ -8,43 +8,49 @@ from common import *
 
 # SymbolType
 st = Enum("symtype", "variable", "array", "record", "function", "range", \
-          "integer", "real")
+          "integer", "real", "const")
 
 class Symbol(object):
     def __init__(self, sname):
         self._name = sname
 
-    def is_type(self): return False
-    def get_name(self): return self._name
-    def has_symtable(self): return False
+    def istype(self): return False
+    def getname(self): return self._name
+    def hassymtable(self): return False
 
     @property
     def symtype(self): return st.symtype
 
 class SymVar(Symbol):
-    def __init__(self, sname, stype):
+    def __init__(self, sname, stype, svalue):
         Symbol.__init__(self, sname)
         self._type = stype
+        self._value = svalue
 
     @property
     def symtype(self): return st.variable
-    def get_type(self): return self._type
+    def gettype(self): return self._type
+
+class SymConst(SymVar):
+    @property
+    def symtype(self): return st.const
 
 class SymFunction(Symbol):
-    def __init__(self, ftype, fname):
+    def __init__(self, ftype, fname, fargs=None):
         Symbol.__init__(self, fname)
         self._ftype = ftype
-        self.args = SymbolTable()
+        self.args = fargs or SymTable()
+        self.symtable = SymTable()
 
     @property
     def symtype(self): return st.function
-    def has_symtable(self): return True
+    def hassymtable(self): return True
 
 class SymArray(Symbol):
     pass#def __init__
 
 class SymType(Symbol):
-    def is_type(self): return True
+    def istype(self): return True
 
     @property
     def symtype(self): return st.symtype
@@ -60,7 +66,7 @@ class SymTypeRecord(SymType):
 
     @property
     def symtype(self): return st.record
-    def has_symtable(self): return True
+    def hassymtable(self): return True
 
 class SymTypeFunction(SymType):
     @property
@@ -80,18 +86,16 @@ class SymTypeRange(SymType):
     @property
     def symtype(self): return st.range
 
-# для контроля
-class SymTableError(Exception): pass
-
 class SimpleSymTable(UserDict):
     def write(self):
-        if empty(self): return
+        if empty(self): 
+            return
         print("Symbol table:")
         for sym, symtype in sorted(self.items()):
             print("{0}: {1}".format(sym, symtype))
 
 class SymTable(SimpleSymTable):
-    def __init__(self, types = None):
+    def __init__(self, types=None):
         SimpleSymTable.__init__(self)
         if types is None:
             types = [SymTypeInt(), SymTypeReal()]
@@ -99,20 +103,17 @@ class SymTable(SimpleSymTable):
             self.insert(entry)
 
     def insert(self, smb):
-        if not isinstance(smb, Symbol):
-            raise SymTableError
-        self.__setitem__(smb.get_name(), smb)
+        assert isinstance(smb, Symbol)
+        self.__setitem__(smb.getname(), smb)
 
-    def write(self, shift = ''):
-        if empty(self): return
-        items = ((sname, stype) for sname, stype in sort(self.items()))
-        check = lambda t: not isinstance(t, SymType)
-        for n, t in items:
-            if check(t):
-                tname = t.get_type().get_name()
-                print('{0}: {1}'.format(shift + n, tname))
-                if t.get_type().has_symtable():
-                    t.get_type().symtable.write(shift + '\t')
+    def write(self, shift=''):
+        if empty(self): 
+            return
+        for sname, stype in sorted(self.items()):
+            if not isinstance(stype, SymType):
+                tname = stype.gettype().getname()
+                print('{0}: {1}'.format(shift + sname, tname))
+                if stype.gettype().hassymtable():
+                    stype.gettype().symtable.write(shift + '\t')
             else:
-                if n not in ('real', 'integer'):
-                    print(shift + n)
+                print(shift + sname)
