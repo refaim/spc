@@ -1,11 +1,13 @@
 #!/usr/bin/python
-# -*- mode: python; coding: utf-8 -*-
-# author: Roman Kharitonov refaim.vl@gmail.com
+# -*- coding: utf-8 -*-
 
-import sys, os, shutil
-import glob, getopt
+import sys
+import os
+import shutil
+import glob
+import getopt
 
-from common import *
+from common.functions import *
 from spc import main as run_compiler
 
 class TestError(Exception):

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import re
-from string import digits, hexdigits, letters
+import string
 
-from common import *
-from errors import *
+from common.errors import *
+from common.functions import *
 from token import Token, keywords, delimiters, operations, tt
 
 class Tokenizer(object):
@@ -48,8 +48,8 @@ class Tokenizer(object):
             if ch.isspace(): continue
             self._tokenpos = self._cline + 1, self._cpos + 1
 
-            if ch in letters + "_": tok = self._read_identifier(ch)
-            elif ch in digits + "$": tok = self._read_number(ch)
+            if ch in string.letters + "_": tok = self._read_identifier(ch)
+            elif ch in string.digits + "$": tok = self._read_number(ch)
             elif ch == "/": tok = self._read_comment(ch)
             elif ch in "{(": tok = self._read_block_comment(ch)
             elif ch == "'": tok = self._read_string_const(ch)

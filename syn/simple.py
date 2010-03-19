@@ -18,11 +18,12 @@
 операции применима любая операция. В выражениях допускаются целые числа,
 строковые константы, а также числа с плавающей точкой. '''
 
-from errors import *
-from token import tt, kw, op, dlm
+from common.functions import *
+from common.errors import *
+from tok.token import tt, kw, op, dlm
 from syn import *
-from synanalyzer import ExprParser
 from sym import SimpleSymTable
+from analyzer import ExprParser
 
 class SimpleParser(ExprParser):
     ''' Класс, реализующий разбор объявлений и "сложных" операций

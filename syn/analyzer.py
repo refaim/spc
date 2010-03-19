@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from common import *
-from errors import *
+from common.functions import *
+from common.errors import *
+from tok.token import tt, dlm, op, kw
 from syn import *
 from sym import *
-from token import tt, dlm, op, kw
 
 #unary_ops = [op.minus, op.plus, op.logic_not]
 binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,

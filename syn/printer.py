@@ -3,7 +3,7 @@
 import pydot
 import os
 
-from common import *
+from common.functions import *
 import syn
 
 class SyntaxTreePrinter(object):

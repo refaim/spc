@@ -3,5 +3,8 @@
 http://imcs.dvgu.ru/works/marks?color_coding=1;course=2439;group=1768;order_by=n;show_task_names=1;year=2010;
 
 Для работы требуется: 
-    Python >= 2.6 [с библиотеками pydot, pyparsing и enum (см. каталог lib)]
+    Python 2.6 со следующими библиотеками:
+        1. pydot: http://github.com/downloads/refaim/spc/pydot-1.0.2.tar.gz
+        2. pyparsing: http://github.com/downloads/refaim/spc/pyparsing-1.5.2.zip
+        3. enum: http://github.com/downloads/refaim/spc/enum-0.4.4.tar.gz
     Graphviz >= 2.24 (нужен только для отрисовки синтаксических деревьев)

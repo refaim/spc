@@ -2,12 +2,11 @@
 
 from UserDict import UserDict
 
-from enum import Enum
-
-from common import *
+from common.functions import *
+import lib.enum as enum
 
 # SymbolType
-st = Enum("symtype", "variable", "array", "record", "function", "range", \
+st = enum.Enum("symtype", "variable", "array", "record", "function", "range", \
           "integer", "real", "const")
 
 class Symbol(object):

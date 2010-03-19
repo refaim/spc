@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from common import *
-from errors import LexError
+from common.functions import *
 from token import tt, op, dlm, keywords
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from string import printable
-from sys import path as syspath
-
-from enum import Enum
+from lib.enum import Enum
 
 tt = Enum("identifier", "integer", "real", "char_const", "string_const", "eof")
 

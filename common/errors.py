@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from common import *
+from functions import *
 
 class CompileError(Exception):
     def __init__(self, filepos, params=[]):

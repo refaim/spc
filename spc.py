@@ -17,14 +17,13 @@ import sys
 import os
 import getopt
 
-from common import *
-from errors import CompileError
-from tokenizer import Tokenizer
-from simplesynanalyzer import SimpleParser
-from synanalyzer import ExprParser, Parser
-
-from tokenout import print_tokens
-from synout import SyntaxTreePrinter
+from common.functions import *
+from common.errors import CompileError
+from tok.tokenizer import Tokenizer
+from tok.printer import print_tokens
+from syn.simple import SimpleParser
+from syn.analyzer import ExprParser, Parser
+from syn.printer import SyntaxTreePrinter
 
 class Compiler(object):
     def __init__(self, program, fname):
