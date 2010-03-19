@@ -7,7 +7,7 @@ def second(seq):
     return seq[1] if seq and len(seq) >= 2 else None
 
 def last(seq):
-    return seq[len(seq) - 1] if seq and not empty(seq) else None
+    return seq[-1] if seq and not empty(seq) else None
 
 def empty(seq):
     return len(seq) == 0
