@@ -12,5 +12,8 @@ def last(seq):
 def empty(seq):
     return len(seq) == 0
 
+def nonempty(seq):
+    return len(seq) != 0
+
 def subscript(seq, elm):
     return seq[elm] if elm in seq else None

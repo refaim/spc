@@ -56,12 +56,12 @@ class Tokenizer(object):
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in delimiters or ch in operations:
                 tok = self._read_delimiter(ch)
-            elif not empty(ch):
+            elif nonempty(ch):
                 raise_exception(IllegalCharError((self._tokenpos), [ch]))
 
             found = not (empty(ch) or tok is None)
 
-        if found and not empty(ch):
+        if found and nonempty(ch):
             tok.line, tok.pos = self._tokenpos
             self._token = tok
         else:

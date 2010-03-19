@@ -82,7 +82,7 @@ class SimpleParser(ExprParser):
             while self.token.type == dlm.comma:
                 self.next_token()
                 args.append(self.parse_expr())
-            if not empty(args) and self.token.type != dlm.rparen:
+            if nonempty(args) and self.token.type != dlm.rparen:
                 self.e(ParMismatchError, fp = self.prevpos)
             self.next_token()
             return SynFunctionCall(func, args)

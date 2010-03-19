@@ -97,7 +97,7 @@ def main(argv):
         return error(str(e) + ', use short variants of compiler options')
     if len(opts) > 1:
         return error('use only one option')
-    if not empty(args):
+    if nonempty(args):
         return error('arguments are not allowed')
 
     option = first(first(opts))

@@ -49,5 +49,5 @@ class SyntaxTreePrinter(object):
             indices[root] = self.counter
             add_to_current(root)
             self.graph.add_subgraph(self.current_graph)
-        if not empty(self.graph.get_subgraph_list()):
+        if nonempty(self.graph.get_subgraph_list()):
             self.graph.write_gif(self.filename + '.gif')
