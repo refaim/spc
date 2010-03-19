@@ -3,7 +3,7 @@
 from common import *
 
 class CompileError(Exception):
-    def __init__(self, filepos, params = []):
+    def __init__(self, filepos, params=[]):
         self.line, self.pos = filepos
         self.params = params
 
@@ -48,6 +48,9 @@ class RecordError(SynError):
     message = "Request of field in something not a record"
 class ExpError(SynError):
     message = "'{0[0]}' expected, but '{0[1]}' found"
+class VarInitError(SynError):
+    message = "Only one variable can be initialized"
+
 
 def raise_exception(e):
     template = "{0} on line {1}, col {2}. {3}"
