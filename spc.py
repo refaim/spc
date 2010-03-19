@@ -1,6 +1,6 @@
 #!/usr/bin/python
-# -*- mode: python; coding: utf-8 -*-
-# author: Roman Kharitonov refaim.vl@gmail.com
+# -*- coding: utf-8 -*-
+# author: Roman Kharitonov, refaim.vl@gmail.com
 
 '''\
 Small Pascal Compiler (by Roman Kharitonov)
@@ -88,12 +88,12 @@ def main(argv):
         opts, args = getopt.getopt(
             argv, ''.join(compiler_options.values()), compiler_options.keys())
 
-        # [('-a', ''), ('-b', '')] -> ['-a', '-b']
-        opts = map(first, opts)
+        # [('-a', ''), ('--foo', '')] -> ['a', 'foo']
+        opts = map(lambda o: first(o).lstrip('-'), opts)
     except getopt.GetoptError, e:
-        return error(str(e) + ', try --help for more options')
+        return error('{0!s}, try --help for more options'.format(e))
 
-    present = lambda o: ('-' + first(o)) in opts
+    present = lambda o: o in opts or compiler_options[o] in opts
 
     if present('help') or empty(opts) or len(opts) > 1:
         return usage()
