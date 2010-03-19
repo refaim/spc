@@ -5,7 +5,7 @@ from errors import LexError
 from token import tt, op, dlm, keywords
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
-               tt.float: "Float", tt.char_const: "Character constant",
+               tt.real: "Real", tt.char_const: "Character constant",
                tt.string_const: "String constant",
 
                dlm.lparen: "Left parenthesis", dlm.semicolon: "Semicolon",

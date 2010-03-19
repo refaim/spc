@@ -60,7 +60,7 @@ class ExprParser(object):
                 self.e(ParMismatchError, fp = filepos)
         elif self.token.type == tt.identifier:
             result = self.parse_identifier()
-        elif self.token.type in [tt.integer, tt.float, tt.string_const]:
+        elif self.token.type in [tt.integer, tt.real, tt.string_const]:
             result = SynConst(self.token)
         #elif self.token.type in unary_ops:
         #    opr = self.token
@@ -173,7 +173,7 @@ class Parser(ExprParser):
             return parse_record()
 
         # заглушка
-        if self.token.type not in (tt.identifier, kw.integer, kw.float):
+        if self.token.type not in (tt.identifier, kw.integer, kw.real):
             self.e(ExpError, ['Identifier'])
         typename = self.token.value
 

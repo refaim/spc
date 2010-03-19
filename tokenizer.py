@@ -77,23 +77,23 @@ class Tokenizer(object):
             else:
                 value = eval('0x' + numstring[1:])
         else:
-            # try float
+            # try real
             numstring = self._match_regexp(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
             # try int
             if empty(numstring):
                 numstring = self._match_regexp(r'\d+')
                 value = int(numstring)
-                # check for float
+                # check for real
                 if self._getch() in '.eE':
                     if self._getch() != '.':
                         numstring = ''
-                        ttype = tt.float
+                        ttype = tt.real
                     self._putch()
                 self._putch()
             else:
-                 ttype, value = tt.float, eval(numstring)
+                 ttype, value = tt.real, eval(numstring)
 
-        etypes = { tt.integer: IntError, tt.float: FloatError }
+        etypes = { tt.integer: IntError, tt.real: RealError }
         if empty(numstring):
             raise_exception(etypes[ttype](self._tokenpos))
         return Token(ttype, numstring, value)

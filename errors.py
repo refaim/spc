@@ -15,8 +15,8 @@ class CharConstError(LexError):
     message = "Invalid character constant"
 class IntError(LexError):
     message = "Invalid integer constant"
-class FloatError(LexError):
-    message = "Invalid float constant"
+class RealError(LexError):
+    message = "Invalid real constant"
 class BlockCommentEofError(LexError):
     message = "Unexpected end of file in block comment"
 class StringEofError(LexError):

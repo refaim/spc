@@ -8,7 +8,7 @@ from common import *
 
 # SymbolType
 st = Enum("symtype", "variable", "array", "record", "function", "range", \
-          "integer", "float")
+          "integer", "real")
 
 class Symbol(object):
     def __init__(self, sname):
@@ -71,10 +71,10 @@ class SymTypeInt(SymType):
     @property
     def symtype(self): return st.integer
 
-class SymTypeFloat(SymType):
-    def __init__(self): SymType.__init__(self, 'float')
+class SymTypeReal(SymType):
+    def __init__(self): SymType.__init__(self, 'real')
     @property
-    def symtype(self): return st.float
+    def symtype(self): return st.real
 
 class SymTypeRange(SymType):
     @property
@@ -94,7 +94,7 @@ class SymTable(SimpleSymTable):
     def __init__(self, types = None):
         SimpleSymTable.__init__(self)
         if types is None:
-            types = [SymTypeInt(), SymTypeFloat()]
+            types = [SymTypeInt(), SymTypeReal()]
         for entry in types:
             self.insert(entry)
 
@@ -114,5 +114,5 @@ class SymTable(SimpleSymTable):
                 if t.get_type().has_symtable():
                     t.get_type().symtable.write(shift + '\t')
             else:
-                if n not in ('float', 'integer'):
+                if n not in ('real', 'integer'):
                     print(shift + n)

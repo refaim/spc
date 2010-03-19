@@ -5,11 +5,11 @@ from sys import path as syspath
 
 from enum import Enum
 
-tt = Enum("identifier", "integer", "float", "char_const", "string_const", "eof")
+tt = Enum("identifier", "integer", "real", "char_const", "string_const", "eof")
 
 keywords = {}
 kw = Enum("array", "begin", "break", "const", "continue", "do", "else", "end",\
-          "float", "for", "function", "if", "integer", "procedure", "record",\
+          "real", "for", "function", "if", "integer", "procedure", "record",\
           "repeat", "then", "until", "var", "while")
 for elm in kw:
     keywords[str(elm)] = elm

@@ -5,8 +5,8 @@
 +-------------+--------------+---------------+--------------+
 |             |              |               |              |
 |  1, 1       |  e1          |  e1           |  Identifier  |
-|  2, 1       |  2e2         |  200.0        |  Float       |
+|  2, 1       |  2e2         |  200.0        |  Real        |
 |  2, 4       |  e           |  e            |  Identifier  |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/010.in: Lexical error on line 3, col 1. Invalid float constant
+spc: tests/lexer/010.in: Lexical error on line 3, col 1. Invalid real constant
