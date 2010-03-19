@@ -43,5 +43,13 @@
 |  1, 45      |  <>          |               |  Not equal          |
 |  1, 47      |  =           |               |  Equal              |
 |  1, 48      |  :=          |               |  Assignment         |
+|  2, 1       |  and         |  and          |  And                |
+|  2, 5       |  or          |  or           |  Or                 |
+|  2, 8       |  xor         |  xor          |  Xor                |
+|  2, 12      |  not         |  not          |  Not                |
+|  2, 16      |  shl         |  shl          |  Left shift         |
+|  2, 20      |  shr         |  shr          |  Right shift        |
+|  2, 24      |  div         |  div          |  Integer div        |
+|  2, 28      |  mod         |  mod          |  Integer mod        |
 |             |              |               |                     |
 +-------------+--------------+---------------+---------------------+
