@@ -88,7 +88,7 @@ def main(argv):
             argv, ''.join(compiler_options.values()), compiler_options.keys())
 
         # [('-a', ''), ('--foo', '')] -> ['a', 'foo']
-        opts = map(lambda o: first(o).lstrip('-'), opts)
+        opts = [first(o).lstrip('-') for o in opts]
     except getopt.GetoptError, e:
         return error('{0!s}, try --help for more options'.format(e))
 
