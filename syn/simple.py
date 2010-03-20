@@ -22,7 +22,7 @@ from common.errors import *
 from tok.token import tt, kw, op, dlm
 from syn import *
 from sym import SimpleSymTable
-from analyzer import ExprParser
+from parser import ExprParser
 
 class SimpleParser(ExprParser):
     ''' Класс, реализующий разбор объявлений и "сложных" операций

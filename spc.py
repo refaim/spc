@@ -22,7 +22,7 @@ from common.errors import CompileError
 from tok.tokenizer import Tokenizer
 from tok.printer import print_tokens
 from syn.simple import SimpleParser
-from syn.analyzer import ExprParser, Parser
+from syn.parser import ExprParser, Parser
 from syn.printer import SyntaxTreePrinter
 
 class Compiler(object):
