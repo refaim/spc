@@ -4,14 +4,13 @@
 Синтаксический анализатор выражений с объявлениями на псевдоязыке.
 Грамматика языка:
 
-    program ::= declarations | expressions
-
-    declarations ::= declaration*
-    declaration ::= type | identifier
+    program ::= (declarations)* expressions
+    expressions ::= (expression)*
+    declarations ::= (declaration)*
+    declaration ::= type identifier
     type ::= ("array" | "function" | "record" | "var")
     identifier ::= (letter | "_" ) (letter | digit | "_" )*
 
-    expressions ::= expression*
 Выражения аналогичны выражениям языка Pascal.
 Для соответствующих типов допустимы операции взятия индекса, вызова,
 выбора поля (для array, function и record соответственно). К результату такой
