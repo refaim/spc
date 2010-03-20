@@ -7,8 +7,10 @@ class CompileError(Exception):
         self.line, self.pos = filepos
         self.params = params
 
+
 class LexError(CompileError):
     prefix = "Lexical error"
+
 class IllegalCharError(LexError):
     message = "Illegal character '{0}'"
 class CharConstError(LexError):
@@ -22,34 +24,36 @@ class BlockCommentEofError(LexError):
 class StringEofError(LexError):
     message = "Unexpected end of file in string literal"
 
+
 class SynError(CompileError):
     prefix = "Syntax error"
+
+class ExpError(SynError):
+    message = "'{0[0]}' expected but '{0[1]}' found"
 class UnexpectedTokenError(SynError):
     message = "Unexpected character '{0}'"
-class IdentifierExpError(SynError):
-    message = "Identifier expected"
-class UndeclaredIdentifierError(SynError):
-    message = "Undeclared identifier '{0}'"
-class UnknownTypeError(SynError):
-    message = "Unknown type '{0}'"
-class RedeclaredIdentifierError(SynError):
-    message = "Redeclared identifier '{0}'"
-class ReservedNameError(SynError):
-    message = "Identifier '{0}' is reserved and not allowed for using"
 class BracketsMismatchError(SynError):
     message = "Brackets mismatch"
 class ParMismatchError(SynError):
     message = "Parenthesis mismatch"
+class IdentifierExpError(SynError):
+    message = "Identifier expected"
+class UndeclaredIdentifierError(SynError):
+    message = "Undeclared identifier '{0}'"
+class RedeclaredIdentifierError(SynError):
+    message = "Redeclared identifier '{0}'"
+class ReservedNameError(SynError):
+    message = "Identifier '{0}' is reserved and not allowed for using"
+class VarInitError(SynError):
+    message = "Only one variable can be initialized"
+class UnknownTypeError(SynError):
+    message = "Unknown type '{0}'"
 class CallError(SynError):
     message = "Called object is neither a procedure nor a function"
 class SubscriptError(SynError):
-    message = "Subscripted object is neither an array nor a string"
+    message = "Subscripted object is not an array"
 class RecordError(SynError):
     message = "Request of field in something not a record"
-class ExpError(SynError):
-    message = "'{0[0]}' expected, but '{0[1]}' found"
-class VarInitError(SynError):
-    message = "Only one variable can be initialized"
 
 
 def raise_exception(e):
