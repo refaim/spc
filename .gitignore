@@ -1,11 +1,8 @@
 *.pyc
-lib/*.pyc
 *.swp
 *~
+*.o
+*.o.gif
 
-tests/lexer/*.o
-tests/expr/*.o
-tests/sdecl/*.o
-
-tests/expr/*.o.gif
-tests/sdecl/*.o.gif
+bin
+utils
