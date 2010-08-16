@@ -1,26 +1,17 @@
 @echo off
 
-rem py2exe build script
+mkdir bin 2>nul
+pushd bin
+echo Configuring CMake...
+call cmake -G "Unix Makefiles" ..
+popd
 
-echo pre-build cleaning...
-call clean.bat
+echo Pre-build testing...
+call test.bat
+if errorlevel 1 exit
 
-echo creating the executable...
-cd src
-C:\Python26\python.exe setup.py py2exe
-cd ..
-
-echo post-build actions...
-move src\dist bin >nul
-del /Q bin\w9xpopen.exe
-xcopy /E /I tests bin\tests >nul
-
-cd bin
-echo @echo off > run.bat
-echo OLDPATH=%%PATH%% >> run.bat
-echo PATH=%%CD%%\..\utils\graphviz\bin;%%PATH%% >> run.bat
-echo %%* >> run.bat
-echo set PATH=%%OLDPATH%% >> run.bat
-cd ..
-
-rd /S /Q src\build 2>nul
+pushd bin
+echo Building...
+make
+copy dist\spc.exe . >nul
+popd

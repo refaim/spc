@@ -3,7 +3,7 @@
 # author: Roman Kharitonov, refaim.vl@gmail.com
 
 '''\
-Small Pascal Compiler (by Roman Kharitonov)
+Small Pascal Compiler v{version} (by Roman Kharitonov)
 Usage: spc [option] [filename1] [filename2] [...]
 
 -h, --help           display this help text
@@ -16,6 +16,8 @@ Usage: spc [option] [filename1] [filename2] [...]
 import sys
 import os
 import getopt
+
+from version import APP_VERSION
 
 from common.functions import *
 from common.errors import CompileError
@@ -64,7 +66,7 @@ class Compiler(object):
         self.parser.symtable.write()
 
 def usage():
-    print(__doc__)
+    print(__doc__.format(version=APP_VERSION))
     return 0
 
 def error(msg, fname=None):

@@ -23,8 +23,8 @@ class NoAnswer(TestError):
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
 class Tester(object):
-    def __init__(self, option, path):
-        self.option, self.path = option, path
+    def __init__(self, option, path, verbose):
+        self.option, self.path, self.verbose = option, path, verbose
         self.suite = self.get_suite(path)
         self.passed, self.answer_present = True, True
 
@@ -40,8 +40,11 @@ class Tester(object):
                 self.check()
             except TestError as result:
                 print(result.template.format(result.name, result.message))
+                return (1, len(self.suite))
             else:
-                print "Test #{0} OK".format(self.testname)
+                if self.verbose:
+                    print "Test #{0} OK".format(self.testname)
+        return (0, len(self.suite))
 
     def run_test(self, path):
         oldout = sys.stdout
@@ -89,25 +92,53 @@ def error(msg):
     return 2
 
 def main(argv):
-    optpaths = {'l': 'lexer',
-                'e': 'expr',
-                's': 'sdecl',
-                'd': 'decl'}
+    optpaths = {
+        'l': 'lexer',
+        'e': 'expr',
+        's': 'sdecl',
+        'd': 'decl',
+    }
+    
+    names = {
+        'l': 'Tokenizer',
+        'e': 'Expressions parser',
+        's': 'Simple declarations parser',
+        'd': 'Declarations parser',
+    }
+    priorities = 'lesd'
+
     try:
-        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()))
+        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'av')
     except getopt.GetoptError, e:
         return error(str(e) + ', use short variants of compiler options')
-    if len(opts) > 1:
-        return error('use only one option')
+    opts = [first(o).lstrip('-') for o in opts]
     if nonempty(args):
         return error('arguments are not allowed')
+    if 'v' in opts:
+        verbose = True
+        opts.pop(opts.index('v'))
+    else:
+        verbose = False
+    if len(opts) > 1:
+        return error('use only one option')
+    option = opts[0]
 
-    option = first(first(opts))
-    path = 'tests/{0}/'.format(optpaths[second(option)])
-    tester_class = Tester if option == '-l' else DotTester
-    tester = tester_class(option, path)
-    tester.run()
-    return 0
+    if option == 'a':
+        for opt in priorities:
+            print '{0}...'.format(names[opt])
+            args = ['-' + opt]
+            if verbose:
+                args.append('-v')
+            code, count = main(args)
+            if code != 0:
+                return code
+            print '{0} tests ok'.format(count)
+        return 0
+
+    path = 'tests/{0}/'.format(optpaths[option])
+    tester_class = Tester if option == 'l' else DotTester
+    tester = tester_class('-' + option, path, verbose)
+    return tester.run()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
