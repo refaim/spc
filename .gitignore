@@ -4,5 +4,5 @@
 *.o
 *.o.gif
 
+src/version.py
 bin
-utils
