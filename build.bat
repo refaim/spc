@@ -1,10 +1,7 @@
 @echo off
 
-mkdir bin 2>nul
-pushd bin
 echo Configuring CMake...
-call cmake -G "Unix Makefiles" ..
-popd
+call configure.bat
 
 echo Pre-build testing...
 call test.bat
