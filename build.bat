@@ -2,6 +2,7 @@
 
 echo Configuring CMake...
 call configure.bat
+if errorlevel 1 exit
 
 echo Pre-build testing...
 call test.bat
