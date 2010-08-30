@@ -1,8 +1,7 @@
 *.pyc
 *.swp
 *~
-*.o
-*.o.gif
+*.o.*
 
 src/version.py
 bin
