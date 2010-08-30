@@ -2,6 +2,6 @@
 *.swp
 *~
 *.o.*
-
+*.o
 src/version.py
 bin
