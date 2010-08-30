@@ -7,6 +7,8 @@ import shutil
 import glob
 import getopt
 
+import dot_parser
+
 from common.functions import *
 from spc import main as run_compiler
 
@@ -23,9 +25,10 @@ class NoAnswer(TestError):
 t_ext, a_ext, o_ext = ".in", ".a", ".o"
 
 class Tester(object):
-    def __init__(self, option, path, verbose):
+    def __init__(self, option, path, verbose, full=False):
         self.option, self.path, self.verbose = option, path, verbose
         self.suite = self.get_suite(path)
+        self.full = full
         self.passed, self.answer_present = True, True
 
     def get_suite(self, path):
@@ -40,7 +43,8 @@ class Tester(object):
                 self.check()
             except TestError as result:
                 print(result.template.format(result.name, result.message))
-                return (1, len(self.suite))
+                if not self.full:
+                    return (1, len(self.suite))
             else:
                 if self.verbose:
                     print "Test #{0} OK".format(self.testname)
@@ -73,7 +77,8 @@ class Tester(object):
     answer_present = property(fset = set_answer_present)
 
 class DotTester(Tester):
-    ext = '.gif'
+    ext = '.dot'
+    hr_ext = '.gif' # human-readable format
     def check(self):
         try:
             Tester.check(self)
@@ -81,11 +86,31 @@ class DotTester(Tester):
             output_present = os.path.exists(self.testname + self.ext)
             if output_present:
                 shutil.move(self.testname + self.ext, self.test + o_ext + self.ext)
+                shutil.move(self.testname + self.hr_ext, self.test + o_ext + self.hr_ext)
         answer_present = os.path.exists(self.test + a_ext + self.ext)
         self.answer_present = answer_present or not output_present
         self.passed = output_present or not answer_present
         if answer_present:
-            self.compare(a_ext + self.ext, o_ext + self.ext, 'rb')
+            self.compare_dot(a_ext + self.ext, o_ext + self.ext, 'rb')
+
+    def compare_dot(self, first, second, mode):
+        def nodes(g):
+            subgraphs = []
+            for subgraph in g.get_subgraph_list():
+                subgraphs.append([(node.get_name(), node.get_label()) for node in subgraph.get_node_list()])
+            return subgraphs
+        
+        def edges(g):
+            subgraphs = []
+            for subgraph in g.get_subgraph_list():
+                subgraphs.append([(edge.get_source(), edge.get_destination()) for edge in subgraph.get_edge_list()])
+            return subgraphs
+
+        with open(self.test + first, mode) as answer:
+            with open(self.test + second, mode) as output:
+                agraph = dot_parser.parse_dot_data(answer.read())
+                ograph = dot_parser.parse_dot_data(output.read())
+                return nodes(agraph) == nodes(ograph) and edges(agraph) == edges(ograph)
 
 def error(msg):
     print(msg)
@@ -108,7 +133,7 @@ def main(argv):
     priorities = 'lesd'
 
     try:
-        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'av')
+        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avf')
     except getopt.GetoptError, e:
         return error(str(e) + ', use short variants of compiler options')
     opts = [first(o).lstrip('-') for o in opts]
@@ -119,6 +144,11 @@ def main(argv):
         opts.pop(opts.index('v'))
     else:
         verbose = False
+    if 'f' in opts:
+        full = True
+        opts.pop(opts.index('f'))
+    else:
+        full = False
     if len(opts) > 1:
         return error('use only one option')
     option = opts[0]
@@ -129,6 +159,8 @@ def main(argv):
             args = ['-' + opt]
             if verbose:
                 args.append('-v')
+            if full:
+                args.append('-f')
             code, count = main(args)
             if code != 0:
                 return code
@@ -137,8 +169,13 @@ def main(argv):
 
     path = 'tests/{0}/'.format(optpaths[option])
     tester_class = Tester if option == 'l' else DotTester
-    tester = tester_class('-' + option, path, verbose)
+    tester = tester_class('-' + option, path, verbose, full)
     return tester.run()
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    retcode = main(sys.argv[1:])
+    if isinstance(retcode, tuple):
+        sys.exit(retcode[0])
+    else:
+        sys.exit(retcode)
+

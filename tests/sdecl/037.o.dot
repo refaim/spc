@@ -1,0 +1,58 @@
+digraph G {
+	node [label="\N"];
+	graph [bb="0,0,577,468"];
+	{
+		graph [bb=""];
+		0 [label="[]", fontname=Verdana, shape=ellipse, pos="388,450", width="0.75", height="0.5"];
+		1 [label=".", fontname=Verdana, shape=ellipse, pos="352,378", width="0.75", height="0.5"];
+		2 [label="[]", fontname=Verdana, shape=ellipse, pos="424,378", width="0.75", height="0.5"];
+		3 [label="()", fontname=Verdana, shape=ellipse, pos="280,306", width="0.75", height="0.5"];
+		4 [label=z, fontname=Verdana, shape=box, pos="352,306", width="0.75", height="0.5"];
+		5 [label="[]", fontname=Verdana, shape=diamond, pos="171,234", width="0.80556", height="0.5"];
+		6 [label=".", fontname=Verdana, shape=ellipse, pos="280,234", width="0.75", height="0.5"];
+		7 [label="()", fontname=Verdana, shape=ellipse, pos="387,234", width="0.75", height="0.5"];
+		8 [label="[]", fontname=Verdana, shape=ellipse, pos="99,162", width="0.75", height="0.5"];
+		9 [label="()", fontname=Verdana, shape=ellipse, pos="171,162", width="0.75", height="0.5"];
+		10 [label=a, fontname=Verdana, shape=box, pos="27,90", width="0.75", height="0.5"];
+		11 [label=v, fontname=Verdana, shape=box, pos="99,90", width="0.75", height="0.5"];
+		12 [label=f, fontname=Verdana, shape=diamond, pos="171,90", width="0.75", height="0.5"];
+		13 [label=".", fontname=Verdana, shape=ellipse, pos="243,90", width="0.75", height="0.5"];
+		14 [label=r, fontname=Verdana, shape=box, pos="207,18", width="0.75", height="0.5"];
+		15 [label=x, fontname=Verdana, shape=box, pos="279,18", width="0.75", height="0.5"];
+		16 [label=r, fontname=Verdana, shape=box, pos="243,162", width="0.75", height="0.5"];
+		17 [label=y, fontname=Verdana, shape=box, pos="315,162", width="0.75", height="0.5"];
+		18 [label=f, fontname=Verdana, shape=diamond, pos="387,162", width="0.75", height="0.5"];
+		19 [label="[]", fontname=Verdana, shape=ellipse, pos="459,162", width="0.75", height="0.5"];
+		20 [label=a, fontname=Verdana, shape=box, pos="423,90", width="0.75", height="0.5"];
+		21 [label=v, fontname=Verdana, shape=box, pos="495,90", width="0.75", height="0.5"];
+		22 [label=a, fontname=Verdana, shape=box, pos="424,306", width="0.75", height="0.5"];
+		23 [label="[]", fontname=Verdana, shape=ellipse, pos="496,306", width="0.75", height="0.5"];
+		24 [label=a, fontname=Verdana, shape=box, pos="478,234", width="0.75", height="0.5"];
+		25 [label=v, fontname=Verdana, shape=box, pos="550,234", width="0.75", height="0.5"];
+		0 -> 1 [pos="e,360.63,395.27 379.29,432.57 375.04,424.08 369.85,413.69 365.13,404.27"];
+		0 -> 2 [pos="e,415.37,395.27 396.71,432.57 400.96,424.08 406.15,413.69 410.87,404.27"];
+		1 -> 3 [pos="e,295.25,321.25 336.73,362.73 326.8,352.8 313.68,339.68 302.56,328.56"];
+		1 -> 4 [pos="e,352,324.41 352,359.83 352,352.13 352,342.97 352,334.42"];
+		3 -> 5 [pos="e,185.19,243.37 260.76,293.29 242,280.9 213.47,262.05 193.63,248.95"];
+		3 -> 6 [pos="e,280,252.41 280,287.83 280,280.13 280,270.97 280,262.42"];
+		3 -> 7 [pos="e,367.68,247 299.13,293.13 315.84,281.88 340.31,265.42 359.18,252.72"];
+		5 -> 8 [pos="e,114.18,177.18 159.75,222.75 149.5,212.5 134.06,197.06 121.32,184.32"];
+		5 -> 9 [pos="e,171,180.41 171,215.83 171,208.13 171,198.97 171,190.42"];
+		8 -> 10 [pos="e,45.047,108.05 83.731,146.73 74.629,137.63 62.846,125.85 52.379,115.38"];
+		8 -> 11 [pos="e,99,108.41 99,143.83 99,136.13 99,126.97 99,118.42"];
+		9 -> 12 [pos="e,171,108.41 171,143.83 171,136.13 171,126.97 171,118.42"];
+		9 -> 13 [pos="e,227.75,105.25 186.27,146.73 196.2,136.8 209.32,123.68 220.44,112.56"];
+		13 -> 14 [pos="e,216.01,36.021 234.29,72.571 230.18,64.354 225.18,54.361 220.59,45.182"];
+		13 -> 15 [pos="e,269.99,36.021 251.71,72.571 255.82,64.354 260.82,54.361 265.41,45.182"];
+		6 -> 16 [pos="e,252.35,180.2 271.23,216.94 266.97,208.64 261.74,198.47 256.95,189.14"];
+		6 -> 17 [pos="e,306.24,180.02 288.47,216.57 292.47,208.35 297.32,198.36 301.79,189.18"];
+		7 -> 18 [pos="e,387,180.41 387,215.83 387,208.13 387,198.97 387,190.42"];
+		7 -> 19 [pos="e,443.75,177.25 402.27,218.73 412.2,208.8 425.32,195.68 436.44,184.56"];
+		19 -> 20 [pos="e,432.01,108.02 450.29,144.57 446.18,136.35 441.18,126.36 436.59,117.18"];
+		19 -> 21 [pos="e,485.99,108.02 467.71,144.57 471.82,136.35 476.82,126.36 481.41,117.18"];
+		2 -> 22 [pos="e,424,324.41 424,359.83 424,352.13 424,342.97 424,334.42"];
+		2 -> 23 [pos="e,480.75,321.25 439.27,362.73 449.2,352.8 462.32,339.68 473.44,328.56"];
+		23 -> 24 [pos="e,482.52,252.09 491.55,288.2 489.58,280.3 487.2,270.81 485,262"];
+		23 -> 25 [pos="e,536.47,252.04 508.25,289.66 514.75,281 522.89,270.14 530.26,260.32"];
+	}
+}

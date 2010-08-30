@@ -1,0 +1,24 @@
+digraph G {
+	node [label="\N"];
+	graph [bb="0,0,344,36"];
+	{
+		graph [bb=""];
+		0 [label=a, fontname=Verdana, shape=box, pos="27,18", width="0.75", height="0.5"];
+	}
+	{
+		graph [bb=""];
+		1 [label=1, fontname=Verdana, shape=box, pos="99,18", width="0.75", height="0.5"];
+	}
+	{
+		graph [bb=""];
+		2 [label="10.15", fontname=Verdana, shape=box, pos="172,18", width="0.77778", height="0.5"];
+	}
+	{
+		graph [bb=""];
+		3 [label="$abc", fontname=Verdana, shape=box, pos="245,18", width="0.75", height="0.5"];
+	}
+	{
+		graph [bb=""];
+		4 [label="'xyz'", fontname=Verdana, shape=box, pos="317,18", width="0.75", height="0.5"];
+	}
+}

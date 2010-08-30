@@ -1,0 +1,50 @@
+digraph G {
+	node [label="\N"];
+	graph [bb="0,0,738,180"];
+	{
+		graph [bb=""];
+		0 [label="[]", fontname=Verdana, shape=ellipse, pos="81,162", width="0.75", height="0.5"];
+		1 [label=a, fontname=Verdana, shape=box, pos="27,90", width="0.75", height="0.5"];
+		2 [label=f, fontname=Verdana, shape=box, pos="99,90", width="0.75", height="0.5"];
+		0 -> 1 [pos="e,40.532,108.04 68.747,145.66 62.248,137 54.106,126.14 46.742,116.32"];
+		0 -> 2 [pos="e,94.477,108.09 85.449,144.2 87.425,136.3 89.797,126.81 92.001,118"];
+	}
+	{
+		graph [bb=""];
+		3 [label="[]", fontname=Verdana, shape=ellipse, pos="189,162", width="0.75", height="0.5"];
+		4 [label=a, fontname=Verdana, shape=box, pos="171,90", width="0.75", height="0.5"];
+		5 [label="()", fontname=Verdana, shape=ellipse, pos="243,90", width="0.75", height="0.5"];
+		6 [label=f, fontname=Verdana, shape=diamond, pos="243,18", width="0.75", height="0.5"];
+		3 -> 4 [pos="e,175.52,108.09 184.55,144.2 182.58,136.3 180.2,126.81 178,118"];
+		3 -> 5 [pos="e,230.8,106.27 201.25,145.66 208.16,136.46 216.92,124.78 224.63,114.5"];
+		5 -> 6 [pos="e,243,36.413 243,71.831 243,64.131 243,54.974 243,46.417"];
+	}
+	{
+		graph [bb=""];
+		7 [label="[]", fontname=Verdana, shape=ellipse, pos="351,162", width="0.75", height="0.5"];
+		8 [label=a, fontname=Verdana, shape=box, pos="315,90", width="0.75", height="0.5"];
+		9 [label="()", fontname=Verdana, shape=ellipse, pos="387,90", width="0.75", height="0.5"];
+		10 [label=f, fontname=Verdana, shape=diamond, pos="351,18", width="0.75", height="0.5"];
+		11 [label=1, fontname=Verdana, shape=box, pos="423,18", width="0.75", height="0.5"];
+		7 -> 8 [pos="e,324.01,108.02 342.29,144.57 338.18,136.35 333.18,126.36 328.59,117.18"];
+		7 -> 9 [pos="e,378.37,107.27 359.71,144.57 363.96,136.08 369.15,125.69 373.87,116.27"];
+		9 -> 10 [pos="e,357.95,31.898 378.29,72.571 373.55,63.109 367.65,51.291 362.54,41.074"];
+		9 -> 11 [pos="e,413.99,36.021 395.71,72.571 399.82,64.354 404.82,54.361 409.41,45.182"];
+	}
+	{
+		graph [bb=""];
+		12 [label="[]", fontname=Verdana, shape=ellipse, pos="567,162", width="0.75", height="0.5"];
+		13 [label=a, fontname=Verdana, shape=box, pos="531,90", width="0.75", height="0.5"];
+		14 [label="()", fontname=Verdana, shape=ellipse, pos="603,90", width="0.75", height="0.5"];
+		15 [label=f, fontname=Verdana, shape=diamond, pos="495,18", width="0.75", height="0.5"];
+		16 [label=1, fontname=Verdana, shape=box, pos="567,18", width="0.75", height="0.5"];
+		17 [label=2, fontname=Verdana, shape=box, pos="639,18", width="0.75", height="0.5"];
+		18 [label=3, fontname=Verdana, shape=box, pos="711,18", width="0.75", height="0.5"];
+		12 -> 13 [pos="e,540.01,108.02 558.29,144.57 554.18,136.35 549.18,126.36 544.59,117.18"];
+		12 -> 14 [pos="e,594.37,107.27 575.71,144.57 579.96,136.08 585.15,125.69 589.87,116.27"];
+		14 -> 15 [pos="e,508.67,27.112 583.69,77.128 565.05,64.697 536.83,45.885 517.25,32.832"];
+		14 -> 16 [pos="e,576.01,36.021 594.29,72.571 590.18,64.354 585.18,54.361 580.59,45.182"];
+		14 -> 17 [pos="e,629.99,36.021 611.71,72.571 615.82,64.354 620.82,54.361 625.41,45.182"];
+		14 -> 18 [pos="e,683.74,36.17 622.31,77.128 637.01,67.325 657.67,53.555 675.34,41.77"];
+	}
+}

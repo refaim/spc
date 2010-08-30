@@ -1,0 +1,38 @@
+digraph G {
+	node [label="\N"];
+	graph [bb="0,0,702,108"];
+	{
+		graph [bb=""];
+		0 [label=f, fontname=Verdana, shape=box, pos="27,90", width="0.75", height="0.5"];
+	}
+	{
+		graph [bb=""];
+		1 [label="()", fontname=Verdana, shape=ellipse, pos="99,90", width="0.75", height="0.5"];
+		2 [label=f, fontname=Verdana, shape=diamond, pos="99,18", width="0.75", height="0.5"];
+		1 -> 2 [pos="e,99,36.413 99,71.831 99,64.131 99,54.974 99,46.417"];
+	}
+	{
+		graph [bb=""];
+		3 [label="()", fontname=Verdana, shape=ellipse, pos="207,90", width="0.75", height="0.5"];
+		4 [label=f, fontname=Verdana, shape=diamond, pos="171,18", width="0.75", height="0.5"];
+		5 [label=1, fontname=Verdana, shape=box, pos="243,18", width="0.75", height="0.5"];
+		3 -> 4 [pos="e,177.95,31.898 198.29,72.571 193.55,63.109 187.65,51.291 182.54,41.074"];
+		3 -> 5 [pos="e,233.99,36.021 215.71,72.571 219.82,64.354 224.82,54.361 229.41,45.182"];
+	}
+	{
+		graph [bb=""];
+		6 [label="()", fontname=Verdana, shape=ellipse, pos="495,90", width="0.75", height="0.5"];
+		7 [label=f, fontname=Verdana, shape=diamond, pos="315,18", width="0.75", height="0.5"];
+		8 [label=1, fontname=Verdana, shape=box, pos="387,18", width="0.75", height="0.5"];
+		9 [label=2, fontname=Verdana, shape=box, pos="459,18", width="0.75", height="0.5"];
+		10 [label=3, fontname=Verdana, shape=box, pos="531,18", width="0.75", height="0.5"];
+		11 [label=4, fontname=Verdana, shape=box, pos="603,18", width="0.75", height="0.5"];
+		12 [label=5, fontname=Verdana, shape=box, pos="675,18", width="0.75", height="0.5"];
+		6 -> 7 [pos="e,330.25,26.068 470.74,81.778 441.87,71.793 392.36,54.036 351,36 347.22,34.35 343.26,32.504 339.42,30.639"];
+		6 -> 8 [pos="e,414.26,36.17 475.69,77.128 460.99,67.325 440.33,53.555 422.66,41.77"];
+		6 -> 9 [pos="e,468.01,36.021 486.29,72.571 482.18,64.354 477.18,54.361 472.59,45.182"];
+		6 -> 10 [pos="e,521.99,36.021 503.71,72.571 507.82,64.354 512.82,54.361 517.41,45.182"];
+		6 -> 11 [pos="e,575.74,36.17 514.31,77.128 529.01,67.325 549.67,53.555 567.34,41.77"];
+		6 -> 12 [pos="e,647.62,32.059 519.26,81.778 546.33,72.417 591.53,56.226 638.26,36.13"];
+	}
+}

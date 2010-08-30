@@ -50,4 +50,5 @@ class SyntaxTreePrinter(object):
             add_to_current(root)
             self.graph.add_subgraph(self.current_graph)
         if nonempty(self.graph.get_subgraph_list()):
+            self.graph.write_dot(self.filename + '.dot')
             self.graph.write_gif(self.filename + '.gif')
