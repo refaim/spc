@@ -7,7 +7,7 @@ tt = Enum("identifier", "integer", "real", "char_const", "string_const", "eof")
 keywords = {}
 kw = Enum("array", "begin", "break", "const", "continue", "do", "else", "end",\
           "real", "for", "function", "if", "integer", "procedure", "record",\
-          "repeat", "then", "until", "var", "while")
+          "repeat", "then", "type", "until", "var", "while", "of")
 for elm in kw:
     keywords[str(elm)] = elm
 
@@ -18,16 +18,18 @@ op = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
           "greater", "lesser_or_equal", "greater_or_equal", "assign", "dot",\
           "logic_and", "logic_or", "logic_xor", "logic_not", "shr", "shl",\
           "int_div", "int_mod")
-for i in xrange(len(ops)):
-    operations[ops[i]] = op[i]
+for i, operation in enumerate(ops):
+    operations[operation] = op[i]
+    op[i].text = operation
 del ops
 
 delimiters = {}
 ds = [";", ":", ",", "..", "(", ")", "[", "]", "^"]
 dlm = Enum("semicolon", "colon", "comma", "double_dot", "lparen", "rparen",\
            "lbracket", "rbracket", "caret")
-for i in xrange(len(ds)):
-    delimiters[ds[i]] = dlm[i]
+for i, token in enumerate(ds):
+    delimiters[token] = dlm[i]
+    dlm[i].text = token
 del ds
 
 class Token(object):

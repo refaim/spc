@@ -3,7 +3,7 @@
 from common.functions import *
 from common.errors import *
 from tok.token import tt, dlm, op
-from syn import *
+from tree import *
 
 #unary_ops = [op.minus, op.plus, op.logic_not]
 binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,

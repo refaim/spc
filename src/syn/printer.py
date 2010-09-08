@@ -4,7 +4,7 @@ import pydot
 import os
 
 from common.functions import *
-import syn
+from tree import SynFunctionCall
 
 class SyntaxTreePrinter(object):
     def __init__(self, trees, path):
@@ -22,7 +22,7 @@ class SyntaxTreePrinter(object):
 
         def add_to_current(node):
             children = node.get_children()
-            if isinstance(node, syn.SynFunctionCall):
+            if isinstance(node, SynFunctionCall):
                 functions.append(node.func)
 
             node_shape = 'box' if empty(children) else 'ellipse'

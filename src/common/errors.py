@@ -28,6 +28,8 @@ class StringEofError(LexError):
 class SynError(CompileError):
     prefix = "Syntax error"
 
+class NotYetImplementedError(SynError):
+    message = '{0} are not yet implemented'
 class ExpError(SynError):
     message = "'{0[0]}' expected but '{0[1]}' found"
 class UnexpectedTokenError(SynError):
@@ -48,6 +50,10 @@ class VarInitError(SynError):
     message = "Only one variable can be initialized"
 class UnknownTypeError(SynError):
     message = "Unknown type '{0}'"
+class IncompatibleTypesError(SynError):
+    message = "Incompatible types '{0[0]}' and '{0[1]}'"
+class RangeBoundsError(SynError):
+    message = "Upper bound of range is less than lower bound"
 class CallError(SynError):
     message = "Called object is neither a procedure nor a function"
 class SubscriptError(SynError):

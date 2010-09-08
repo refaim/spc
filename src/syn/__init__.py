@@ -1,1 +1,1 @@
-__all__ = ['expressions', 'full', 'printer', 'simple', 'sym', 'syn']
+__all__ = ['expressions', 'full', 'printer', 'simple', 'table', 'tree']

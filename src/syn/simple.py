@@ -21,8 +21,8 @@ from common.functions import *
 from common.errors import *
 from tok.token import tt, kw, op, dlm
 from expressions import ExprParser
-from syn import *
-from sym import SimpleSymTable
+from tree import *
+from table import SimpleSymTable
 
 class SimpleParser(ExprParser):
     ''' Класс, реализующий разбор объявлений и "сложных" операций

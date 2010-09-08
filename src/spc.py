@@ -10,7 +10,8 @@ Usage: spc [option] [filename1] [filename2] [...]
 -l, --lex            perform lexical analysis
 -e, --expr           parse arithmetic expressions
 -s, --simple-decl    parse expressions with simple declarations
--d, --decl           parse normal Pascal declarations\
+-d, --decl           parse normal Pascal declarations
+-f, --full-syntax    perform a full parse\
 '''
 
 import sys
@@ -60,6 +61,11 @@ class Compiler(object):
     def parse_decl(self):
         self._get_symbol_table(Parser)
 
+    def parse(self):
+        self.parser = Parser(self.tokenizer)
+        self.parser.parse_block(last=True)
+        self.parser.symtable.write()
+
     def _get_symbol_table(self, ParserClass):
         self.parser = ParserClass(self.tokenizer)
         self.parser.parse_decl()
@@ -77,10 +83,13 @@ def error(msg, fname=None):
     return 2
 
 def main(argv):
-    compiler_actions = { 'lex':         Compiler.tokenize,
-                         'expr':        Compiler.parse_expressions,
-                         'simple-decl': Compiler.parse_simple_decl,
-                         'decl':        Compiler.parse_decl         }
+    compiler_actions = { 
+        'lex':         Compiler.tokenize,
+        'expr':        Compiler.parse_expressions,
+        'simple-decl': Compiler.parse_simple_decl,
+        'decl':        Compiler.parse_decl,
+        'full-syntax': Compiler.parse,
+    }
 
     compiler_options = {'help' : 'h'}
     for key in compiler_actions:
