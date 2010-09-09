@@ -1,1 +1,1 @@
-python src/tester.py -a 
+python src/tester.py -a $*

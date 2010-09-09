@@ -1,0 +1,1 @@
+spc: tests/decl/030.in: Syntax error on line 1, col 17. Constant and nested arrays are not yet implemented

@@ -1,0 +1,6 @@
+[type] integer
+[type] real
+[type] x1 (alias to "integer")
+[type] x2 (alias to "integer")
+[type] y1 (alias to "real")
+[type] y2 (alias to "real")

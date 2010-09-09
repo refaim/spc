@@ -1,0 +1,6 @@
+[range] 1..10
+[var] a: array[1..10] of int (alias to "integer")
+[type] array[1..10] of int (alias to "integer")
+[type] int (alias to "integer")
+[type] integer
+[type] real

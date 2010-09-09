@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 
 from common.functions import *
 from common.errors import *
@@ -10,10 +10,10 @@ from table import *
 class Parser(ExprParser):
     def __init__(self, tokenizer):
         super(Parser, self).__init__(tokenizer)
-        self.scope = SymTable()
+        self.symtable = SymTable()
         self._saved_pos = None
         #self.anon_types_count = 0
-        self.current_scope = self.scope
+        self.current_scope = self.symtable
         #self.symtablecheck = True
 
     def e(self, error, params=[], fp=None):
@@ -49,19 +49,13 @@ class Parser(ExprParser):
         self.require_token(kw.end)
         self.require_token(op.dot if last else dlm.semicolon)
 
-    def parse_identifier(self):
-        name = self.token.value
-        if name not in self.current_scope:
-            self.e(UndeclaredIdentifierError, [name])
-        # temporary
-        return SynVar(name)
-
     def parse_decl(self):
         
         def verify_type_existence(noarrays=False):
             if self.token.type == kw.array:
                 if noarrays:
-                    self.e(NotYetImplementedError, ['Constant arrays'])
+                    self.e(NotYetImplementedError, 
+                           ['Constant and nested arrays'])
                 return parse_array_desc()
             typename = self.token.value
             if typename not in self.current_scope:
@@ -77,7 +71,6 @@ class Parser(ExprParser):
             self.require_token(tt.identifier)
             if name in kw:
                 self.e(ReservedNameError)
-            #if self.symtablecheck and name in self.current_scope:
             if name in self.current_scope:
                 self.e(RedeclaredIdentifierError, [name])
             self.clear_position()
@@ -99,7 +92,7 @@ class Parser(ExprParser):
             rbound = self.require_token(tt.integer).value
             self.require_token(dlm.rbracket)
             self.require_token(kw.of)
-            atype = verify_type_existence()
+            atype = verify_type_existence(noarrays=True)
             if lbound > rbound:
                 self.e(RangeBoundsError)
             self.clear_position()
@@ -111,16 +104,21 @@ class Parser(ExprParser):
             self.require_token(op.equal)
 
             if self.token.type == kw.array:
-                parse_array_desc()
+                arraytype = parse_array_desc()
                 self.require_token(dlm.semicolon)
+                self.current_scope.insert(SymTypeAlias(typename, arraytype))
                 return
             if self.token.type == kw.record:
                 pass
 
             sourcetype = verify_type_existence()
             self.require_token(dlm.semicolon)
+            if isinstance(sourcetype, SymTypeAlias):
+                sourcename = sourcetype.target
+            else:
+                sourcename = sourcetype.getname()
             self.current_scope.insert(
-                SymTypeAlias(typename, sourcetype.getname()))
+                SymTypeAlias(typename, sourcename))
 
         def parse_const_decl():
             constname = parse_ident()
@@ -153,7 +151,6 @@ class Parser(ExprParser):
             else:
                 varvalue = None
             self.require_token(dlm.semicolon)
-
             for var in varnames:
                 self.current_scope.insert(
                     SymVar(var, vartype, varvalue))
@@ -176,21 +173,8 @@ class Parser(ExprParser):
                 parsefunc()
                
     def get_expr_type(self, expr):
-        return None
+        return SymTypeInt()
 
     def assert_types(self, first, second):
-        a, b = first.symtype, second.symtype
-        if a != b:# and (a, b) not in COMPATIBLE_TYPES:
-            self.e(IncompatibleTypesError, [(a, b)])
+        pass
 
-        '''allowed = { tt.integer: SymTypeInt, tt.float: SymTypeFloat }
-        good_value = self.token.type in allowed
-        if good_value:
-            cvalue = self.token.value
-        else:
-            self.e('неправильное значение')
-        if ctype is None:
-            ctype = allowed[self.token.type]()
-        elif not isinstance(ctype, allowed[self.token.type]):
-            self.e('несоответствие типа и значения')
-        self.scope.insert(SymConst(cname, ctype, cvalue))'''

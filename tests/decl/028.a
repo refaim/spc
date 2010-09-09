@@ -1,0 +1,4 @@
+[type] a (alias to "integer")
+[type] b (alias to "integer")
+[type] integer
+[type] real

@@ -1,0 +1,4 @@
+[var] a: integer
+[var] b: integer
+[type] integer
+[type] real

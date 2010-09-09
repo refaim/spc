@@ -1,0 +1,5 @@
+[range] 10..20
+[var] a: array[10..20] of integer
+[type] array[10..20] of integer
+[type] integer
+[type] real

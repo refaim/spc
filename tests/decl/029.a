@@ -1,0 +1,6 @@
+[range] 1..100
+[type] array[1..100] of real
+[type] at (alias to "array[1..100] of real")
+[type] integer
+[var] myarray: at
+[type] real

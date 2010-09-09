@@ -34,6 +34,7 @@ class SymVar(Symbol):
     def symtype(self): return st.variable
     def gettype(self): return self._type
     def getprefix(self): return 'var'
+    def getvalue(self): return self._value
 
 class SymConst(SymVar):
     @property
@@ -156,6 +157,8 @@ class SymTable(SimpleSymTable):
                 realtype = symboltype.gettype()
                 text = '{0} {1}: {2!s}'.format(
                     text, symbolname, realtype.getname())
+                if isinstance(symboltype, SymConst):
+                    text = '{0} = {1}'.format(text, symboltype.getvalue())
                 if realtype.hassymtable():
                     realtype.symtable.write(shift + '\t')
             print(text)

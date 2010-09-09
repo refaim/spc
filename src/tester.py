@@ -85,8 +85,10 @@ class DotTester(Tester):
         finally:
             output_present = os.path.exists(self.testname + self.ext)
             if output_present:
-                shutil.move(self.testname + self.ext, self.test + o_ext + self.ext)
-                shutil.move(self.testname + self.hr_ext, self.test + o_ext + self.hr_ext)
+                shutil.move(self.testname + self.ext, 
+                    self.test + o_ext + self.ext)
+                shutil.move(self.testname + self.hr_ext, 
+                    self.test + o_ext + self.hr_ext)
         answer_present = os.path.exists(self.test + a_ext + self.ext)
         self.answer_present = answer_present or not output_present
         self.passed = output_present or not answer_present
@@ -97,20 +99,25 @@ class DotTester(Tester):
         def nodes(g):
             subgraphs = []
             for subgraph in g.get_subgraph_list():
-                subgraphs.append([(node.get_name(), node.get_label()) for node in subgraph.get_node_list()])
+                subgraphs.append(
+                    [(node.get_name(), node.get_label()) 
+                        for node in subgraph.get_node_list()])
             return subgraphs
         
         def edges(g):
             subgraphs = []
             for subgraph in g.get_subgraph_list():
-                subgraphs.append([(edge.get_source(), edge.get_destination()) for edge in subgraph.get_edge_list()])
+                subgraphs.append(
+                    [(edge.get_source(), edge.get_destination()) 
+                        for edge in subgraph.get_edge_list()])
             return subgraphs
 
         with open(self.test + first, mode) as answer:
             with open(self.test + second, mode) as output:
                 agraph = dot_parser.parse_dot_data(answer.read())
                 ograph = dot_parser.parse_dot_data(output.read())
-                return nodes(agraph) == nodes(ograph) and edges(agraph) == edges(ograph)
+                return nodes(agraph) == nodes(ograph) and \
+                       edges(agraph) == edges(ograph)
 
 def error(msg):
     print(msg)
