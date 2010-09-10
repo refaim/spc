@@ -51,11 +51,8 @@ class Parser(ExprParser):
 
     def parse_decl(self):
         
-        def verify_type_existence(noarrays=False):
+        def verify_type_existence():
             if self.token.type == kw.array:
-                if noarrays:
-                    self.e(NotYetImplementedError, 
-                           ['Constant and nested arrays'])
                 return parse_array_desc()
             typename = self.token.value
             if typename not in self.current_scope:
@@ -92,7 +89,7 @@ class Parser(ExprParser):
             rbound = self.require_token(tt.integer).value
             self.require_token(dlm.rbracket)
             self.require_token(kw.of)
-            atype = verify_type_existence(noarrays=True)
+            atype = verify_type_existence()
             if lbound > rbound:
                 self.e(RangeBoundsError)
             self.clear_position()
@@ -124,7 +121,7 @@ class Parser(ExprParser):
             constname = parse_ident()
             if self.token.type == dlm.colon:
                 self.next_token()
-                consttype = verify_type_existence(noarrays=True)
+                consttype = verify_type_existence()
             else:
                 consttype = None
             self.require_token(op.equal)

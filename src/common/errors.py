@@ -28,8 +28,6 @@ class StringEofError(LexError):
 class SynError(CompileError):
     prefix = "Syntax error"
 
-class NotYetImplementedError(SynError):
-    message = '{0} are not yet implemented'
 class ExpError(SynError):
     message = "'{0[0]}' expected but '{0[1]}' found"
 class UnexpectedTokenError(SynError):
