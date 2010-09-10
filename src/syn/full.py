@@ -177,4 +177,3 @@ class Parser(ExprParser):
 
     def assert_types(self, first, second):
         pass
-
