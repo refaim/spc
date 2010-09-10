@@ -60,7 +60,7 @@ class Parser(ExprParser):
             typename = self.token.value
             if typename not in self.current_scope:
                 self.e(UnknownTypeError, [typename])
-            if not self.current_scope[typename].istype():
+            if not self.current_scope[typename].is_type:
                 self.e(ExpError, ['Typename'])
             self.next_token()
             return self.current_scope[typename]
@@ -116,7 +116,7 @@ class Parser(ExprParser):
             if isinstance(sourcetype, SymTypeAlias):
                 sourcename = sourcetype.target
             else:
-                sourcename = sourcetype.getname()
+                sourcename = sourcetype.name
             self.current_scope.insert(
                 SymTypeAlias(typename, sourcename))
 

@@ -2,27 +2,23 @@
 
 from UserDict import UserDict
 
-from common.functions import *
 import lib.enum as enum
-
-# SymbolType
-st = enum.Enum("symtype", "variable", "array", "record", "function", \
-    "procedure", "range", "integer", "real", "const")
+from common.functions import *
 
 class Symbol(object):
     def __init__(self, sname):
         self._name = sname
         self._prefix = ''
 
-    def istype(self): return False
-    def getname(self): return self._name
-    def hassymtable(self): return False
+    @property 
+    def is_type(self): return False
+    @property
+    def name(self): return self._name
+    @property
+    def symtable(self): return None
 
     def __str__(self):
-        return self.getname()
-
-    @property
-    def symtype(self): return st.symtype
+        return self.name
 
 class SymVar(Symbol):
     def __init__(self, sname, stype, svalue):
@@ -31,38 +27,38 @@ class SymVar(Symbol):
         self._value = svalue
 
     @property
-    def symtype(self): return st.variable
-    def gettype(self): return self._type
-    def getprefix(self): return 'var'
-    def getvalue(self): return self._value
+    def type(self): return self._type
+    @property
+    def value(self): return self._value
+
+    @property
+    def prefix(self): return 'var'
 
 class SymConst(SymVar):
     @property
-    def symtype(self): return st.const
-    def getprefix(self): return 'const'
+    def prefix(self): return 'const'
 
 class SymFunction(Symbol):
     def __init__(self, ftype, fname, fargs=None):
         Symbol.__init__(self, fname)
         self._ftype = ftype
-        self.args = fargs or SymTable()
-        self.symtable = SymTable()
+        #self.args = fargs or SymTable()
+        self.args = fargs
+        self._symtable = SymTable()
 
     @property
-    def symtype(self): return st.function
-    def hassymtable(self): return True
-    def getprefix(self): return 'function'
+    def symtable(self): return self._symtable
 
-#class SymArray(Symbol):
-#    pass
+    @property
+    def prefix(self): return 'function'
+
 
 class SymType(Symbol):
-    def istype(self): return True
+    @property
+    def is_type(self): return True
 
     @property
-    def symtype(self): return st.symtype
-    def getprefix(self): return 'type'
-
+    def prefix(self): return 'type'
 
 class SymTypeAlias(SymType):
     def __init__(self, sname, target):
@@ -75,57 +71,38 @@ class SymTypeAlias(SymType):
 
 class SymTypeArray(SymType):
     def __init__(self, basetype, range):
-        self.format_string = 'array[{0}] of {1}'
-        name = self.format_string.format(range, basetype)
-        super(SymTypeArray, self).__init__(name)
         self.basetype, self.range = basetype, range
-       
-    @property
-    def symtype(self): return st.array
-
-class SymTypeRange(SymType):
-    def __init__(self, leftbound, rightbound):
-        self.format_string = '{0}..{1}'
-        name = self.format_string.format(leftbound, rightbound)
-        super(SymTypeRange, self).__init__(name)
-        self.leftbound, self.rightbound = leftbound, rightbound
+        super(SymTypeArray, self).__init__(self.__str__())
 
     def __str__(self):
-        return self.getname()
+        return 'array[{0}] of {1}'.format(self.range, self.basetype)
+       
+class SymTypeRange(SymType):
+    def __init__(self, leftbound, rightbound):
+        self.leftbound, self.rightbound = leftbound, rightbound
+        SymType.__init__(self, self.__str__())
+
+    def __str__(self):
+        return '{0}..{1}'.format(self.leftbound, self.rightbound)
         
     @property
-    def symtype(self): return st.range
-    def getprefix(self): return 'range'
+    def prefix(self): return 'range'
 
 class SymTypeRecord(SymType):
-    def __init__(self, sname, types):
-        SymType.__init__(self, sname)
-        self.symtable = SymTable(types)
+    #def __init__(self, sname, types):
+    #    SymType.__init__(self, sname)
+    #    self.symtable = SymTable(types)
 
     @property
-    def symtype(self): return st.record
-    def hassymtable(self): return True
-
-class SymTypeProcedure(SymType):
-    @property
-    def symtype(self): return st.procedure
-    def hassymtable(self): return True
-    def getprefix(self): return 'procedure'
-
-class SymTypeFunction(SymTypeProcedure):
-    @property
-    def symtype(self): return st.function
-    def getprefix(self): return 'function'
+    def symtable(self): return self._symtable
 
 class SymTypeInt(SymType):
-    def __init__(self): SymType.__init__(self, 'integer')
-    @property
-    def symtype(self): return st.integer
+    def __init__(self): 
+        SymType.__init__(self, 'integer')
 
 class SymTypeReal(SymType):
-    def __init__(self): SymType.__init__(self, 'real')
-    @property
-    def symtype(self): return st.real
+    def __init__(self): 
+        SymType.__init__(self, 'real')
 
 class SimpleSymTable(UserDict):
     def write(self):
@@ -135,30 +112,28 @@ class SimpleSymTable(UserDict):
         for sym, symtype in sorted(self.items()):
             print("{0}: {1}".format(sym, symtype))
 
-class SymTable(SimpleSymTable):
-    def __init__(self, types=None):
-        SimpleSymTable.__init__(self)
-        if types is None:
-            types = [SymTypeInt(), SymTypeReal()]
-        for entry in types:
-            self.insert(entry)
+class SymTable(UserDict):
+    def __init__(self):
+        UserDict.__init__(self)
+        self.insert(SymTypeInt())
+        self.insert(SymTypeReal())
 
     def insert(self, smb):
         assert isinstance(smb, Symbol)
-        self.__setitem__(smb.getname(), smb)
+        self.__setitem__(smb.name, smb)
         return smb
 
     def write(self, shift=''):
         for symbolname, symboltype in sorted(self.items()):
-            text = shift + '[' + symboltype.getprefix() + ']'
-            if symboltype.istype():
+            text = shift + '[' + symboltype.prefix + ']'
+            if symboltype.is_type:
                 text = '{0} {1}'.format(text, symboltype)
             else:
-                realtype = symboltype.gettype()
+                realtype = symboltype.type
                 text = '{0} {1}: {2!s}'.format(
-                    text, symbolname, realtype.getname())
+                    text, symbolname, realtype.name)
                 if isinstance(symboltype, SymConst):
-                    text = '{0} = {1}'.format(text, symboltype.getvalue())
-                if realtype.hassymtable():
+                    text = '{0} = {1}'.format(text, symboltype.value)
+                if realtype.symtable:
                     realtype.symtable.write(shift + '\t')
             print(text)
