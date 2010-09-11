@@ -93,8 +93,8 @@ class Parser(ExprParser):
             if lbound > rbound:
                 self.e(RangeBoundsError)
             self.clear_position()
-            arange = self.current_scope.insert(SymTypeRange(lbound, rbound))
-            return self.current_scope.insert(SymTypeArray(atype, arange))
+            return self.current_scope.insert(
+                SymTypeArray(atype, SymTypeRange(lbound, rbound)))
 
         def parse_type_decl():
             typename = parse_ident()

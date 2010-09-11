@@ -1,1 +1,5 @@
-spc: tests/decl/030.in: Syntax error on line 1, col 17. Constant and nested arrays are not yet implemented
+[type] a (alias to "array[1..10] of array[1..20] of integer")
+[type] array[1..10] of array[1..20] of integer
+[type] array[1..20] of integer
+[type] integer
+[type] real

@@ -1,4 +1,3 @@
-[range] 1..10
 [type] a (alias to "array[1..10] of integer")
 [type] array[1..10] of integer
 [type] integer
