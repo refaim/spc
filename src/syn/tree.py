@@ -27,11 +27,8 @@ class SynBinaryOp(SynExpr):
     def get_children(self):
         return [self.opleft, self.opright]
 
-class SynDotOp(SynBinaryOp):
-    pass
-
 class SynFunctionCall(SynExpr):
-    def __init__(self, func, args = []):
+    def __init__(self, func, args=[]):
         self.func, self.args = func, args
 
     def __str__(self):
@@ -41,15 +38,11 @@ class SynFunctionCall(SynExpr):
         return [self.func] + self.args
 
 class SynVar(SynExpr):
-    def __init__(self, var):
-        self.var = var
-
-    def __str__(self):
-        return self.var.text
-
-class SynConst(SynExpr):
-    def __init__(self, const):
-        self.token = const
+    def __init__(self, token):
+        self.token = token
 
     def __str__(self):
         return self.token.text
+
+class SynConst(SynVar):
+    pass
