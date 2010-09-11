@@ -1,1 +1,0 @@
-spc: tests/decl/008.in: Syntax error on line 2, col 5. Redeclared identifier 'a'

@@ -1,1 +1,0 @@
-spc: tests/lexer/018.in: Lexical error on line 1, col 1. Unexpected end of file in string literal

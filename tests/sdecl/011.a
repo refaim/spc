@@ -1,3 +1,0 @@
-Symbol table:
-a: var
-spc: tests/sdecl/011.in: Syntax error on line 2, col 2. Called object is neither a procedure nor a function

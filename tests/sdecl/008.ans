@@ -1,0 +1,3 @@
+Symbol table:
+a: var
+spc: tests/sdecl/008.tst: Syntax error on line 2, col 1. Undeclared identifier 'b'

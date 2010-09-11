@@ -1,0 +1,16 @@
++-------------+--------------+---------------+----------------------+
+|             |              |               |                      |
+|  Line, pos  |  Token text  |  Token value  |      Token type      |
+|             |              |               |                      |
++-------------+--------------+---------------+----------------------+
+|             |              |               |                      |
+|  1, 1       |  #23         |              |  Character constant  |
+|  1, 4       |  abc         |  abc          |  Identifier          |
+|  2, 1       |  #00123      |  {            |  Character constant  |
+|  3, 1       |  #25         |              |  Character constant  |
+|  3, 4       |  .           |               |  Dot                 |
+|  3, 5       |  23          |  23           |  Integer             |
+|  4, 1       |  #22         |              |  Character constant  |
+|             |              |               |                      |
++-------------+--------------+---------------+----------------------+
+spc: tests/lexer/017.tst: Lexical error on line 4, col 4. Illegal character '%'

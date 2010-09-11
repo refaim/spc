@@ -1,0 +1,3 @@
+Symbol table:
+f: function
+spc: tests/sdecl/022.tst: Syntax error on line 2, col 3. Parenthesis mismatch

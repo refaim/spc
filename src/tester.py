@@ -22,7 +22,7 @@ class Fail(TestError):
 class NoAnswer(TestError):
     message = "NO ANSWER"
 
-t_ext, a_ext, o_ext = ".in", ".a", ".o"
+t_ext, a_ext, o_ext = ".tst", ".ans", ".out"
 
 class Tester(object):
     def __init__(self, option, path, verbose, full=False):

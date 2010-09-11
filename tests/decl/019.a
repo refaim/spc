@@ -1,1 +1,0 @@
-spc: tests/decl/019.in: Syntax error on line 1, col 14. 'integer' expected but '1.0' found

@@ -1,4 +1,0 @@
-Symbol table:
-a: array
-f: function
-spc: tests/sdecl/030.in: Syntax error on line 5, col 5. Unexpected character ')'
