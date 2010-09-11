@@ -1,1 +1,1 @@
-spc: tests/decl/023.tst: Syntax error on line 1, col 6. 'identifier' expected but 'integer' found
+spc: tests/decl/023.tst: Syntax error on line 1, col 14. Unknown type 'int'

@@ -1,5 +1,5 @@
-[type] array[1..100] of real
-[type] at (alias to "array[1..100] of real")
+[var] a: array[1..10] of int (alias to "integer")
+[type] array[1..10] of int (alias to "integer")
+[type] int (alias to "integer")
 [type] integer
-[var] myarray: at
 [type] real

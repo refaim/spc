@@ -1,1 +1,1 @@
-type integer = integer;
+type int32 = int; 

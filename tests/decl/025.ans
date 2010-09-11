@@ -1,1 +1,4 @@
-spc: tests/decl/025.tst: Syntax error on line 1, col 14. Unknown type 'int'
+[type] a (alias to "array[1..10] of integer")
+[type] array[1..10] of integer
+[type] integer
+[type] real

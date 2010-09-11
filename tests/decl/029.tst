@@ -1,4 +1,2 @@
-type
-   at = array[1..100] of real;
-var
-   myarray: at;
+type int = integer;
+var a: array[1..10] of int;
