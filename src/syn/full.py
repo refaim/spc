@@ -51,7 +51,7 @@ class Parser(ExprParser):
 
     def parse_decl(self):
         
-        def verify_type_existence():
+        def parse_type():
             if self.token.type == kw.array:
                 return parse_array_desc()
             typename = self.token.value
@@ -89,7 +89,7 @@ class Parser(ExprParser):
             rbound = self.require_token(tt.integer).value
             self.require_token(dlm.rbracket)
             self.require_token(kw.of)
-            atype = verify_type_existence()
+            atype = parse_type()
             if lbound > rbound:
                 self.e(RangeBoundsError)
             self.clear_position()
@@ -108,7 +108,7 @@ class Parser(ExprParser):
             if self.token.type == kw.record:
                 pass
 
-            sourcetype = verify_type_existence()
+            sourcetype = parse_type()
             self.require_token(dlm.semicolon)
             if isinstance(sourcetype, SymTypeAlias):
                 sourcename = sourcetype.target
@@ -121,7 +121,7 @@ class Parser(ExprParser):
             constname = parse_ident()
             if self.token.type == dlm.colon:
                 self.next_token()
-                consttype = verify_type_existence()
+                consttype = parse_type()
             else:
                 consttype = None
             self.require_token(op.equal)
@@ -138,7 +138,7 @@ class Parser(ExprParser):
         def parse_var_decl():
             varnames = parse_ident_list()
             self.require_token(dlm.colon)
-            vartype = verify_type_existence()
+            vartype = parse_type()
             if self.token.type == op.equal:
                 if len(varnames) > 1:
                     self.e(VarInitError)
