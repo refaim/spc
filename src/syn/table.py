@@ -62,17 +62,17 @@ class SymType(Symbol):
 
 class SymTypeAlias(SymType):
     def __init__(self, sname, target):
-        super(SymTypeAlias, self).__init__(sname)
+        SymType.__init__(self, sname)
         self.target = target
 
     def __str__(self):
-        name = super(SymTypeAlias, self).__str__()
+        name = SymType.__str__(self)
         return '{0} (alias to "{1}")'.format(name, self.target)
 
 class SymTypeArray(SymType):
     def __init__(self, basetype, range):
         self.basetype, self.range = basetype, range
-        super(SymTypeArray, self).__init__(self.__str__())
+        SymType.__init__(self, self.__str__())
 
     def __str__(self):
         return 'array[{0}] of {1}'.format(self.range, self.basetype)
