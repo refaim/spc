@@ -5,7 +5,7 @@ call configure.bat
 if errorlevel 1 exit
 
 echo Pre-build testing...
-call test.bat
+call test.bat -a
 if errorlevel 1 exit
 
 pushd bin
