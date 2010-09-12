@@ -174,7 +174,7 @@ class Tokenizer(object):
     def _read_identifier(self, ch):
         name = self._match_regexp(r'(\w+)')
         value = name.lower()
-        ttype = subscript(keywords, value) or subscript(operations, value) or \
+        ttype = keywords.get(value) or operations.get(value) or \
             tt.identifier
         return Token(ttype, name, value)
 
