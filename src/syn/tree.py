@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-class SynNode: pass
+from common.functions import *
+    
+class SynNode(object): pass
 
 class SynExpr(SynNode):
     def get_children(self):
         return []
 
 class SynUnaryOp(SynExpr):
-    def __init__(self, optype, operand):
-        self.optype, self.operand = optype, operand
+    @copy_args
+    def __init__(self, optype, operand): pass
 
     def __str__(self):
         return self.optype.text
@@ -17,8 +19,8 @@ class SynUnaryOp(SynExpr):
         return [self.operand]
 
 class SynBinaryOp(SynExpr):
-    def __init__(self, opleft, optype, opright):
-        self.optype, self.opleft, self.opright = optype, opleft, opright
+    @copy_args
+    def __init__(self, opleft, optype, opright): pass
 
     def __str__(self):
         text = self.optype.text
@@ -28,8 +30,8 @@ class SynBinaryOp(SynExpr):
         return [self.opleft, self.opright]
 
 class SynFunctionCall(SynExpr):
-    def __init__(self, func, args=[]):
-        self.func, self.args = func, args
+    @copy_args
+    def __init__(self, func, args=[]): pass
 
     def __str__(self):
         return "()"
@@ -38,8 +40,8 @@ class SynFunctionCall(SynExpr):
         return [self.func] + self.args
 
 class SynVar(SynExpr):
-    def __init__(self, token):
-        self.token = token
+    @copy_args
+    def __init__(self, token): pass
 
     def __str__(self):
         return self.token.text

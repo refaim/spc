@@ -14,8 +14,8 @@ binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,
 max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
-    def __init__(self, tokenizer):
-        self._tokenizer = tokenizer
+    @copy_args
+    def __init__(self, tokenizer): pass
 
     def __iter__(self):
         while self.token.type != tt.eof:
@@ -23,11 +23,11 @@ class ExprParser(object):
 
     @property
     def token(self):
-        return self._tokenizer.get_token()
+        return self.tokenizer.get_token()
 
     def next_token(self):
         self.prevpos = self.token.linepos
-        self._tokenizer.next_token()
+        self.tokenizer.next_token()
 
     def e(self, error, params=[], fp=None):
         if fp is None: 

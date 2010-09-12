@@ -29,8 +29,8 @@ class SimpleParser(ExprParser):
     (взятие индекса, вызов, взятие поля). Разбор арифметических выражений
     осуществляется родительским классом ExprParser в функции parse_expr() '''
 
+    @copy_args
     def __init__(self, tokenizer):
-        ExprParser.__init__(self, tokenizer)
         self.symtable = SimpleSymTable()
         self.in_symbol = False
 
@@ -41,7 +41,7 @@ class SimpleParser(ExprParser):
             self.next_token()
         return factor
 
-    def parse_decl(self):
+    def parse_declarations(self):
         ''' Разбор блока объявлений '''
         simple_types = { "array": kw.array, "function": kw.function,
                          "record": kw.record, "var": kw.var }

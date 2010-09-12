@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from common.functions import *
 from lib.enum import Enum
 
 tt = Enum("identifier", "integer", "real", "char_const", "string_const", "eof")
@@ -33,8 +34,8 @@ for i, token in enumerate(ds):
 del ds
 
 class Token(object):
+    @copy_args
     def __init__(self, type=None, text="", value=""):
-        self.type, self.text, self.value = type, text, value
         self.line, self.pos = -1, -1
 
     @property
