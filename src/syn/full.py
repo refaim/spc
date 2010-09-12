@@ -12,7 +12,7 @@ class Parser(ExprParser):
         super(Parser, self).__init__(tokenizer)
         self.symtable = SymTable()
         self._saved_pos = None
-        #self.anon_types_count = 0
+        #self.anon_type_count = 0
         self.current_scope = self.symtable
         #self.symtablecheck = True
 
@@ -44,12 +44,12 @@ class Parser(ExprParser):
         return current
 
     def parse_block(self, last=False):
-        self.parse_decl()
+        self.parse_declarations()
         self.require_token(kw.begin)
         self.require_token(kw.end)
         self.require_token(op.dot if last else dlm.semicolon)
 
-    def parse_decl(self):
+    def parse_declarations(self):
         
         def parse_type():
             if self.token.type == kw.array:

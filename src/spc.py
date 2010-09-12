@@ -58,7 +58,7 @@ class Compiler(object):
         self._get_symbol_table(SimpleParser)
         self._common_parse()
 
-    def parse_decl(self):
+    def parse_declarations(self):
         self._get_symbol_table(Parser)
 
     def parse(self):
@@ -68,7 +68,7 @@ class Compiler(object):
 
     def _get_symbol_table(self, ParserClass):
         self.parser = ParserClass(self.tokenizer)
-        self.parser.parse_decl()
+        self.parser.parse_declarations()
         self.parser.symtable.write()
 
 def usage():
@@ -87,7 +87,7 @@ def main(argv):
         'lex':         Compiler.tokenize,
         'expr':        Compiler.parse_expressions,
         'simple-decl': Compiler.parse_simple_decl,
-        'decl':        Compiler.parse_decl,
+        'decl':        Compiler.parse_declarations,
         'full-syntax': Compiler.parse,
     }
 
