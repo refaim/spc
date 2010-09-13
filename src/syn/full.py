@@ -42,11 +42,12 @@ class Parser(ExprParser):
         self.next_token()
         return current
 
-    def parse_block(self, last=False):
+    def parse(self):
         self.parse_declarations()
         self.require_token(tt.kwBegin)
+        self.parse_statement()
         self.require_token(tt.kwEnd)
-        self.require_token(tt.dot if last else tt.semicolon)
+        self.require_token(tt.dot)
 
     def parse_declarations(self):
 
@@ -124,7 +125,7 @@ class Parser(ExprParser):
             else:
                 consttype = None
             self.require_token(tt.equal)
-            constvalue = self.parse_expr()
+            constvalue = self.parse_expression()
             if consttype is None:
                 consttype = self.get_expr_type(constvalue)
             else:
@@ -142,7 +143,7 @@ class Parser(ExprParser):
                 if len(varnames) > 1:
                     self.e(VarInitError)
                 self.next_token()
-                varvalue = self.parse_expr()
+                varvalue = self.parse_expression()
                 self.assert_types(self.get_expr_type(varvalue), vartype)
             else:
                 varvalue = None
@@ -178,7 +179,9 @@ class Parser(ExprParser):
         pass
 
     def parse_expression(self):
-        pass
+        token = self.token
+        self.next_token()
+        return SynConst(token)
 
     def parse_condition(self):
         pass
@@ -245,6 +248,8 @@ class Parser(ExprParser):
 
         if self.token.type in handlers:
             self.next_token()
-            return handlers[self.token.type]()
+            statement = handlers[self.token.type]()
+            self.require_token(tt.semicolon)
+            return statement
         else:
             return self.parse_expression()

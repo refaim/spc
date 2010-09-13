@@ -63,7 +63,7 @@ class Compiler(object):
 
     def parse(self):
         self.parser = Parser(self.tokenizer)
-        self.parser.parse_block(last=True)
+        self.parser.parse()
         self.parser.symtable.write()
 
     def _get_symbol_table(self, ParserClass):
