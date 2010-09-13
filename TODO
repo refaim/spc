@@ -1,4 +1,5 @@
 Major:
+    Common: Write correct pascal grammar
     LA: Fix bug with EOF position
     LA: Implement analysis of mixed character-string constants
     SA-E: Fix bug with 'a<operation>' parse
