@@ -175,9 +175,6 @@ class Parser(ExprParser):
     def assert_types(self, first, second):
         pass
 
-    def dummy(self):
-        pass
-
     def parse_expression(self):
         token = self.token
         self.next_token()
