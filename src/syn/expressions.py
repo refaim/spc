@@ -2,14 +2,34 @@
 
 from common.functions import *
 from common.errors import *
-from tok.token import tt
 from tree import *
+from tok.token import tt
 
-binary_ops = [[tt.equal, tt.not_equal, tt.less, tt.greater,
-               tt.greater_or_equal, tt.less_or_equal],
-             [tt.plus, tt.minus, tt.logic_or],
-             [tt.mul, tt.div, tt.shl, tt.shr, tt.int_div, tt.int_mod,
-              tt.logic_and]]
+binary_ops = [
+    [
+        tt.equal, 
+        tt.not_equal, 
+        tt.less, 
+        tt.greater, 
+        tt.greater_or_equal, 
+        tt.less_or_equal
+    ],
+    [
+        tt.plus, 
+        tt.minus, 
+        tt.logic_or
+    ],
+    [
+        tt.mul, 
+        tt.div, 
+        tt.shl, 
+        tt.shr, 
+        tt.int_div, 
+        tt.int_mod,
+        tt.logic_and
+    ],
+    [],
+]
 max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
@@ -33,18 +53,19 @@ class ExprParser(object):
             fp = self.token.linepos
         raise_exception(error(fp, params))
 
-    def parse_expr(self, priority=0):
+    def parse_expr(self):
+        return self.internal_parse(0)
+    
+    def internal_parse(self, priority):
         if priority < max_priority:
-            result = self.parse_expr(priority + 1)
+            result = self.internal_parse(priority + 1)
         else:
             result = self.parse_factor()
         while self.token.type in binary_ops[priority]:
-            opr = self.token
+            operation = self.token
             self.next_token()
-            if priority < max_priority:
-                result = SynOperation(opr, [result, self.parse_expr(priority + 1)])
-            else:
-                result = SynOperation(opr, self.parse_factor())
+            result = SynOperation(
+                operation, [result, self.internal_parse(priority + 1)])
         return result
 
     def parse_factor(self):
