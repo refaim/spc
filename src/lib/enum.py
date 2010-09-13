@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # enum.py
 # Part of enum, a package providing enumerated types for Python.
