@@ -15,10 +15,31 @@ class Token(object):
 def prepare(prefix, seq):
     return [prefix + item.capitalize() for item in seq]
 
-keywords = ['array', 'begin', 'break', 'const', 'continue', 'do', 'else', \
-     'end', 'for', 'function', 'if', 'integer', 'procedure', 'record', \
-     'repeat', 'then', 'type', 'until', 'var', 'while', 'of', 'integer', 
-     'real']
+keywords = [
+    'array', 
+    'begin', 
+    'break', 
+    'const', 
+    'continue', 
+    'do', 
+    'else',
+    'end',
+    'for', 
+    'function', 
+    'if', 
+    'integer', 
+    'of',
+    'procedure', 
+    'real',
+    'record',
+    'repeat',
+    'then',
+    'to',
+    'type',
+    'until',
+    'var',
+    'while',
+]
 
 alphabetic = ['identifier', 'char_const', 'string_const', 'eof']
 
