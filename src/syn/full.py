@@ -17,6 +17,10 @@ class Parser(ExprParser):
         self.anonymous_types = 0
         self.clear_position()
 
+    def __iter__(self):
+        while self.token.type != tt.eof:
+            yield self.parse_statement()
+
     @property
     def symtable(self): return self.symtable_stack[-1]
     def find_symbol(self, name):
@@ -64,6 +68,20 @@ class Parser(ExprParser):
         self.require_token(tt.kwEnd)
         self.require_token(tt.dot)
 
+    def parse_identifier_name(self):
+        name = self.token.value
+        self.save_position()
+        self.require_token(tt.identifier)
+        if name in keywords:
+            self.e(ReservedNameError)
+        if name in self.symtable:
+            self.e(RedeclaredIdentifierError, [name])
+        self.clear_position()
+        return name
+
+    def parse_indentifier(self):
+        return SynVar(self.parse_indentifier_name())
+
     def parse_declarations(self):
 
         def parse_type():
@@ -103,26 +121,15 @@ class Parser(ExprParser):
             return SymTypeRecord(
                 self.anonymous_typename(), self.symtable_stack.pop())
 
-        def parse_ident():
-            name = self.token.value
-            self.save_position()
-            self.require_token(tt.identifier)
-            if name in keywords:
-                self.e(ReservedNameError)
-            if name in self.symtable:
-                self.e(RedeclaredIdentifierError, [name])
-            self.clear_position()
-            return name
-
         def parse_ident_list():
-            names = [parse_ident()]
+            names = [self.parse_identifier_name()]
             while self.token.type == tt.comma:
                 self.next_token()
-                names.append(parse_ident())
+                names.append(self.parse_identifier_name())
             return names
 
         def parse_type_decl():
-            typename = parse_ident()
+            typename = self.parse_identifier_name()
             self.require_token(tt.equal)
             ttype = parse_type()
             self.require_token(tt.semicolon)
@@ -131,7 +138,7 @@ class Parser(ExprParser):
             self.symtable.insert(SymTypeAlias(typename, ttype))
 
         def parse_const_decl():
-            constname = parse_ident()
+            constname = self.parse_identifier_name()
             if self.token.type == tt.colon:
                 self.next_token()
                 consttype = parse_type()
@@ -172,14 +179,14 @@ class Parser(ExprParser):
                             by_value = False
                             self.next_token()
                         self.require_token(tt.identifier)
-                        name = parse_ident()
+                        name = self.parse_identifier_name()
                         self.require_token(tt.colon)
                         type = parse_type()
                         self.require_token(tt.semicolon)
                         self.symtable.insert(
                             SymFunctionArgument(name, type, by_value))
 
-                name = parse_ident()
+                name = self.parse_identifier_name()
                 args = SymTable()
                 if self.token.type == tt.lparen:
                     if self.token.type != tt.rparen:
@@ -199,6 +206,7 @@ class Parser(ExprParser):
                 body = self.parse_statement()
                 self.symtable_stack.pop()
                 return SymTypeFunction(name, args, result_type, declarations, body)
+
             return parse
 
         declarations = {
@@ -223,9 +231,14 @@ class Parser(ExprParser):
         pass
 
     def parse_expression(self):
-        token = self.token
-        self.next_token()
-        return SynConst(token)
+        expression = ExprParser.parse_expression(self)
+        if self.token.type == tt.assign:
+            assignment = self.token
+            self.next_token()
+            expression = SynOperation(
+                assignment, expression, self.parse_expression())
+        #self.require_token(tt.semicolon)
+        return expression
 
     def parse_condition(self):
         pass

@@ -60,11 +60,13 @@ class Compiler(object):
 
     def parse_declarations(self):
         self._get_symbol_table(Parser)
+        self._common_parse()
 
     def parse(self):
         self.parser = Parser(self.tokenizer)
         self.parser.parse()
         self.parser.symtable.write()
+        self._common_parse()
 
     def _get_symbol_table(self, ParserClass):
         self.parser = ParserClass(self.tokenizer)
