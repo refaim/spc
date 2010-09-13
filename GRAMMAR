@@ -43,9 +43,6 @@ Block ::= 'begin' [StatementList] 'end'
 
 IfStatement ::= 'if' Expression 'then' [Statement] ['else' [Statement]]
 
-CaseSelector ::= (Range [','])+ ':' [Statement] [';']
-CaseStatement ::= 'case' Expression 'of' (CaseSelector)+ ['else' [StatementList]] 'end'
-
 WhileStatement ::= 'while' Expression 'do' [Statement]
 
 ForStatement ::= 'for' Identifier ':=' Expression ('to' | 'downto') Expression 'do' [Statement]
