@@ -5,7 +5,6 @@ from common.errors import *
 from tok.token import tt
 from tree import *
 
-#unary_ops = [tt.minus, tt.plus, tt.logic_not]
 binary_ops = [[tt.equal, tt.not_equal, tt.less, tt.greater,
                tt.greater_or_equal, tt.less_or_equal],
              [tt.plus, tt.minus, tt.logic_or],
@@ -62,10 +61,6 @@ class ExprParser(object):
             result = self.parse_identifier()
         elif self.token.type in (tt.kwInteger, tt.kwReal, tt.string_const):
             result = SynConst(self.token)
-        #elif self.token.type in unary_ops:
-        #    opr = self.token
-        #    self.next_token()
-        #    result = SynUnaryOp(opr, self.parse_factor())
         else:
             self.e(UnexpectedTokenError, [self.token.text])
         return self.return_factor(result)
