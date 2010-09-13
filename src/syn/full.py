@@ -11,8 +11,6 @@ class Parser(ExprParser):
     def __init__(self, tokenizer):
         super(Parser, self).__init__(tokenizer)
         self.symtable = SymTable()
-        self._saved_pos = None
-        #self.anon_type_count = 0
         self.current_scope = self.symtable
         self.statement_stack = []
         self.clear_position()
