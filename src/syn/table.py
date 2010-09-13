@@ -28,8 +28,19 @@ class SymVar(Symbol):
 
 class SymConst(SymVar): pass
 
+class SymFunctionArgument(SymVar):
+    @copy_args
+    def __init__(self, name, type, by_value): pass
+
 class SymType(Symbol):
     def is_type(self): return True
+
+class SymTypeFunction(SymType):
+    @copy_args
+    def __init__(self, name, args, restype, declarations, body): pass
+
+    @property
+    def symtable(self): return self._symtable
 
 class SymTypeAlias(SymType):
     @copy_args

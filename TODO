@@ -5,10 +5,10 @@ Major:
     SA-E: Fix bug with 'a<operation>' parse
     SA-S: Check tests (002, 014, 016, 018, 021, 022, 024) 
         for the presence of EOF exception
+    SA-F: Ban complex types in result function type parsing
 
 Minor:
     Common: Change the format of error messages to 
         '<file>(<line>, <col>): <error_type>, <message>'
     LA: Rewrite module 'printer.py' (possibly using the built-in formatter and writer)
     SA: Fix the output position of ParenthesisMismatch exception
-    SA-E: Remove duplicate code from 'parse_expr' function

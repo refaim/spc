@@ -19,10 +19,10 @@ class Parser(ExprParser):
 
     @property
     def symtable(self): return self.symtable_stack[-1]
-    def find_type(self, type):
+    def find_symbol(self, name):
         for table in reversed(self.symtable_stack):
-            if type in table:
-                return table[type]
+            if name in table:
+                return table[name]
         return None
 
     def e(self, error, params=[], fp=None):
@@ -72,7 +72,7 @@ class Parser(ExprParser):
             if ttype in complex:
                 self.next_token()
                 return complex[ttype]()
-            type = self.find_type(self.token.value)
+            type = self.find_symbol(self.token.value)
             if type is None:
                 self.e(UnknownTypeError, [self.token.value])
             if not type.is_type():
@@ -162,18 +162,51 @@ class Parser(ExprParser):
             for var in varnames:
                 self.symtable.insert(SymVar(var, vartype, varvalue))
 
-        def parse_func_decl():
-            pass
+        def parse_subprogram(has_result):
+            def parse():
+    
+                def parse_args():
+                    while self.token.type in [tt.kwVar, tt.identifier]:
+                        by_value = True
+                        if self.token.type == tt.kwVar:
+                            by_value = False
+                            self.next_token()
+                        self.require_token(tt.identifier)
+                        name = parse_ident()
+                        self.require_token(tt.colon)
+                        type = parse_type()
+                        self.require_token(tt.semicolon)
+                        self.symtable.insert(
+                            SymFunctionArgument(name, type, by_value))
 
-        def parse_proc_decl():
-            pass
+                name = parse_ident()
+                args = SymTable()
+                if self.token.type == tt.lparen:
+                    if self.token.type != tt.rparen:
+                        self.symtable_stack.append(args)
+                        parse_args()
+                        self.symtable_stack.pop()
+                    self.require_token(tt.rparen)
+                if has_result:
+                    self.require_token(tt.colon)
+                    result_type = parse_type()
+                else:
+                    result_type = None
+                self.require_token(tt.semicolon)
+                declarations = SymTable()
+                self.symtable_stack.append(declarations)
+                parse_declarations()
+                body = self.parse_statement()
+                self.symtable_stack.pop()
+                return SymTypeFunction(name, args, result_type, declarations, body)
+            return parse
 
         declarations = {
             tt.kwType: parse_type_decl,
             tt.kwConst: parse_const_decl,
             tt.kwVar: parse_var_decl,
-            tt.kwFunction: parse_func_decl,
-            tt.kwProcedure: parse_proc_decl,
+            tt.kwFunction: parse_subprogram(True),
+            tt.kwProcedure: parse_subprogram(False),
         }
 
         while self.token.type in declarations:
