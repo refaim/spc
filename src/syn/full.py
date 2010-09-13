@@ -51,7 +51,7 @@ class Parser(ExprParser):
         self.require_token(tt.dot if last else tt.semicolon)
 
     def parse_declarations(self):
-        
+
         def parse_type():
             if self.token.type == tt.kwArray:
                 return parse_array_desc()
@@ -73,7 +73,7 @@ class Parser(ExprParser):
                 self.e(RedeclaredIdentifierError, [name])
             self.clear_position()
             return name
-        
+
         def parse_ident_list():
             names = [parse_ident()]
             while self.token.type == tt.comma:
@@ -132,7 +132,7 @@ class Parser(ExprParser):
             else:
                 self.assert_types(self.get_expr_type(constvalue), consttype)
             self.require_token(tt.semicolon)
-            
+
             self.current_scope.insert(
                 SymConst(constname, consttype, constvalue))
 
@@ -156,7 +156,7 @@ class Parser(ExprParser):
         def parse_func_decl():
             pass
 
-        declarations = { 
+        declarations = {
             tt.kwType: parse_type_decl,
             tt.kwConst: parse_const_decl,
             tt.kwVar: parse_var_decl,

@@ -19,13 +19,15 @@ import inspect
 import functools
 
 def copy_args(func):
-    """Initializes object attributes by the initializer signature"""
+    ''' Initializes object attributes by the initializer signature '''
     argspec = inspect.getargspec(func)
     argnames = argspec.args[1:]
+    
     if argspec.defaults:
         defaults = dict(zip(argnames[-len(argspec.defaults):], argspec.defaults))
     else:
         defaults = {}
+
     @functools.wraps(func)
     def __init__(self, *args, **kwargs):
         args_it = iter(args)
