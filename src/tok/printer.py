@@ -3,8 +3,8 @@
 from common.functions import *
 from token import tt, keywords
 
-lexems_str = { tt.identifier: "Identifier", tt.kwInteger: "Integer",
-               tt.kwReal: "Real", tt.char_const: "Character constant",
+lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
+               tt.real: "Real", tt.char_const: "Character constant",
                tt.string_const: "String constant",
 
                tt.lparen: "Left parenthesis", tt.semicolon: "Semicolon",
@@ -29,7 +29,7 @@ def get_string_repr(lexem):
         return lexems_str[lexem]
     s = str(lexem).lower().replace('kw', '')
     if s in keywords:
-        if lexem not in (tt.kwReal, tt.kwInteger):
+        if lexem not in (tt.real, tt.integer):
             s = "{0} (keyword)".format(s)
         return s.capitalize()
     return ''

@@ -27,10 +27,8 @@ keywords = [
     'for', 
     'function', 
     'if', 
-    'integer', 
     'of',
     'procedure', 
-    'real',
     'record',
     'repeat',
     'then',
@@ -41,7 +39,14 @@ keywords = [
     'while',
 ]
 
-alphabetic = ['identifier', 'char_const', 'string_const', 'eof']
+alphabetic = [
+    'char_const', 
+    'string_const', 
+    'integer', 
+    'real',
+    'identifier', 
+    'eof'
+]
 
 special = {
     '.': 'dot',

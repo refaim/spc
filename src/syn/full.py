@@ -100,10 +100,10 @@ class Parser(ExprParser):
 
         def parse_array():
             self.require_token(tt.lbracket)
-            lbound = self.require_token(tt.kwInteger).value
+            lbound = self.require_token(tt.integer).value
             self.save_position()
             self.require_token(tt.double_dot)
-            rbound = self.require_token(tt.kwInteger).value
+            rbound = self.require_token(tt.integer).value
             self.require_token(tt.rbracket)
             self.require_token(tt.kwOf)
             atype = parse_type()

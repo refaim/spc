@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from common.functions import *
 from common.errors import *
@@ -80,7 +80,7 @@ class ExprParser(object):
                 self.e(ParMismatchError, fp=filepos)
         elif self.token.type == tt.identifier:
             result = self.parse_identifier()
-        elif self.token.type in (tt.kwInteger, tt.kwReal, tt.string_const):
+        elif self.token.type in (tt.integer, tt.real, tt.string_const):
             result = SynConst(self.token)
         else:
             self.e(UnexpectedTokenError, [self.token.text])

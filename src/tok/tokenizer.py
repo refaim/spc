@@ -68,7 +68,7 @@ class Tokenizer(object):
             self._token = Token(tt.eof, value='EOF')
 
     def _read_number(self, ch):
-        ttype = tt.kwInteger
+        ttype = tt.integer
         if ch == '$':
             # hex
             numstring = self._match_regexp(r'(\$[\da-fA-F]*)')
@@ -87,13 +87,13 @@ class Tokenizer(object):
                 if self._getch() in '.eE':
                     if self._getch() != '.':
                         numstring = ''
-                        ttype = tt.kwReal
+                        ttype = tt.real
                     self._putch()
                 self._putch()
             else:
-                 ttype, value = tt.kwReal, eval(numstring)
+                 ttype, value = tt.real, eval(numstring)
 
-        etypes = { tt.kwInteger: IntError, tt.kwReal: RealError }
+        etypes = { tt.integer: IntError, tt.real: RealError }
         if empty(numstring):
             raise_exception(etypes[ttype](self._tokenpos))
         return Token(ttype, numstring, value)
