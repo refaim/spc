@@ -226,13 +226,11 @@ class Parser(ExprParser):
             self.statement_stack.pop()
             return statement
 
-        def parse_break_or_continue(type):
-            types = { tt.kwBreak: SynStatementBreak,
-                      tt.kwContinue: SynStatementContinue }
+        def parse_break_or_continue(StatementClass):
             def parse():
                 for statement in reversed(self.statement_stack):
                     if statement.is_loop():
-                        return types[type]()
+                        return StatementClass()
                 self.e(NotAllowedError)
             return parse
 
@@ -241,8 +239,8 @@ class Parser(ExprParser):
             tt.kwIf: parse_statement_if,
             tt.kwWhile: parse_statement_while,
             tt.kwFor: parse_statement_for,
-            tt.kwBreak: parse_break_or_continue(tt.kwBreak),
-            tt.kwContinue: parse_break_or_continue(tt.kwContinue),
+            tt.kwBreak: parse_break_or_continue(SynStatementBreak),
+            tt.kwContinue: parse_break_or_continue(SynStatementContinue),
         }
 
         if self.token.type in handlers:
