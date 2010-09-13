@@ -42,9 +42,9 @@ class ExprParser(object):
             opr = self.token
             self.next_token()
             if priority < max_priority:
-                result = SynBinaryOp(result, opr, self.parse_expr(priority + 1))
+                result = SynOperation(opr, [result, self.parse_expr(priority + 1)])
             else:
-                result = SynBinaryOp(result, opr, self.parse_factor())
+                result = SynOperation(opr, self.parse_factor())
         return result
 
     def parse_factor(self):

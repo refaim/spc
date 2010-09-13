@@ -21,11 +21,10 @@ class SyntaxTreePrinter(object):
     def write(self):
 
         def add_to_current(node):
-            children = node.get_children()
             if isinstance(node, SynFunctionCall):
                 functions.append(node.func)
 
-            node_shape = 'box' if empty(children) else 'ellipse'
+            node_shape = 'box' if empty(node.children) else 'ellipse'
             if node in functions:
                 node_shape = 'diamond'
 
@@ -33,7 +32,7 @@ class SyntaxTreePrinter(object):
             self.current_graph.add_node(
                 pydot.Node(node_id, label=str(node), shape=node_shape, fontname='Verdana'))
 
-            for child in children:
+            for child in node.children:
                 indices[child] = self.counter
                 self.current_graph.add_edge(
                     pydot.Edge(node_id, indices[child]))
@@ -41,7 +40,7 @@ class SyntaxTreePrinter(object):
             # из-за рекурсивности add_to_current() будет нарушен порядок
             # добавления ребер, и при выводе вместо красивого дерева
             # получится непонятная паутина
-            map(add_to_current, children)
+            map(add_to_current, node.children)
 
         indices, functions = {}, []
         for root in self.trees:

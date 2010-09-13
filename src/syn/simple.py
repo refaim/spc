@@ -61,7 +61,7 @@ class SimpleParser(ExprParser):
         ''' Разбор "сложных" операций. '''
         def parse_record(opr):
             if self.token.type == tt.identifier:
-                res = SynBinaryOp(result, opr, SynVar(self.token))
+                res = SynOperation(opr, [result, SynVar(self.token)])
             else:
                 self.e(IdentifierExpError)
             self.next_token()
@@ -69,7 +69,7 @@ class SimpleParser(ExprParser):
 
         def parse_array(opr):
             self.in_symbol = False
-            res = SynBinaryOp(result, opr, self.parse_expr())
+            res = SynOperation(opr, [result, self.parse_expr()])
             if self.token.type != tt.rbracket:
                 self.e(BracketsMismatchError, fp = self.prevpos)
             self.next_token()
