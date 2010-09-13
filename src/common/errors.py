@@ -30,6 +30,8 @@ class SynError(CompileError):
 
 class ExpError(SynError):
     message = "'{0[0]}' expected but '{0[1]}' found"
+class NotAllowedError(SynError):
+    message = "'{0}' not allowed"
 class UnexpectedTokenError(SynError):
     message = "Unexpected character '{0}'"
 class BracketsMismatchError(SynError):

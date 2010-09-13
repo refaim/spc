@@ -7,9 +7,14 @@ class SynNode(object): pass
 class SynStatement(SynNode):
     def is_loop(self): return False
 
+class SynStatementBlock(SynStatement):
+    @copy_args
+    def __init__(self, statements=[]): pass
+    def add(self, statement): self.statements.append(statement)
+
 class SynStatementFor(SynStatement):
     @copy_args
-    def __init__(self, counter, initial, final, statement): pass
+    def __init__(self, counter, initial, final, action): pass
     def is_loop(self): return True
 
 class SynStatementWhile(SynStatement):
@@ -21,6 +26,8 @@ class SynStatementIf(SynStatement):
     @copy_args
     def __init__(self, condtition, action, else_action): pass
 
+class SynStatementBreak(SynStatement): pass
+class SynStatementContinue(SynStatement): pass
 
 class SynExpr(SynNode):
     @property

@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from common.functions import *
 from common.errors import *
@@ -14,13 +14,14 @@ class Parser(ExprParser):
         self._saved_pos = None
         #self.anon_type_count = 0
         self.current_scope = self.symtable
-        #self.symtablecheck = True
+        self.statement_stack = []
+        self.clear_position()
 
     def e(self, error, params=[], fp=None):
         if self._saved_pos:
             fp = self._saved_pos
             self.clear_position()
-        if error is ExpError:
+        if error in [ExpError, NotAllowedError]:
             tok = self.token
             params.append(tok.value if tok.value else tok.text)
         super(Parser, self).e(error, params, fp)
@@ -168,9 +169,86 @@ class Parser(ExprParser):
             parsefunc()
             while self.token.type == tt.identifier:
                 parsefunc()
-               
+
     def get_expr_type(self, expr):
         return SymTypeInt()
 
     def assert_types(self, first, second):
         pass
+
+    def dummy(self):
+        pass
+
+    def parse_expression(self):
+        pass
+
+    def parse_condition(self):
+        pass
+
+    def parse_statement(self):
+
+        def parse_statement_block():
+            block = SynStatementBlock()
+            while self.token.type != tt.kwEnd:
+                statement = self.parse_statement()
+                block.add(statement)
+            self.next_token()
+            return block
+
+        def parse_statement_if():
+            condition = self.parse_condition()
+            self.require_token(tt.kwThen)
+            action = self.parse_statement()
+            if self.token.type == tt.kwElse:
+                self.next_token()
+                other_action = self.parse_statement()
+            else:
+                other_action = None
+            return SynStatementIf(condition, action, other_action)
+
+        def parse_statement_while():
+            condition = self.parse_condition()
+            self.require_token(tt.kwDo)
+            statement = SynStatementWhile(condition, None)
+            self.statement_stack.append(statement)
+            statement.action = self.parse_statement()
+            self.statement_stack.pop()
+            return statement
+
+        def parse_statement_for():
+            counter = self.parse_identifier()
+            self.require_token(tt.asign)
+            initial = self.parse_expression()
+            self.require_token(tt.kwTo)
+            final = self.parse_expression()
+            self.require_token(tt.kwDo)
+            statement = SynStatementFor(counter, initial, final, None)
+            self.statement_stack.append(statement)
+            statement.action = self.parse_statement()
+            self.statement_stack.pop()
+            return statement
+
+        def parse_break_or_continue(type):
+            types = { tt.kwBreak: SynStatementBreak,
+                      tt.kwContinue: SynStatementContinue }
+            def parse():
+                for statement in reversed(self.statement_stack):
+                    if statement.is_loop():
+                        return types[type]()
+                self.e(NotAllowedError)
+            return parse
+
+        handlers = {
+            tt.kwBegin: parse_statement_block,
+            tt.kwIf: parse_statement_if,
+            tt.kwWhile: parse_statement_while,
+            tt.kwFor: parse_statement_for,
+            tt.kwBreak: parse_break_or_continue(tt.kwBreak),
+            tt.kwContinue: parse_break_or_continue(tt.kwContinue),
+        }
+
+        if self.token.type in handlers:
+            self.next_token()
+            return handlers[self.token.type]()
+        else:
+            return self.parse_expression()
