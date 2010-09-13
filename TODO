@@ -1,24 +1,13 @@
-Общее:
-    сообщения об ошибках:
-        spc: file(line, col): Syntax error, <message>
+Major:
+    LA: Fix bug with EOF position
+    LA: Implement analysis of mixed character-string constants
+    SA-E: Fix bug with 'a<operation>' parse
+    SA-S: Check tests (002, 014, 016, 018, 021, 022, 024) 
+        for the presence of EOF exception
 
-    вынести работу с getopt в отдельный модуль (потому как нужна и в spc, и в тестере)
-    написать информацию о тестах, выводить при фэйлах
-    допилить скрипт просмотра тестов
-    переехать на кортежи вместо списков, где это возможно
-
-ЛА:
-    разбор вещей типа 'a'#32'b'
-    протестировать разбор операций, отличных от +-/*
-    переписать вывод токенов (см. formatter и writer в языке)
-
-СА:
-    баги разбора выражений: 'a-' (и странное поведение при a()b [это из-за бага])
-    скобки! [не работают из-за костылика]
-    протестировать унарные операторы и бинарные, отличные от +-/*
-
-    переехать на "a expected, but b found"
-    parmismatch: выводить не позицию "(", а позицию отсутствующей ")"
-    parse_expr() — убрать повторяющиеся куски
-    Парсер псевдоязыка:
-        исключение EOF: сделать и проверить тесты 002 014 016 018 021 022 024
+Minor:
+    Common: Change the format of error messages to 
+        '<file>(<line>, <col>): <error_type>, <message>'
+    LA: Rewrite module 'printer.py' (possibly using the built-in formatter and writer)
+    SA: Fix the output position of ParenthesisMismatch exception
+    SA-E: Remove duplicate code from 'parse_expr' function
