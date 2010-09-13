@@ -1,4 +1,5 @@
 ::begin::
+a: ARecordType0
 integer
 real
 ::end::

@@ -1,5 +1,6 @@
-[var] a: array[1..10] of int (alias to "integer")
-[type] array[1..10] of int (alias to "integer")
-[type] int (alias to "integer")
-[type] integer
-[type] real
+::begin::
+a: array[1..10] of int
+int = integer
+integer
+real
+::end::

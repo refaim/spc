@@ -1,0 +1,9 @@
+::begin::
+a: array[1..2] of ARecordType0
+	::begin::
+	x: integer
+	y: integer
+	::end::
+integer
+real
+::end::

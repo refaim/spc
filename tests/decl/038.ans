@@ -1,0 +1,10 @@
+::begin::
+integer
+p: point
+	::begin::
+	x: integer
+	y: integer
+	::end::
+point = ARecordType0
+real
+::end::

@@ -1,3 +1,5 @@
-[type] int (alias to "integer")
-[type] integer
-[type] real
+::begin::
+int = integer
+integer
+real
+::end::

@@ -1,5 +1,6 @@
-[type] array[1..100] of real
-[type] at (alias to "array[1..100] of real")
-[type] integer
-[var] myarray: at
-[type] real
+::begin::
+at = array[1..100] of real
+integer
+myarray: at
+real
+::end::

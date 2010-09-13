@@ -1,0 +1,8 @@
+::begin::
+a: ARecordType0
+	::begin::
+	b: array[1..10] of integer
+	::end::
+integer
+real
+::end::

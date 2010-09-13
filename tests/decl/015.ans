@@ -1,3 +1,5 @@
-[const] a: integer = 10
-[type] integer
-[type] real
+::begin::
+a: integer = 10
+integer
+real
+::end::

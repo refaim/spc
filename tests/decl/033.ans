@@ -1,0 +1,9 @@
+::begin::
+a: ARecordType0
+	::begin::
+	x: integer
+	y: real
+	::end::
+integer
+real
+::end::

@@ -1,4 +1,6 @@
-[var] a: integer
-[var] b: integer
-[type] integer
-[type] real
+::begin::
+a: integer
+b: integer = 10
+integer
+real
+::end::

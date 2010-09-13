@@ -1,0 +1,8 @@
+::begin::
+a: ARecordType1
+	::begin::
+	b: ARecordType0
+	::end::
+integer
+real
+::end::

@@ -10,10 +10,20 @@ from table import *
 class Parser(ExprParser):
     def __init__(self, tokenizer):
         super(Parser, self).__init__(tokenizer)
-        self.symtable = SymTable()
-        self.current_scope = self.symtable
+        self.symtable_stack = [SymTable()]
+        self.symtable.insert(SymTypeInt())
+        self.symtable.insert(SymTypeReal())
         self.statement_stack = []
+        self.anonymous_types = 0
         self.clear_position()
+
+    @property
+    def symtable(self): return self.symtable_stack[-1]
+    def find_type(self, type):
+        for table in reversed(self.symtable_stack):
+            if type in table:
+                return table[type]
+        return None
 
     def e(self, error, params=[], fp=None):
         if self._saved_pos:
@@ -42,6 +52,11 @@ class Parser(ExprParser):
         self.next_token()
         return current
 
+    def anonymous_typename(self):
+        name = 'ARecordType' + str(self.anonymous_types)
+        self.anonymous_types += 1
+        return name
+
     def parse(self):
         self.parse_declarations()
         self.require_token(tt.kwBegin)
@@ -52,36 +67,20 @@ class Parser(ExprParser):
     def parse_declarations(self):
 
         def parse_type():
-            if self.token.type == tt.kwArray:
-                return parse_array_desc()
-            typename = self.token.value
-            if typename not in self.current_scope:
-                self.e(UnknownTypeError, [typename])
-            if not self.current_scope[typename].is_type:
+            complex = { tt.kwArray: parse_array, tt.kwRecord: parse_record }
+            ttype = self.token.type
+            if ttype in complex:
+                self.next_token()
+                return complex[ttype]()
+            type = self.find_type(self.token.value)
+            if type is None:
+                self.e(UnknownTypeError, [self.token.value])
+            if not type.is_type():
                 self.e(ExpError, ['Typename'])
             self.next_token()
-            return self.current_scope[typename]
+            return type
 
-        def parse_ident():
-            name = self.token.value
-            self.save_position()
-            self.require_token(tt.identifier)
-            if name in keywords:
-                self.e(ReservedNameError)
-            if name in self.current_scope:
-                self.e(RedeclaredIdentifierError, [name])
-            self.clear_position()
-            return name
-
-        def parse_ident_list():
-            names = [parse_ident()]
-            while self.token.type == tt.comma:
-                self.next_token()
-                names.append(parse_ident())
-            return names
-
-        def parse_array_desc():
-            self.next_token()
+        def parse_array():
             self.require_token(tt.lbracket)
             lbound = self.require_token(tt.kwInteger).value
             self.save_position()
@@ -93,29 +92,43 @@ class Parser(ExprParser):
             if lbound > rbound:
                 self.e(RangeBoundsError)
             self.clear_position()
-            return self.current_scope.insert(
-                SymTypeArray(atype, SymTypeRange(lbound, rbound)))
+            return SymTypeArray(atype, SymTypeRange(lbound, rbound))
+
+        def parse_record():
+            table = SymTable()
+            self.symtable_stack.append(table)
+            while self.token.type == tt.identifier:
+                parse_var_decl()
+            self.require_token(tt.kwEnd)
+            return SymTypeRecord(
+                self.anonymous_typename(), self.symtable_stack.pop())
+
+        def parse_ident():
+            name = self.token.value
+            self.save_position()
+            self.require_token(tt.identifier)
+            if name in keywords:
+                self.e(ReservedNameError)
+            if name in self.symtable:
+                self.e(RedeclaredIdentifierError, [name])
+            self.clear_position()
+            return name
+
+        def parse_ident_list():
+            names = [parse_ident()]
+            while self.token.type == tt.comma:
+                self.next_token()
+                names.append(parse_ident())
+            return names
 
         def parse_type_decl():
             typename = parse_ident()
             self.require_token(tt.equal)
-
-            if self.token.type == tt.kwArray:
-                arraytype = parse_array_desc()
-                self.require_token(tt.semicolon)
-                self.current_scope.insert(SymTypeAlias(typename, arraytype))
-                return
-            if self.token.type == tt.kwRecord:
-                pass
-
-            sourcetype = parse_type()
+            ttype = parse_type()
             self.require_token(tt.semicolon)
-            if isinstance(sourcetype, SymTypeAlias):
-                sourcename = sourcetype.target
-            else:
-                sourcename = sourcetype.name
-            self.current_scope.insert(
-                SymTypeAlias(typename, sourcename))
+            if isinstance(ttype, SymTypeAlias):
+                ttype = ttype.type
+            self.symtable.insert(SymTypeAlias(typename, ttype))
 
         def parse_const_decl():
             constname = parse_ident()
@@ -131,9 +144,7 @@ class Parser(ExprParser):
             else:
                 self.assert_types(self.get_expr_type(constvalue), consttype)
             self.require_token(tt.semicolon)
-
-            self.current_scope.insert(
-                SymConst(constname, consttype, constvalue))
+            self.symtable.insert(SymConst(constname, consttype, constvalue))
 
         def parse_var_decl():
             varnames = parse_ident_list()
@@ -149,10 +160,12 @@ class Parser(ExprParser):
                 varvalue = None
             self.require_token(tt.semicolon)
             for var in varnames:
-                self.current_scope.insert(
-                    SymVar(var, vartype, varvalue))
+                self.symtable.insert(SymVar(var, vartype, varvalue))
 
         def parse_func_decl():
+            pass
+
+        def parse_proc_decl():
             pass
 
         declarations = {
@@ -160,6 +173,7 @@ class Parser(ExprParser):
             tt.kwConst: parse_const_decl,
             tt.kwVar: parse_var_decl,
             tt.kwFunction: parse_func_decl,
+            tt.kwProcedure: parse_proc_decl,
         }
 
         while self.token.type in declarations:
@@ -223,8 +237,7 @@ class Parser(ExprParser):
             statement = SynStatementFor(counter, initial, final, None)
             self.statement_stack.append(statement)
             statement.action = self.parse_statement()
-            self.statement_stack.pop()
-            return statement
+            return self.statement_stack.pop()
 
         def parse_break_or_continue(StatementClass):
             def parse():

@@ -1,4 +1,5 @@
-[type] a (alias to "array[1..10] of integer")
-[type] array[1..10] of integer
-[type] integer
-[type] real
+::begin::
+a = array[1..10] of integer
+integer
+real
+::end::

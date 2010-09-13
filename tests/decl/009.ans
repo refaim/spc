@@ -1,4 +1,6 @@
-[var] a: integer
-[var] b: real
-[type] integer
-[type] real
+::begin::
+a: integer
+b: real
+integer
+real
+::end::
