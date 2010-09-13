@@ -10,5 +10,9 @@ Major:
 Minor:
     Common: Change the format of error messages to 
         '<file>(<line>, <col>): <error_type>, <message>'
+    Common: Refactor 'Compiler' class
+    Common: Replace used once exceptions by inline messages
+    Common: Allow passing any number of arguments instead of arguments list
+        into exception constructor
     LA: Rewrite module 'printer.py' (possibly using the built-in formatter and writer)
     SA: Fix the output position of ParenthesisMismatch exception
