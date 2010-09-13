@@ -27,7 +27,7 @@ from table import SimpleSymTable
 class SimpleParser(ExprParser):
     ''' Класс, реализующий разбор объявлений и "сложных" операций
     (взятие индекса, вызов, взятие поля). Разбор арифметических выражений
-    осуществляется родительским классом ExprParser в функции parse_expr() '''
+    осуществляется родительским классом ExprParser в функции parse_expression() '''
 
     @copy_args
     def __init__(self, tokenizer):
@@ -61,7 +61,7 @@ class SimpleParser(ExprParser):
         ''' Разбор "сложных" операций. '''
         def parse_record(opr):
             if self.token.type == tt.identifier:
-                res = SynOperation(opr, [result, SynVar(self.token)])
+                res = SynOperation(opr, result, SynVar(self.token))
             else:
                 self.e(IdentifierExpError)
             self.next_token()
@@ -69,7 +69,7 @@ class SimpleParser(ExprParser):
 
         def parse_array(opr):
             self.in_symbol = False
-            res = SynOperation(opr, [result, self.parse_expr()])
+            res = SynOperation(opr, result, self.parse_expression())
             if self.token.type != tt.rbracket:
                 self.e(BracketsMismatchError, fp = self.prevpos)
             self.next_token()
@@ -78,10 +78,10 @@ class SimpleParser(ExprParser):
         def parse_func(opr):
             self.in_symbol = False
             func = result
-            args = [self.parse_expr()] if self.token.type != tt.rparen else []
+            args = [self.parse_expression()] if self.token.type != tt.rparen else []
             while self.token.type == tt.comma:
                 self.next_token()
-                args.append(self.parse_expr())
+                args.append(self.parse_expression())
             if nonempty(args) and self.token.type != tt.rparen:
                 self.e(ParMismatchError, fp = self.prevpos)
             self.next_token()
