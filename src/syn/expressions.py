@@ -38,7 +38,7 @@ class ExprParser(object):
 
     def __iter__(self):
         while self.token.type != tt.eof:
-            yield self.parse_expr()
+            yield self.parse_expression()
 
     @property
     def token(self):
@@ -53,7 +53,7 @@ class ExprParser(object):
             fp = self.token.linepos
         raise_exception(error(fp, params))
 
-    def parse_expr(self):
+    def parse_expression(self):
         return self.internal_parse(0)
     
     def internal_parse(self, priority):
@@ -75,7 +75,7 @@ class ExprParser(object):
 
         if self.token.type == tt.lparen:
             self.next_token()
-            result = self.parse_expr()
+            result = self.parse_expression()
             if self.token.type != tt.rparen:
                 self.e(ParMismatchError, fp=filepos)
         elif self.token.type == tt.identifier:
