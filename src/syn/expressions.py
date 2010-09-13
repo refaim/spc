@@ -2,15 +2,15 @@
 
 from common.functions import *
 from common.errors import *
-from tok.token import tt, dlm, op
+from tok.token import tt
 from tree import *
 
-#unary_ops = [op.minus, op.plus, op.logic_not]
-binary_ops = [[op.equal, op.not_equal, op.lesser, op.greater,
-               op.greater_or_equal, op.lesser_or_equal],
-             [op.plus, op.minus, op.logic_or],
-             [op.mul, op.div, op.shl, op.shr, op.int_div, op.int_mod,
-              op.logic_and]]
+#unary_ops = [tt.minus, tt.plus, tt.logic_not]
+binary_ops = [[tt.equal, tt.not_equal, tt.less, tt.greater,
+               tt.greater_or_equal, tt.less_or_equal],
+             [tt.plus, tt.minus, tt.logic_or],
+             [tt.mul, tt.div, tt.shl, tt.shr, tt.int_div, tt.int_mod,
+              tt.logic_and]]
 max_priority = len(binary_ops) - 1
 
 class ExprParser(object):
@@ -53,14 +53,14 @@ class ExprParser(object):
             return None
         filepos = self.token.linepos
 
-        if self.token.type == dlm.lparen:
+        if self.token.type == tt.lparen:
             self.next_token()
             result = self.parse_expr()
-            if self.token.type != dlm.rparen:
+            if self.token.type != tt.rparen:
                 self.e(ParMismatchError, fp=filepos)
         elif self.token.type == tt.identifier:
             result = self.parse_identifier()
-        elif self.token.type in (tt.integer, tt.real, tt.string_const):
+        elif self.token.type in (tt.kwInteger, tt.kwReal, tt.string_const):
             result = SynConst(self.token)
         #elif self.token.type in unary_ops:
         #    opr = self.token

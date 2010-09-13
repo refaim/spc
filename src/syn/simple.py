@@ -19,7 +19,7 @@
 
 from common.functions import *
 from common.errors import *
-from tok.token import tt, kw, op, dlm
+from tok.token import tt
 from expressions import ExprParser
 from tree import *
 from table import SimpleSymTable
@@ -43,8 +43,8 @@ class SimpleParser(ExprParser):
 
     def parse_declarations(self):
         ''' Разбор блока объявлений '''
-        simple_types = { "array": kw.array, "function": kw.function,
-                         "record": kw.record, "var": kw.var }
+        simple_types = { "array": tt.kwArray, "function": tt.kwFunction,
+                         "record": tt.kwRecord, "var": tt.kwVar }
         while self.token.value in simple_types:
             idtype = simple_types[self.token.value]
             self.next_token()
@@ -70,7 +70,7 @@ class SimpleParser(ExprParser):
         def parse_array(opr):
             self.in_symbol = False
             res = SynBinaryOp(result, opr, self.parse_expr())
-            if self.token.type != dlm.rbracket:
+            if self.token.type != tt.rbracket:
                 self.e(BracketsMismatchError, fp = self.prevpos)
             self.next_token()
             return res
@@ -78,18 +78,18 @@ class SimpleParser(ExprParser):
         def parse_func(opr):
             self.in_symbol = False
             func = result
-            args = [self.parse_expr()] if self.token.type != dlm.rparen else []
-            while self.token.type == dlm.comma:
+            args = [self.parse_expr()] if self.token.type != tt.rparen else []
+            while self.token.type == tt.comma:
                 self.next_token()
                 args.append(self.parse_expr())
-            if nonempty(args) and self.token.type != dlm.rparen:
+            if nonempty(args) and self.token.type != tt.rparen:
                 self.e(ParMismatchError, fp = self.prevpos)
             self.next_token()
             return SynFunctionCall(func, args)
 
-        start_symbols = {op.dot: (kw.record, parse_record, RecordError),
-                         dlm.lparen: (kw.function, parse_func, CallError),
-                         dlm.lbracket: (kw.array, parse_array, SubscriptError)}
+        start_symbols = {tt.dot: (tt.kwRecord, parse_record, RecordError),
+                         tt.lparen: (tt.kwFunction, parse_func, CallError),
+                         tt.lbracket: (tt.kwArray, parse_array, SubscriptError)}
 
         var = str(result)
         if self.token.type in start_symbols:
@@ -109,7 +109,7 @@ class SimpleParser(ExprParser):
         ''' Виртуальная функция. Вызывается в родительском классе
         при разборе операндов арифметической операции. Перегружена для
         реализации разбора "сложных" операций. '''
-        complex_ops = (op.dot, dlm.lparen, dlm.lbracket)
+        complex_ops = (tt.dot, tt.lparen, tt.lbracket)
         if self.token.value not in self.symtable:
             self.e(UndeclaredIdentifierError, [self.token.value])
         result = SynVar(self.token)

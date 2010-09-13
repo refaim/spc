@@ -1,37 +1,38 @@
 # -*- coding: utf-8 -*-
 
 from common.functions import *
-from token import tt, op, dlm, keywords
+from token import tt, keywords
 
-lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
-               tt.real: "Real", tt.char_const: "Character constant",
+lexems_str = { tt.identifier: "Identifier", tt.kwInteger: "Integer",
+               tt.kwReal: "Real", tt.char_const: "Character constant",
                tt.string_const: "String constant",
 
-               dlm.lparen: "Left parenthesis", dlm.semicolon: "Semicolon",
-               dlm.rparen: "Right parenthesis", dlm.colon: "Colon",
-               dlm.lbracket: "Left bracket", dlm.rbracket: "Right bracket",
-               dlm.comma: "Comma", dlm.double_dot: "Double dot",
-               dlm.caret: "Caret",
+               tt.lparen: "Left parenthesis", tt.semicolon: "Semicolon",
+               tt.rparen: "Right parenthesis", tt.colon: "Colon",
+               tt.lbracket: "Left bracket", tt.rbracket: "Right bracket",
+               tt.comma: "Comma", tt.double_dot: "Double dot",
+               tt.caret: "Caret",
 
-               op.plus: "Plus", op.lesser: "Less", op.assign: "Assignment",
-               op.minus: "Minus", op.mul: "Asterix", op.div: "Div",
-               op.greater_or_equal: "Greater or equal", op.dot: "Dot",
-               op.lesser_or_equal: "Less or equal", op.not_equal: "Not equal",
-               op.greater: "Greater", op.equal: "Equal",
-               op.shr: "Right shift", op.shl: "Left shift",
-               op.logic_not: "Not", op.logic_and: "And", op.logic_or: "Or",
-               op.logic_xor: "Xor",
-               op.int_div: "Integer div", op.int_mod: "Integer mod"
+               tt.plus: "Plus", tt.less: "Less", tt.assign: "Assignment",
+               tt.minus: "Minus", tt.mul: "Asterix", tt.div: "Div",
+               tt.greater_or_equal: "Greater or equal", tt.dot: "Dot",
+               tt.less_or_equal: "Less or equal", tt.not_equal: "Not equal",
+               tt.greater: "Greater", tt.equal: "Equal",
+               tt.shr: "Right shift", tt.shl: "Left shift",
+               tt.logic_not: "Not", tt.logic_and: "And", tt.logic_or: "Or",
+               tt.logic_xor: "Xor",
+               tt.int_div: "Integer div", tt.int_mod: "Integer mod"
              }
 
 def get_string_repr(lexem):
-    s = str(lexem).lower()
     if lexem in lexems_str:
         return lexems_str[lexem]
-    elif s in keywords:
-        return "{0} (keyword)".format(s).capitalize()
-    else:
-        return ""
+    s = str(lexem).lower().replace('kw', '')
+    if s in keywords:
+        if lexem not in (tt.kwReal, tt.kwInteger):
+            s = "{0} (keyword)".format(s)
+        return s.capitalize()
+    return ''
 
 space = " "
 indent_len = 2

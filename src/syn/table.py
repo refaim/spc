@@ -105,12 +105,18 @@ class SymTypeReal(SymType):
         SymType.__init__(self, 'real')
 
 class SimpleSymTable(UserDict):
+    def clean_type(self, symtype):
+        try:
+            return symtype.text
+        except AttributeError:
+            return symtype
+
     def write(self):
         if empty(self): 
             return
         print("Symbol table:")
         for sym, symtype in sorted(self.items()):
-            print("{0}: {1}".format(sym, symtype))
+            print("{0}: {1}".format(sym, self.clean_type(symtype)))
 
 class SymTable(UserDict):
     def __init__(self):

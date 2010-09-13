@@ -3,41 +3,68 @@
 from common.functions import *
 from lib.enum import Enum
 
-tt = Enum("identifier", "integer", "real", "char_const", "string_const", "eof")
-
-keywords = {}
-kw = Enum("array", "begin", "break", "const", "continue", "do", "else", "end",\
-          "real", "for", "function", "if", "integer", "procedure", "record",\
-          "repeat", "then", "type", "until", "var", "while", "of")
-for elm in kw:
-    keywords[str(elm)] = elm
-
-operations = {}
-ops = ["+", "-", "*", "/", "=", "<>", "<", ">", "<=", ">=", ":=", ".", "and",\
-       "or", "xor", "not", "shr", "shl", "div", "mod"]
-op = Enum("plus", "minus", "mul", "div", "equal", "not_equal", "lesser",\
-          "greater", "lesser_or_equal", "greater_or_equal", "assign", "dot",\
-          "logic_and", "logic_or", "logic_xor", "logic_not", "shr", "shl",\
-          "int_div", "int_mod")
-for i, operation in enumerate(ops):
-    operations[operation] = op[i]
-    op[i].text = operation
-del ops
-
-delimiters = {}
-ds = [";", ":", ",", "..", "(", ")", "[", "]", "^"]
-dlm = Enum("semicolon", "colon", "comma", "double_dot", "lparen", "rparen",\
-           "lbracket", "rbracket", "caret")
-for i, token in enumerate(ds):
-    delimiters[token] = dlm[i]
-    dlm[i].text = token
-del ds
-
 class Token(object):
     @copy_args
-    def __init__(self, type=None, text="", value=""):
+    def __init__(self, type=None, text='', value=''):
         self.line, self.pos = -1, -1
 
     @property
     def linepos(self):
-        return (self.line, self.pos)
+        return self.line, self.pos
+
+def prepare(prefix, seq):
+    return [prefix + item.capitalize() for item in seq]
+
+keywords = ['array', 'begin', 'break', 'const', 'continue', 'do', 'else', \
+     'end', 'for', 'function', 'if', 'integer', 'procedure', 'record', \
+     'repeat', 'then', 'type', 'until', 'var', 'while', 'of', 'integer', 
+     'real']
+
+alphabetic = ['identifier', 'char_const', 'string_const', 'eof']
+
+special = {
+    '.': 'dot',
+    '+': 'plus', 
+    '-': 'minus', 
+    '*': 'mul',
+    '/': 'div', 
+    '=': 'equal', 
+    '<': 'less',
+    '>': 'greater',
+
+    '<=': 'less_or_equal',
+    '>=': 'greater_or_equal',
+    ':=': 'assign',
+    '<>': 'not_equal', 
+
+    'and': 'logic_and', 
+    'or':  'logic_or',
+    'xor': 'logic_xor',
+    'not': 'logic_not',
+    'shr': 'shr',
+    'shl': 'shl',
+    'div': 'int_div',
+    'mod': 'int_mod',
+
+    ';':  'semicolon',
+    ':':  'colon',
+    ',':  'comma',
+    '..': 'double_dot',
+    '(':  'lparen',
+    ')':  'rparen',
+    '[':  'lbracket',
+    ']':  'rbracket',
+    '^':  'caret',
+}
+reverse_special = dict((v, k) for k, v in special.iteritems())
+
+tt = Enum(*(prepare('kw', keywords) + alphabetic + special.values()))
+del alphabetic
+for token in tt:
+    s = str(token)
+    if s in reverse_special:
+        token.text = reverse_special[s]
+    if s.startswith('kw'):
+        s = s.replace('kw', '', 1).lower()
+        if s in keywords:
+            token.text = s

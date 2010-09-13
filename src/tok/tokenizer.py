@@ -5,7 +5,7 @@ import string
 
 from common.errors import *
 from common.functions import *
-from token import Token, keywords, delimiters, operations, tt
+from token import Token, tt, special, reverse_special, keywords
 
 class Tokenizer(object):
     def __init__(self, program):
@@ -54,7 +54,7 @@ class Tokenizer(object):
             elif ch in "{(": tok = self._read_block_comment(ch)
             elif ch == "'": tok = self._read_string_const(ch)
             elif ch == "#": tok = self._read_char_const(ch)
-            elif ch in delimiters or ch in operations:
+            elif ch in special:
                 tok = self._read_delimiter(ch)
             elif nonempty(ch):
                 raise_exception(IllegalCharError((self._tokenpos), [ch]))
@@ -68,7 +68,7 @@ class Tokenizer(object):
             self._token = Token(tt.eof, value='EOF')
 
     def _read_number(self, ch):
-        ttype = tt.integer
+        ttype = tt.kwInteger
         if ch == '$':
             # hex
             numstring = self._match_regexp(r'(\$[\da-fA-F]*)')
@@ -87,13 +87,13 @@ class Tokenizer(object):
                 if self._getch() in '.eE':
                     if self._getch() != '.':
                         numstring = ''
-                        ttype = tt.real
+                        ttype = tt.kwReal
                     self._putch()
                 self._putch()
             else:
-                 ttype, value = tt.real, eval(numstring)
+                 ttype, value = tt.kwReal, eval(numstring)
 
-        etypes = { tt.integer: IntError, tt.real: RealError }
+        etypes = { tt.kwInteger: IntError, tt.kwReal: RealError }
         if empty(numstring):
             raise_exception(etypes[ttype](self._tokenpos))
         return Token(ttype, numstring, value)
@@ -132,11 +132,10 @@ class Tokenizer(object):
 
     def _read_delimiter(self, ch):
         first, both = ch, ch + self._getch()
-        chars = dict(delimiters.items() + operations.items())
-        if both in chars:
-            text, ttype = both, chars[both]
+        if both in special:
+            text, ttype = both, tt.__dict__[special[both]]
         else:
-            text, ttype = first, chars[first]
+            text, ttype = first, tt.__dict__[special[first]]
             self._putch()
         return Token(ttype, text)
 
@@ -174,8 +173,14 @@ class Tokenizer(object):
     def _read_identifier(self, ch):
         name = self._match_regexp(r'(\w+)')
         value = name.lower()
-        ttype = keywords.get(value) or operations.get(value) or \
-            tt.identifier
+        if value in keywords:
+            ttype = tt.__dict__['kw' + value.capitalize()]
+        elif value in special:
+            ttype = tt.__dict__[special[value]]
+        elif value in tt:
+            ttype = tt.__dict__[value]
+        else:
+            ttype = tt.identifier
         return Token(ttype, name, value)
 
     def _read_char_const(self, ch):
