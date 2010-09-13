@@ -65,7 +65,7 @@ class ExprParser(object):
             operation = self.token
             self.next_token()
             result = SynOperation(
-                operation, [result, self.internal_parse(priority + 1)])
+                operation, result, self.internal_parse(priority + 1))
         return result
 
     def parse_factor(self):

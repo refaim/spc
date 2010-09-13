@@ -35,9 +35,8 @@ class SynExpr(SynNode):
 
 class SynOperation(SynExpr):
     @copy_args
-    def __init__(self, operation, operands):
-        if not isinstance(operands, list):
-            self.operands = [operands]
+    def __init__(self, operation, *operands):
+        self.operands = operands
 
     def __str__(self):
         text = self.operation.text
