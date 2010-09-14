@@ -17,10 +17,6 @@ class Parser(ExprParser):
         self.anonymous_types = 0
         self.clear_position()
 
-    def __iter__(self):
-        while self.token.type != tt.eof:
-            yield self.parse_statement()
-
     @property
     def symtable(self): return self.symtable_stack[-1]
     def find_symbol(self, name):
