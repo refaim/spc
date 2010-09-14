@@ -7,6 +7,9 @@ from tok.token import tt
 
 binary_ops = [
     [
+        tt.assign,
+    ],
+    [
         tt.equal, 
         tt.not_equal, 
         tt.less, 
