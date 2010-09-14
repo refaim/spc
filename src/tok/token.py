@@ -43,9 +43,10 @@ alphabetic = [
     'char_const', 
     'string_const', 
     'integer', 
+    'boolean',
     'real',
     'identifier', 
-    'eof'
+    'eof',
 ]
 
 special = {
