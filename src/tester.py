@@ -129,6 +129,7 @@ def main(argv):
         'e': 'expr',
         's': 'sdecl',
         'd': 'decl',
+        'f': 'full',
     }
     
     names = {
@@ -136,11 +137,12 @@ def main(argv):
         'e': 'Expressions parser',
         's': 'Simple declarations parser',
         'd': 'Declarations parser',
+        'f': 'Full syntax parser',
     }
     priorities = 'lesd'
 
     try:
-        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avf')
+        opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')
     except getopt.GetoptError, e:
         return error(str(e) + ', use short variants of compiler options')
     opts = [first(o).lstrip('-') for o in opts]
@@ -151,9 +153,9 @@ def main(argv):
         opts.pop(opts.index('v'))
     else:
         verbose = False
-    if 'f' in opts:
+    if 'u' in opts:
         full = True
-        opts.pop(opts.index('f'))
+        opts.pop(opts.index('u'))
     else:
         full = False
     if len(opts) > 1:
