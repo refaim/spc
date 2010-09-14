@@ -8,7 +8,7 @@ FIND_PATH(
   Makespec.py
 # TODO an env var should be easier to maintain
   $ENV{HOMEDRIVE}/Python26/tools/pyinstaller
-  /tmp/pyinstaller
+  $ENV{PYINSTALLER}
   DOC "Path to the pyinstaller directory (where to find Makespec.py)"
   )
 
