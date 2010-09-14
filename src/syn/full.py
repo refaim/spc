@@ -2,10 +2,10 @@
 
 from common.functions import *
 from common.errors import *
-from tok.token import tt, keywords
-from expressions import ExprParser
 from tree import *
 from table import *
+from tok.token import tt, keywords
+from expressions import ExprParser
 
 class Parser(ExprParser):
     def __init__(self, tokenizer):
