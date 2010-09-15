@@ -102,15 +102,26 @@ class Parser(ExprParser):
             return SymTypeRecord(
                 self.anonymous_typename(), self.symtable_stack.pop())
 
+        def parse_ident():
+            name = self.token.value
+            self.save_position()
+            self.require_token(tt.identifier)
+            if name in keywords:
+                self.e(ReservedNameError)
+            if name in self.symtable:
+                self.e(RedeclaredIdentifierError, [name])
+            self.clear_position()
+            return name
+
         def parse_ident_list():
-            names = [self.parse_identifier_name()]
+            names = [parse_ident()]
             while self.token.type == tt.comma:
                 self.next_token()
-                names.append(self.parse_identifier_name())
+                names.append(parse_ident())
             return names
 
         def parse_type_decl():
-            typename = self.parse_identifier_name()
+            typename = parse_ident()
             self.require_token(tt.equal)
             ttype = parse_type()
             self.require_token(tt.semicolon)
@@ -119,7 +130,7 @@ class Parser(ExprParser):
             self.symtable.insert(SymTypeAlias(typename, ttype))
 
         def parse_const_decl():
-            constname = self.parse_identifier_name()
+            constname = parse_ident()
             if self.token.type == tt.colon:
                 self.next_token()
                 consttype = parse_type()
@@ -160,14 +171,14 @@ class Parser(ExprParser):
                             by_value = False
                             self.next_token()
                         self.require_token(tt.identifier)
-                        name = self.parse_identifier_name()
+                        name = parse_ident()
                         self.require_token(tt.colon)
                         type = parse_type()
                         self.require_token(tt.semicolon)
                         self.symtable.insert(
                             SymFunctionArgument(name, type, by_value))
 
-                name = self.parse_identifier_name()
+                name = parse_ident()
                 args = SymTable()
                 if self.token.type == tt.lparen:
                     if self.token.type != tt.rparen:
