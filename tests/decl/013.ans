@@ -1,5 +1,5 @@
-::begin::
+::symtable begin::
 a: integer = 10
 integer
 real
-::end::
+::symtable end::

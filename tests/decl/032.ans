@@ -1,5 +1,5 @@
-::begin::
+::symtable begin::
 a: ARecordType0
 integer
 real
-::end::
+::symtable end::

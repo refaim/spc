@@ -1,9 +1,9 @@
-::begin::
+::symtable begin::
 a: array[1..2] of array[2..10] of ARecordType0
-	::begin::
+	::symtable begin::
 	x: integer
 	y: integer
-	::end::
+	::symtable end::
 integer
 real
-::end::
+::symtable end::

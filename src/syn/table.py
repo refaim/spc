@@ -104,7 +104,7 @@ class SymTable(UserDict):
 
     def write(self, shift=''):
         def writeln(text): print shift + str(text)
-        writeln('::begin::')
+        writeln('::symtable begin::')
         table = sorted(self.iteritems())
         for name, symbol in table:
             writeln(symbol)
@@ -113,4 +113,4 @@ class SymTable(UserDict):
                 if symbol.symtable and not hasattr(symbol, 'written'):
                     symbol.symtable.write(shift + '\t')
                 symbol.written = True
-        writeln('::end::')
+        writeln('::symtable end::')

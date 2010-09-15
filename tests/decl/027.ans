@@ -1,6 +1,6 @@
-::begin::
+::symtable begin::
 at = array[1..100] of real
 integer
 myarray: at
 real
-::end::
+::symtable end::

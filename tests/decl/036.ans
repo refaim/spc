@@ -1,12 +1,12 @@
-::begin::
+::symtable begin::
 a: ARecordType1
-	::begin::
+	::symtable begin::
 	a1: real
 	b: ARecordType0
-		::begin::
+		::symtable begin::
 		b1: array[1..100] of real
-		::end::
-	::end::
+		::symtable end::
+	::symtable end::
 integer
 real
-::end::
+::symtable end::

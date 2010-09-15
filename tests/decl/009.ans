@@ -1,6 +1,6 @@
-::begin::
+::symtable begin::
 a: integer
 b: real
 integer
 real
-::end::
+::symtable end::

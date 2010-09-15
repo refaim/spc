@@ -1,5 +1,5 @@
-::begin::
+::symtable begin::
 a = array[1..10] of integer
 integer
 real
-::end::
+::symtable end::

@@ -1,7 +1,7 @@
-::begin::
+::symtable begin::
 a: integer
 b: integer
 c: real
 integer
 real
-::end::
+::symtable end::

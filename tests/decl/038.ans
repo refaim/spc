@@ -1,10 +1,10 @@
-::begin::
+::symtable begin::
 integer
 p: point
-	::begin::
+	::symtable begin::
 	x: integer
 	y: integer
-	::end::
+	::symtable end::
 point = ARecordType0
 real
-::end::
+::symtable end::

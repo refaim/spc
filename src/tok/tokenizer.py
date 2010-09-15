@@ -62,9 +62,15 @@ class Tokenizer(object):
 
             found = not (empty(ch) or tok is None)
 
-        if not found or empty(ch):
+        if found and nonempty(ch):
+            tok.line, tok.pos = self._tokenpos
+        else:
             tok = Token(tt.eof, value='EOF')
-        tok.line, tok.pos = self._tokenpos
+            tok.line, tok.pos = self._tokenpos
+            if tok.line:
+                tok.line -= 1
+            else:
+                tok.line += 1
         self._token = tok
 
     def _read_number(self, ch):

@@ -1,5 +1,5 @@
-::begin::
+::symtable begin::
 int = integer
 integer
 real
-::end::
+::symtable end::

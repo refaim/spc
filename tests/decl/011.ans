@@ -1,6 +1,6 @@
-::begin::
+::symtable begin::
 a: integer
 b: integer = 10
 integer
 real
-::end::
+::symtable end::

@@ -1,6 +1,6 @@
-::begin::
+::symtable begin::
 a = ARecordType0
 b = ARecordType0
 integer
 real
-::end::
+::symtable end::

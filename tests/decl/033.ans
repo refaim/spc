@@ -1,9 +1,9 @@
-::begin::
+::symtable begin::
 a: ARecordType0
-	::begin::
+	::symtable begin::
 	x: integer
 	y: real
-	::end::
+	::symtable end::
 integer
 real
-::end::
+::symtable end::

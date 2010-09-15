@@ -1,8 +1,8 @@
-::begin::
+::symtable begin::
 a: ARecordType0
-	::begin::
+	::symtable begin::
 	b: array[1..10] of integer
-	::end::
+	::symtable end::
 integer
 real
-::end::
+::symtable end::

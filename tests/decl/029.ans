@@ -1,6 +1,6 @@
-::begin::
+::symtable begin::
 a: array[1..10] of int
 int = integer
 integer
 real
-::end::
+::symtable end::
