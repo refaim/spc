@@ -1,15 +1,13 @@
 Major:
     Common: Write correct pascal grammar
-    LA: Fix bug with EOF position
     LA: Implement analysis of mixed character-string constants
     SA-E: Fix bug with 'a<operation>' parse
-    SA-S: Check tests (002, 014, 016, 018, 021, 022, 024) 
-        for the presence of EOF exception
     SA-F: Ban complex types in result function type parsing
 
 Minor:
     Common: Change the format of error messages to 
         '<file>(<line>, <col>): <error_type>, <message>'
+    Common: Unquote some tokens (like EOF and identifier) in error messages
     Common: Refactor 'Compiler' class
     Common: Replace used once exceptions by inline messages
     Common: Allow passing any number of arguments instead of arguments list

@@ -60,13 +60,18 @@ class SubscriptError(SynError):
     message = "Subscripted object is not an array"
 class RecordError(SynError):
     message = "Request of field in something not a record"
-
+class UnexpectedEOFError(SynError):
+    message = "Unexpected end of file"
 
 def raise_exception(e):
-    template = "{0} on line {1}, col {2}. {3}"
     if not empty(e.params):
         if len(e.params) == 1:
             e.params = first(e.params)
         e.message = e.message.format(e.params)
-    e.message = template.format(e.prefix, e.line, e.pos, e.message)
+    if e.pos:
+        template = "{0} on line {1}, col {2}. {3}"
+        e.message = template.format(e.prefix, e.line, e.pos, e.message)
+    else:
+        template = "{0} on line {1}. {2}"
+        e.message = template.format(e.prefix, e.line, e.message)
     raise e

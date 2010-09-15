@@ -14,6 +14,7 @@ class Tokenizer(object):
         self._file = program
         self._cline, self._cpos = -1, -1
         self._text = self._getline()
+        self._tokenpos = 0, 0
         self.next_token()
 
     def __iter__(self):
@@ -61,11 +62,10 @@ class Tokenizer(object):
 
             found = not (empty(ch) or tok is None)
 
-        if found and nonempty(ch):
-            tok.line, tok.pos = self._tokenpos
-            self._token = tok
-        else:
-            self._token = Token(tt.eof, value='EOF')
+        if not found or empty(ch):
+            tok = Token(tt.eof, value='EOF')
+        tok.line, tok.pos = self._tokenpos
+        self._token = tok
 
     def _read_number(self, ch):
         ttype = tt.integer
