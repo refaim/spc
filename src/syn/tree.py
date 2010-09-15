@@ -37,8 +37,7 @@ class SynOperation(SynExpr):
     @copy_args
     def __init__(self, operation, *operands):
         self.operands = operands
-
-    def __str__(self):
+    def label(self):
         text = self.operation.text
         return text if text != "[" else "[]"
 
@@ -48,9 +47,7 @@ class SynOperation(SynExpr):
 class SynFunctionCall(SynExpr):
     @copy_args
     def __init__(self, func, args=[]): pass
-
-    def __str__(self):
-        return "()"
+    def label(self): return "()"
 
     @property
     def children(self): return [self.func] + self.args
@@ -58,8 +55,6 @@ class SynFunctionCall(SynExpr):
 class SynVar(SynExpr):
     @copy_args
     def __init__(self, token): pass
-
-    def __str__(self):
-        return self.token.text
+    def label(self): return self.token.text
 
 class SynConst(SynVar): pass
