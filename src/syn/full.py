@@ -262,8 +262,7 @@ class Parser(ExprParser):
             statement = SynStatementWhile(condition, None)
             self.statement_stack.append(statement)
             statement.action = self.parse_statement()
-            self.statement_stack.pop()
-            return statement
+            return self.statement_stack.pop()
 
         def parse_statement_for():
             counter = self.parse_identifier()
