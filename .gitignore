@@ -1,7 +1,1 @@
-*.pyc
-*.swp
-*~
-*.out.*
-*.out
-src/version.py
 bin
