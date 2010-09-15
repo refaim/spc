@@ -30,7 +30,7 @@ class SyntaxTreePrinter(object):
 
             node_id = indices[node]
             self.current_graph.add_node(
-                pydot.Node(node_id, label='"' + str(node) +'"', shape=node_shape, fontname='Verdana'))
+                pydot.Node(node_id, label='"{0}"'.format(node), shape=node_shape, fontname='Verdana'))
 
             for child in node.children:
                 indices[child] = self.counter
