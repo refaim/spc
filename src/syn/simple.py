@@ -71,7 +71,7 @@ class SimpleParser(ExprParser):
             self.in_symbol = False
             res = SynOperation(opr, result, self.parse_expression())
             if self.token.type != tt.rbracket:
-                self.e(BracketsMismatchError, fp = self.prevpos)
+                self.e(BracketsMismatchError, pos=self.prevpos)
             self.next_token()
             return res
 
@@ -83,7 +83,7 @@ class SimpleParser(ExprParser):
                 self.next_token()
                 args.append(self.parse_expression())
             if nonempty(args) and self.token.type != tt.rparen:
-                self.e(ParMismatchError, fp = self.prevpos)
+                self.e(ParMismatchError, pos=self.prevpos)
             self.next_token()
             return SynFunctionCall(func, args)
 

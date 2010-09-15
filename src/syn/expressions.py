@@ -51,10 +51,10 @@ class ExprParser(object):
         self.prevpos = self.token.linepos
         self.tokenizer.next_token()
 
-    def e(self, error, params=[], fp=None):
-        if fp is None: 
-            fp = self.token.linepos
-        raise_exception(error(fp, params))
+    def e(self, error, params=[], pos=None):
+        if pos is None:
+            pos = self.token.linepos
+        raise_exception(error(pos, params))
 
     def parse_expression(self):
         return self.internal_parse(0)
@@ -74,13 +74,13 @@ class ExprParser(object):
     def parse_factor(self):
         if self.token.type == tt.eof:
             return None
-        filepos = self.token.linepos
+        position = self.token.linepos
 
         if self.token.type == tt.lparen:
             self.next_token()
             result = self.parse_expression()
             if self.token.type != tt.rparen:
-                self.e(ParMismatchError, fp=filepos)
+                self.e(ParMismatchError, pos=position)
         elif self.token.type == tt.identifier:
             result = self.parse_identifier()
         elif self.token.type in (tt.integer, tt.real, tt.string_const):
