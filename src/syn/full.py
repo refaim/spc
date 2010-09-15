@@ -59,24 +59,9 @@ class Parser(ExprParser):
 
     def parse(self):
         self.parse_declarations()
-        self.require_token(tt.kwBegin)
-        self.parse_statement()
-        self.require_token(tt.kwEnd)
-        self.require_token(tt.dot)
-
-    def parse_identifier_name(self):
-        name = self.token.value
-        self.save_position()
-        self.require_token(tt.identifier)
-        if name in keywords:
-            self.e(ReservedNameError)
-        if name in self.symtable:
-            self.e(RedeclaredIdentifierError, [name])
-        self.clear_position()
-        return name
-
-    def parse_indentifier(self):
-        return SynVar(self.parse_indentifier_name())
+        if self.token.type == tt.eof:
+            self.e(UnexpectedEOFError)
+        return self.parse_statement()
 
     def parse_declarations(self):
 

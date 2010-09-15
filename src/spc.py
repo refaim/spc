@@ -58,15 +58,21 @@ class Compiler(object):
         self._get_symbol_table(SimpleParser)
         self._common_parse()
 
-    def parse_declarations(self):
+    def parse_decl(self):
+        from tok.token import tt
         self._get_symbol_table(Parser)
-        self._common_parse()
+        if self.parser.token.type == tt.kwBegin:
+            self.parser.next_token()
+            self._common_parse()
+            self.parser.require_token(tt.kwEnd)
+            self.parser.require_token(tt.dot)
 
     def parse(self):
         self.parser = Parser(self.tokenizer)
-        self.parser.parse()
+        program = self.parser.parse()
         self.parser.symtable.write()
-        self._common_parse()
+        print ''
+        program.display()
 
     def _get_symbol_table(self, ParserClass):
         self.parser = ParserClass(self.tokenizer)
@@ -89,7 +95,7 @@ def main(argv):
         'lex':         Compiler.tokenize,
         'expr':        Compiler.parse_expressions,
         'simple-decl': Compiler.parse_simple_decl,
-        'decl':        Compiler.parse_declarations,
+        'decl':        Compiler.parse_decl,
         'full-syntax': Compiler.parse,
     }
 
