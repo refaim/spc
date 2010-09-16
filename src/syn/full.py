@@ -326,6 +326,15 @@ class Parser(ExprParser):
             self.loop_depth -= 1
             return SynStatementWhile(condition, action)
 
+        def parse_statement_repeat():
+            self.next_token()
+            self.loop_depth += 1
+            action = self.parse_statement()
+            self.loop_depth -= 1
+            self.require_token(tt.kwUntil)
+            condition = self.parse_condition()
+            return SynStatementRepeat(condition, action)
+
         def parse_statement_for():
             self.next_token()
             counter = self.parse_identifier()
@@ -352,6 +361,7 @@ class Parser(ExprParser):
             tt.kwBegin: parse_statement_block,
             tt.kwIf: parse_statement_if,
             tt.kwWhile: parse_statement_while,
+            tt.kwRepeat: parse_statement_repeat,
             tt.kwFor: parse_statement_for,
             tt.kwBreak: parse_break_or_continue(SynStatementBreak),
             tt.kwContinue: parse_break_or_continue(SynStatementContinue),

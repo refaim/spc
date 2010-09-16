@@ -37,6 +37,14 @@ class SynStatementWhile(SynStatement):
         print self.indent(depth, 'while {0} do'.format(self.condtition))
         self.action.display(self.deeper(depth))
 
+class SynStatementRepeat(SynStatement):
+    @copy_args
+    def __init__(self, condtition, action): pass
+    def display(self, depth):
+        print self.indent(depth, 'repeat')
+        self.action.display(self.deeper(depth))
+        print self.indent(depth, 'until {0}'.format(self.condtition))
+
 class SynStatementIf(SynStatement):
     @copy_args
     def __init__(self, condtition, action, else_action): pass
