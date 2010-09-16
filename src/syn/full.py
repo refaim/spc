@@ -173,10 +173,11 @@ class Parser(ExprParser):
     
                 def parse_args():
                     while self.token.type in [tt.kwVar, tt.identifier]:
-                        by_value = True
                         if self.token.type == tt.kwVar:
                             by_value = False
                             self.next_token()
+                        else:
+                            by_value = True
                         self.require_token(tt.identifier)
                         name = parse_ident()
                         self.require_token(tt.colon)
@@ -295,19 +296,17 @@ class Parser(ExprParser):
                 if self.token.type == tt.dot:
                     self.end_of_program = True
                     self.next_token()
+                elif self.block_number == 1:
+                    self.require_token(tt.dot)
+                elif self.token.type == tt.semicolon:
+                    self.next_token()
+                    if self.token.type == tt.kwElse:
+                        # todo: fix
+                        self.e(NotAllowedError)
+                elif self.token.type == tt.eof:
+                    self.e(ExpError, [tt.dot.text])
                 else:
-                    if self.block_number == 1:
-                        self.require_token(tt.dot)
-                    else:
-                        if self.token.type == tt.semicolon:
-                            self.next_token()
-                            if self.token.type == tt.kwElse:
-                                # todo: fix
-                                self.e(NotAllowedError)
-                        else:
-                            self.e(ExpError, [tt.semicolon.text])
-                        if self.token.type == tt.eof:
-                            self.e(ExpError, [tt.dot.text])
+                    self.e(ExpError, [tt.semicolon.text])
             self.block_number -= 1
             return block
 
