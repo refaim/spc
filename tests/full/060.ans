@@ -1,0 +1,9 @@
+::symtable begin::
+integer
+real
+x: integer
+::symtable end::
+
+begin
+  (x := ((x + 2) and 1))
+end

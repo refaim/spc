@@ -1,0 +1,1 @@
+spc: tests/full/067.tst: Syntax error on line 3, col 1. 'until' expected but 'end' found

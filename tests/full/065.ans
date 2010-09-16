@@ -1,0 +1,11 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+begin
+  begin
+    begin
+    end
+  end
+end
