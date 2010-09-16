@@ -1,0 +1,1 @@
+spc: tests/full/054.tst: Syntax error on line 2, col 1. 'identifier' expected but 'begin' found

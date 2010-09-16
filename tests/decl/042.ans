@@ -1,0 +1,10 @@
+::symtable begin::
+integer
+r = ARecordType0
+	::symtable begin::
+	x: integer
+	y: integer
+	::symtable end::
+real
+x: integer
+::symtable end::

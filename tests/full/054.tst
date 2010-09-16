@@ -1,0 +1,3 @@
+function
+begin
+end.
