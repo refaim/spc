@@ -14,11 +14,11 @@ class Parser(ExprParser):
         super(Parser, self).__init__(tokenizer)
         self.end_of_program = False
         self.allow_empty = False
-        self.block_number = 0
         self.symtable_stack = [SymTable()]
         self.symtable.insert(SymTypeInt())
         self.symtable.insert(SymTypeReal())
-        self.statement_stack = []
+        self.block_depth = 0
+        self.loop_depth = 0
         self.anonymous_types = 0
         self.clear_position()
 
@@ -238,7 +238,7 @@ class Parser(ExprParser):
             self.e(UndeclaredIdentifierError, [name])
         return SynVar(var)
 
-    def parse_expression(self, expected='expression'):
+    def parse_expression(self, expected='expression'): # virtual  function
         if self.token.value in keywords:
             self.e(ExpError, [expected])
         return ExprParser.parse_expression(self)
@@ -258,11 +258,10 @@ class Parser(ExprParser):
             tt.lbracket: parse_subscript,
         }
 
-        #if self.token.type in handlers:
-        #    self.next_token()
-        #    return handlers[self.token.type]
-        #else:
-        return ExprParser.parse_factor(self)
+        result = ExprParser.parse_factor(self)
+        if self.token.type in handlers:
+            result = handlers[self.token.type]()
+        return result
 
     def parse_condition(self):
         condition = self.parse_expression()
@@ -276,7 +275,7 @@ class Parser(ExprParser):
             self.next_token()
             # prevent memory optimization
             block = copy.deepcopy(SynStatementBlock())
-            self.block_number += 1
+            self.block_depth += 1
             while self.token.type == tt.semicolon:
                 if self.allow_empty:
                     block.add(SynEmptyStatement())
@@ -287,23 +286,23 @@ class Parser(ExprParser):
                     self.e(UnexpectedEOFError)
                 statement = self.parse_statement()
                 block.add(statement)
-                if self.token.type not in (tt.kwElse, tt.kwEnd):
+                if self.token.type != tt.kwEnd:
                     self.require_token(tt.semicolon)
                 while self.token.type == tt.semicolon:
                     self.next_token()
             self.next_token()
             if self.token.type not in (tt.kwElse, tt.kwEnd):
-                if self.token.type == tt.dot and self.block_number > 1:
+                if self.token.type == tt.dot and self.block_depth > 1:
                     self.require_token(tt.semicolon)
-                if self.token.type in (tt.dot, tt.eof) or self.block_number == 1:
+                if self.token.type in (tt.dot, tt.eof) or self.block_depth == 1:
                     self.require_token(tt.dot)
                     self.end_of_program = True
                 if self.token.type == tt.semicolon:
                     self.next_token()
                     if self.token.type == tt.kwElse:
-                        # todo: fix
+                        # todo: fix error message
                         self.e(NotAllowedError)
-            self.block_number -= 1
+            self.block_depth -= 1
             return block
 
         def parse_statement_if():
@@ -322,10 +321,10 @@ class Parser(ExprParser):
             self.next_token()
             condition = self.parse_condition()
             self.require_token(tt.kwDo)
-            statement = SynStatementWhile(condition, None)
-            self.statement_stack.append(statement)
-            statement.action = self.parse_statement()
-            return self.statement_stack.pop()
+            self.loop_depth += 1
+            action = self.parse_statement()
+            self.loop_depth -= 1
+            return SynStatementWhile(condition, action)
 
         def parse_statement_for():
             self.next_token()
@@ -336,17 +335,16 @@ class Parser(ExprParser):
             self.require_token(tt.kwTo)
             final = self.parse_expression()
             self.require_token(tt.kwDo)
-            statement = SynStatementFor(counter, initial, final, None)
-            self.statement_stack.append(statement)
-            statement.action = self.parse_statement()
-            return self.statement_stack.pop()
+            self.loop_depth += 1
+            action = self.parse_statement()
+            self.loop_depth -= 1
+            return SynStatementFor(counter, initial, final, action)
 
         def parse_break_or_continue(StatementClass):
             def parse():
-                for statement in reversed(self.statement_stack):
-                    if statement.is_loop():
-                        self.next_token()
-                        return StatementClass()
+                if self.loop_depth:
+                    self.next_token()
+                    return StatementClass()
                 self.e(NotAllowedError)
             return parse
 
@@ -362,7 +360,7 @@ class Parser(ExprParser):
         key = self.token.type
         if key in handlers:
             statement = handlers[key]()
-        elif self.block_number:
+        elif self.block_depth:
             if self.token.type == tt.semicolon:
                 statement = SynEmptyStatement()
             else:

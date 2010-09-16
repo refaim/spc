@@ -6,8 +6,7 @@ class SynNode(object):
     def indent(self, deep, string): return ' ' * deep + string
     def go_deeper(self, deep): return deep + 2
 
-class SynStatement(SynNode):
-    def is_loop(self): return False
+class SynStatement(SynNode): pass
 
 class SynEmptyStatement(SynNode):
     def display(self, deep):
@@ -26,7 +25,6 @@ class SynStatementBlock(SynStatement):
 class SynStatementFor(SynStatement):
     @copy_args
     def __init__(self, counter, initial, final, action): pass
-    def is_loop(self): return True
     def display(self, deep):
         print self.indent(deep, 'for {0} := {1} to {2} do'.format(
             self.counter, self.initial, self.final))
@@ -35,7 +33,6 @@ class SynStatementFor(SynStatement):
 class SynStatementWhile(SynStatement):
     @copy_args
     def __init__(self, condtition, action): pass
-    def is_loop(self): return True
     def display(self, deep):
         print self.indent(deep, 'while {0} do'.format(self.condtition))
         self.action.display(self.go_deeper(deep))
