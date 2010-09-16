@@ -343,11 +343,10 @@ class Parser(ExprParser):
 
         def parse_break_or_continue(StatementClass):
             def parse():
-                if len(self.statement_stack):
-                    for statement in reversed(self.statement_stack):
-                        if statement.is_loop():
-                            self.next_token()
-                            return StatementClass()
+                for statement in reversed(self.statement_stack):
+                    if statement.is_loop():
+                        self.next_token()
+                        return StatementClass()
                 self.e(NotAllowedError)
             return parse
 
