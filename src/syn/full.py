@@ -293,20 +293,16 @@ class Parser(ExprParser):
                     self.next_token()
             self.next_token()
             if self.token.type not in (tt.kwElse, tt.kwEnd):
-                if self.token.type == tt.dot:
-                    self.end_of_program = True
-                    self.next_token()
-                elif self.block_number == 1:
+                if self.token.type == tt.dot and self.block_number > 1:
+                    self.require_token(tt.semicolon)
+                if self.token.type in (tt.dot, tt.eof) or self.block_number == 1:
                     self.require_token(tt.dot)
-                elif self.token.type == tt.semicolon:
+                    self.end_of_program = True
+                if self.token.type == tt.semicolon:
                     self.next_token()
                     if self.token.type == tt.kwElse:
                         # todo: fix
                         self.e(NotAllowedError)
-                elif self.token.type == tt.eof:
-                    self.e(ExpError, [tt.dot.text])
-                else:
-                    self.e(ExpError, [tt.semicolon.text])
             self.block_number -= 1
             return block
 

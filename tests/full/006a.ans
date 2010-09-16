@@ -1,0 +1,1 @@
+spc: tests/full/006a.tst: Syntax error on line 2, col 3. 'statement' expected but 'var' found

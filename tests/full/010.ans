@@ -1,0 +1,1 @@
+spc: tests/full/010.tst: Syntax error on line 3, col 4. ';' expected but '.' found
