@@ -237,9 +237,9 @@ class Parser(ExprParser):
             self.e(UndeclaredIdentifierError, [name])
         return SynVar(var)
 
-    def parse_expression(self):
+    def parse_expression(self, expected='expression'):
         if self.token.value in keywords:
-            self.e(ExpError, ['expression'])
+            self.e(ExpError, [expected])
         return ExprParser.parse_expression(self)
 
     def parse_factor(self): # virtual function
@@ -372,7 +372,7 @@ class Parser(ExprParser):
             if self.token.type == tt.semicolon:
                 statement = SynEmptyStatement()
             else:
-                statement = self.parse_expression()
+                statement = self.parse_expression(expected='statement')
         else:
             self.e(ExpError, [tt.kwBegin.text])
         return statement

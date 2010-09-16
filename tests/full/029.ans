@@ -1,1 +1,1 @@
-spc: tests/full/029.tst: Syntax error on line 3, col 1. 'expression' expected but 'end' found
+spc: tests/full/029.tst: Syntax error on line 3, col 1. 'statement' expected but 'end' found
