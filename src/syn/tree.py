@@ -117,8 +117,6 @@ class SynVar(SynExpr):
     def __str__(self): return str(self.token.value)
     @property
     def label(self): return self.token.text
-
-    @property
     def type(self, table): return table[self.token.value].type
 
 class SynConst(SynVar): pass
