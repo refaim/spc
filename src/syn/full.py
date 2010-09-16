@@ -202,7 +202,7 @@ class Parser(ExprParser):
                 self.require_token(tt.semicolon)
                 declarations = SymTable()
                 self.symtable_stack.append(declarations)
-                parse_declarations()
+                self.parse_declarations()
                 body = self.parse_statement()
                 self.symtable_stack.pop()
                 return SymTypeFunction(name, args, result_type, declarations, body)
