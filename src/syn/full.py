@@ -30,16 +30,16 @@ class Parser(ExprParser):
                 return table[name]
         return None
 
-    def e(self, error, params=[], fp=None):
+    def e(self, error, params=[], pos=None):
         if self._saved_pos:
-            fp = self._saved_pos
+            pos = self._saved_pos
             self.clear_position()
         if error is ExpError:
             tok = self.token
             params.append(tok.value if tok.value else tok.text)
         if error is NotAllowedError:
             params = [self.token.value]
-        super(Parser, self).e(error, params, fp)
+        super(Parser, self).e(error, params, pos)
 
     def save_position(self):
         # save current token position for error messages
