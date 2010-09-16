@@ -312,10 +312,10 @@ class Parser(ExprParser):
             action = self.parse_statement()
             if self.token.type == tt.kwElse:
                 self.next_token()
-                other_action = self.parse_statement()
+                else_action = self.parse_statement()
             else:
-                other_action = None
-            return SynStatementIf(condition, action, other_action)
+                else_action = None
+            return SynStatementIf(condition, action, else_action)
 
         def parse_statement_while():
             self.next_token()
