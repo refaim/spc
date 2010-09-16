@@ -238,7 +238,7 @@ class Parser(ExprParser):
             self.e(UndeclaredIdentifierError, [name])
         return SynVar(var)
 
-    def parse_expression(self, expected='expression'): # virtual  function
+    def parse_expression(self, expected='expression'): # virtual function
         if self.token.value in keywords:
             self.e(ExpError, [expected])
         return ExprParser.parse_expression(self)
