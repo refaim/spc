@@ -1,0 +1,1 @@
+spc: tests/full/042.tst: Syntax error on line 5, col 1. 'expression' expected but 'end' found

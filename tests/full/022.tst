@@ -1,0 +1,4 @@
+begin
+  while 1 do begin
+  end
+end.

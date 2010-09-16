@@ -4,7 +4,7 @@ import pydot
 import os
 
 from common.functions import *
-from tree import SynFunctionCall
+from tree import SynCall
 
 class SyntaxTreePrinter(object):
     def __init__(self, trees, path):
@@ -21,8 +21,8 @@ class SyntaxTreePrinter(object):
     def write(self):
 
         def add_to_current(node):
-            if isinstance(node, SynFunctionCall):
-                functions.append(node.func)
+            if isinstance(node, SynCall):
+                functions.append(node.caller)
 
             node_shape = 'box' if empty(node.children) else 'ellipse'
             if node in functions:

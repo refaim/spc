@@ -85,7 +85,7 @@ class SimpleParser(ExprParser):
             if nonempty(args) and self.token.type != tt.rparen:
                 self.e(ParMismatchError, pos=self.prevpos)
             self.next_token()
-            return SynFunctionCall(func, args)
+            return SynCall(func, args)
 
         start_symbols = {tt.dot: (tt.kwRecord, parse_record, RecordError),
                          tt.lparen: (tt.kwFunction, parse_func, CallError),

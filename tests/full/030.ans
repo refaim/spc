@@ -1,0 +1,9 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+begin
+  if 1 then
+    2
+end

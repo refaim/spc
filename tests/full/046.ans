@@ -1,0 +1,11 @@
+::symtable begin::
+i: integer
+integer
+real
+::symtable end::
+
+begin
+  for i := 1 to 10 do
+    begin
+    end
+end

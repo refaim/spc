@@ -3,6 +3,7 @@ Major:
     LA: Implement analysis of mixed character-string constants
     SA-E: Fix bug with 'a<operation>' parse
     SA-F: Ban complex types in result function type parsing
+    SA: Remove empty statements
 
 Minor:
     Common: Change the format of error messages to 

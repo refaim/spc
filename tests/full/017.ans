@@ -1,0 +1,1 @@
+spc: tests/full/017.tst: Syntax error on line 3, col 1. 'do' expected but 'end' found

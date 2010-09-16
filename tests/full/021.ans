@@ -1,0 +1,9 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+begin
+  while 1 do
+    2
+end

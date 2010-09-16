@@ -1,0 +1,7 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+begin
+end
