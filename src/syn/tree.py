@@ -67,17 +67,18 @@ class SynExpr(SynNode):
     def display(self, depth): print self.indent(depth, self.__str__())
     @property
     def children(self): return []
-    @property
-    def type(self, table): return None
+    #def type(self, table): return None
 
 class SynCall(SynExpr):
     @copy_args
     def __init__(self, caller, args=[]): pass
     def __str__(self): return '{0}({1})'.format(
-        self.caller, ' '.join(args))
+        self.caller, ', '.join(str(arg) for arg in self.args))
+    def type(self, table):
+        return self.caller.type(table)
+
     @property
     def label(self): return '()'
-
     @property
     def children(self): return [self.caller] + self.args
 
@@ -85,11 +86,21 @@ class SynSubscript(SynExpr):
     @copy_args
     def __init__(self, array, index): pass
     def __str__(self): return '{0}[{1}]'.format(self.array, self.index)
+    def type(self, table):
+        arrtype = self.array.type(table).type
+        if hasattr(arrtype, 'type'):
+            arrtype = arrtype.type
+        return arrtype
 
 class SynFieldRequest(SynExpr):
     @copy_args
     def __init__(self, record, field): pass
     def __str__(self): return '{0}.{1}'.format(self.record, self.field)
+    def type(self, table):
+        rectype = self.record.type(table)
+        if hasattr(rectype, 'type'):
+            rectype = rectype.type
+        return self.field.type(rectype.symtable)
 
 class SynOperation(SynExpr):
     @copy_args
@@ -114,9 +125,11 @@ class SynOperation(SynExpr):
 class SynVar(SynExpr):
     @copy_args
     def __init__(self, token): pass
-    def __str__(self): return str(self.token.value)
+    def __str__(self): return str(self.name)
     @property
     def label(self): return self.token.text
-    def type(self, table): return table[self.token.value].type
+    @property
+    def name(self): return self.token.value
+    def type(self, table): return table[self.name]
 
 class SynConst(SynVar): pass

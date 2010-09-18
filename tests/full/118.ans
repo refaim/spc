@@ -1,0 +1,20 @@
+::symtable begin::
+integer
+r1: ARecordType2
+	::symtable begin::
+	f1: integer
+	r2: ARecordType1
+		::symtable begin::
+		f2: integer
+		r3: ARecordType0
+			::symtable begin::
+			f3: integer
+			::symtable end::
+		::symtable end::
+	::symtable end::
+real
+::symtable end::
+
+begin
+  r1.r2.r3.f3
+end

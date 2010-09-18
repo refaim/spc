@@ -37,7 +37,7 @@ class SymType(Symbol):
 
 class SymTypeFunction(SymType):
     @copy_args
-    def __init__(self, name, args, restype, declarations, body): pass
+    def __init__(self, name): pass
 
     @property
     def symtable(self): return self._symtable
@@ -102,15 +102,38 @@ class SymTable(UserDict):
         self.__setitem__(symbol.name, symbol)
         return symbol
 
-    def write(self, shift=''):
+    def write(self):
+        self.write_symbols(self)
+        self.write_functions()
+
+    def write_symbols(self, table, shift=''):
         def writeln(text): print shift + str(text)
         writeln('::symtable begin::')
-        table = sorted(self.iteritems())
+        table = sorted(table.iteritems())
         for name, symbol in table:
-            writeln(symbol)
-            while hasattr(symbol, 'type'):
-                symbol = symbol.type
-                if symbol.symtable and not hasattr(symbol, 'written'):
-                    symbol.symtable.write(shift + '\t')
-                symbol.written = True
+            if not isinstance(symbol, SymTypeFunction):
+                writeln(symbol)
+                while hasattr(symbol, 'type'):
+                    symbol = symbol.type
+                    if symbol.symtable and not hasattr(symbol, 'written'):
+                        symbol.symtable.write_symbols(symbol.symtable, shift + '\t')
+                    symbol.written = True
         writeln('::symtable end::')
+
+    def write_functions(self):
+        functions = sorted(
+            [symbol for (name, symbol) in self.iteritems()
+                if isinstance(symbol, SymTypeFunction)],
+            key=lambda s: symbol.name)
+        if functions:
+            print '\n::functions::'
+            for f in functions:
+                type = 'function' if f.type else 'procedure'
+                args = '; '.join(['{0}{1}: {2}'.format(
+                    ('var ' if not arg.by_value else ''), arg.name, arg.type.name) for arg in f.args])
+                print '{0} {1}({2})'.format(type, f.name, args) + \
+                    (': {0};'.format(f.type.name) if f.type else '')
+                if f.declarations:
+                    self.write_symbols(f.declarations, ' ' * 2)
+                f.body.display()
+

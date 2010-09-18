@@ -2,7 +2,6 @@ Major:
     Common: Write correct pascal grammar
     LA: Implement analysis of mixed character-string constants
     SA-E: Fix bug with 'a<operation>' parse
-    SA-F: Ban complex types in result function type parsing
     SA-F: Remove empty statements
     SA-F: 057.tst
 

@@ -1,7 +1,9 @@
 ::symtable begin::
+arr: array[1..2] of array[1..3] of integer
 integer
 real
 ::symtable end::
 
 begin
+  arr[10][11]
 end

@@ -1,0 +1,16 @@
+::symtable begin::
+integer
+real
+rec = ARecordType0
+	::symtable begin::
+	a: integer
+	::symtable end::
+::symtable end::
+
+::functions::
+function f(a: rec): rec;
+begin
+end
+
+begin
+end

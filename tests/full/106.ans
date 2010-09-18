@@ -1,0 +1,12 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+::functions::
+procedure f(var z: integer; var x: real; var y: real; a: integer)
+begin
+end
+
+begin
+end

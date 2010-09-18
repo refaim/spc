@@ -1,0 +1,12 @@
+::symtable begin::
+arr: array[1..2] of array[1..3] of ARecordType0
+	::symtable begin::
+	f: integer
+	::symtable end::
+integer
+real
+::symtable end::
+
+begin
+  arr[1][2].f
+end

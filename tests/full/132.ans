@@ -1,0 +1,15 @@
+::symtable begin::
+arr: array[1..2] of array[1..3] of ARecordType1
+	::symtable begin::
+	arr: array[0..3] of ARecordType0
+		::symtable begin::
+		inner: integer
+		::symtable end::
+	::symtable end::
+integer
+real
+::symtable end::
+
+begin
+  arr[1][2].arr[0].inner
+end

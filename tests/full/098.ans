@@ -1,0 +1,1 @@
+spc: tests/full/098.tst: Syntax error on line 3, col 3. Redeclared identifier 'a'

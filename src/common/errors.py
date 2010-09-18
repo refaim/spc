@@ -62,6 +62,12 @@ class RecordError(SynError):
     message = "Request of field in something not a record"
 class UnexpectedEOFError(SynError):
     message = "Unexpected end of file"
+class ComplexNotAllowedError(SynError):
+    message = "Inline arrays and records are not allowed here"
+class TooManyParamsError(SynError):
+    message = "Too many actual parameters"
+class NotEnoughParamsError(SynError):
+    message = "Not enough actual parameters"
 
 def raise_exception(e):
     if not empty(e.params):

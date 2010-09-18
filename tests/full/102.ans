@@ -1,0 +1,16 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+::functions::
+procedure f(x: integer)
+  ::symtable begin::
+  a: integer
+  ::symtable end::
+begin
+  (a := x)
+end
+
+begin
+end

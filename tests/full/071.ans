@@ -1,0 +1,1 @@
+spc: tests/full/071.tst: Syntax error on line 1, col 10. 'identifier' expected but '1' found

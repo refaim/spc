@@ -1,0 +1,12 @@
+::symtable begin::
+integer
+real
+::symtable end::
+
+::functions::
+function f(a: real; b: real; c: real; x: integer; y: integer; z: integer): integer;
+begin
+end
+
+begin
+end

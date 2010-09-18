@@ -3,5 +3,10 @@ integer
 real
 ::symtable end::
 
+::functions::
+procedure a(a: integer)
+begin
+end
+
 begin
 end

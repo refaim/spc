@@ -3,5 +3,11 @@ integer
 real
 ::symtable end::
 
+::functions::
+function f(): integer;
 begin
+end
+
+begin
+  f()
 end

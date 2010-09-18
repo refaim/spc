@@ -1,0 +1,13 @@
+::symtable begin::
+a = array[1..2] of integer
+integer
+real
+::symtable end::
+
+::functions::
+function f(): a;
+begin
+end
+
+begin
+end
