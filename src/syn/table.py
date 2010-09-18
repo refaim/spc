@@ -56,7 +56,7 @@ class SymTypeArray(SymType):
 
     def __str__(self):
         return 'array[{0}] of {1}'.format(self.range, self.type.name)
-       
+
 class SymTypeRange(SymType):
     @copy_args
     def __init__(self, leftbound, rightbound):
@@ -74,11 +74,11 @@ class SymTypeRecord(SymType):
     def symtable(self): return self._symtable
 
 class SymTypeInt(SymType):
-    def __init__(self): 
+    def __init__(self):
         SymType.__init__(self, 'integer')
 
 class SymTypeReal(SymType):
-    def __init__(self): 
+    def __init__(self):
         SymType.__init__(self, 'real')
 
 
@@ -90,7 +90,7 @@ class SimpleSymTable(UserDict):
             return symtype
 
     def write(self):
-        if empty(self): 
+        if empty(self):
             return
         print('Symbol table:')
         for sym, symtype in sorted(self.items()):

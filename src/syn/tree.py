@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from common.functions import *
-    
+
 class SynNode(object):
     def indent(self, depth, string): return ' ' * depth + string
     def deeper(self, depth): return depth + 2
