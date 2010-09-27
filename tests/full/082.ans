@@ -1,1 +1,1 @@
-spc: tests/full/082.tst: Syntax error on line 1, col 15. Unknown type 'x'
+spc: tests/full/082.tst(1,15) Error: Unknown type 'x'

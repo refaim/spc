@@ -8,4 +8,4 @@
 |  5, 13      |  )           |               |  Right parenthesis  |
 |             |              |               |                     |
 +-------------+--------------+---------------+---------------------+
-spc: tests/lexer/024.tst: Lexical error on line 9, col 1. Unexpected end of file in block comment
+spc: tests/lexer/024.tst(9,1) Error: Unexpected end of file in block comment

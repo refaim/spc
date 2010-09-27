@@ -1,1 +1,1 @@
-spc: tests/sdecl/004.tst: Syntax error on line 1, col 5. Identifier 'var' is reserved and not allowed for using
+spc: tests/sdecl/004.tst(1,5) Error: Identifier 'var' is reserved and not allowed for using

@@ -1,1 +1,1 @@
-spc: tests/decl/008.tst: Syntax error on line 2, col 5. Redeclared identifier 'a'
+spc: tests/decl/008.tst(2,5) Error: Redeclared identifier 'a'

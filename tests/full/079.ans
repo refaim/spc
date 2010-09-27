@@ -1,1 +1,1 @@
-spc: tests/full/079.tst: Syntax error on line 2, col 1. ':' expected but 'begin' found
+spc: tests/full/079.tst(2,1) Error: ':' expected but 'begin' found

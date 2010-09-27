@@ -7,4 +7,4 @@
 |  1, 1       |  #123        |  {            |  Character constant  |
 |             |              |               |                      |
 +-------------+--------------+---------------+----------------------+
-spc: tests/lexer/015.tst: Lexical error on line 2, col 1. Invalid character constant
+spc: tests/lexer/015.tst(2,1) Error: Invalid character constant

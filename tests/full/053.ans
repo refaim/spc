@@ -1,1 +1,1 @@
-spc: tests/full/053.tst: Syntax error on line 5, col 7. 'break' not allowed
+spc: tests/full/053.tst(5,7) Error: 'break' not allowed

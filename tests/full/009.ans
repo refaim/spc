@@ -1,1 +1,1 @@
-spc: tests/full/009.tst: Syntax error on line 3, col 4. ';' expected but '.' found
+spc: tests/full/009.tst(3,4) Error: ';' expected but '.' found

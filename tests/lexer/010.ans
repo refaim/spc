@@ -9,4 +9,4 @@
 |  2, 4       |  e           |  e            |  Identifier  |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/010.tst: Lexical error on line 3, col 1. Invalid real constant
+spc: tests/lexer/010.tst(3,1) Error: Invalid real constant

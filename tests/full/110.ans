@@ -1,1 +1,1 @@
-spc: tests/full/110.tst: Syntax error on line 6, col 6. Too many actual parameters
+spc: tests/full/110.tst(6,6) Error: Too many actual parameters

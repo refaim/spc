@@ -1,1 +1,1 @@
-spc: tests/full/001.tst: Syntax error on line 1, col 1. 'begin' expected but 'blabla' found
+spc: tests/full/001.tst(1,1) Error: 'begin' expected but 'blabla' found

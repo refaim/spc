@@ -12,4 +12,4 @@
 |  4, 1       |  123e-123    |  1.23e-121    |  Real        |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/011.tst: Lexical error on line 5, col 1. Invalid real constant
+spc: tests/lexer/011.tst(5,1) Error: Invalid real constant

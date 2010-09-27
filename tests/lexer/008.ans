@@ -22,4 +22,4 @@
 |  10, 10     |  19873.534554       |  19873.534554    |  Real        |
 |             |                     |                  |              |
 +-------------+---------------------+------------------+--------------+
-spc: tests/lexer/008.tst: Lexical error on line 11, col 1. Invalid real constant
+spc: tests/lexer/008.tst(11,1) Error: Invalid real constant

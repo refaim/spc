@@ -1,1 +1,1 @@
-spc: tests/decl/017.tst: Syntax error on line 1, col 16. '..' expected but ']' found
+spc: tests/decl/017.tst(1,16) Error: '..' expected but ']' found

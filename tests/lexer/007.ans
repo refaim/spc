@@ -7,4 +7,4 @@
 |  1, 1       |  $9871       |  39025        |  Integer     |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/007.tst: Lexical error on line 1, col 6. Illegal character '%'
+spc: tests/lexer/007.tst(1,6) Error: Illegal character '%'

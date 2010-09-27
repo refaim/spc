@@ -1,1 +1,1 @@
-spc: tests/lexer/005.tst: Lexical error on line 1, col 1. Invalid integer constant
+spc: tests/lexer/005.tst(1,1) Error: Invalid integer constant

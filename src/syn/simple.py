@@ -52,9 +52,9 @@ class SimpleParser(ExprParser):
             if self.token.type == tt.identifier:
                 self.symtable[idname] = idtype
             elif idname in simple_types:
-                self.e(ReservedNameError, [idname])
+                self.e(E_RESERVED_NAME.format(idname))
             else:
-                self.e(IdentifierExpError)
+                self.e('Identifier expected')
             self.next_token()
 
     def parse_complex_expr(self, result):
@@ -63,7 +63,7 @@ class SimpleParser(ExprParser):
             if self.token.type == tt.identifier:
                 res = SynOperation(opr, result, SynVar(self.token))
             else:
-                self.e(IdentifierExpError)
+                self.e('Identifier expected')
             self.next_token()
             return res
 
@@ -71,7 +71,7 @@ class SimpleParser(ExprParser):
             self.in_symbol = False
             res = SynOperation(opr, result, self.parse_expression())
             if self.token.type != tt.rbracket:
-                self.e(BracketsMismatchError, pos=self.prevpos)
+                self.e('Brackets mismatch', self.prevpos)
             self.next_token()
             return res
 
@@ -83,13 +83,15 @@ class SimpleParser(ExprParser):
                 self.next_token()
                 args.append(self.parse_expression())
             if nonempty(args) and self.token.type != tt.rparen:
-                self.e(ParMismatchError, pos=self.prevpos)
+                self.e(E_PAR_MISMATCH, pos=self.prevpos)
             self.next_token()
             return SynCall(func, args)
 
-        start_symbols = {tt.dot: (tt.kwRecord, parse_record, RecordError),
-                         tt.lparen: (tt.kwFunction, parse_func, CallError),
-                         tt.lbracket: (tt.kwArray, parse_array, SubscriptError)}
+        start_symbols = {
+            tt.dot:      (tt.kwRecord,   parse_record, E_REQUEST_FIELD),
+            tt.lparen:   (tt.kwFunction, parse_func,   E_CALL),
+            tt.lbracket: (tt.kwArray,    parse_array,  E_SUBSCRIPT),
+        }
 
         var = str(result)
         if self.token.type in start_symbols:
@@ -111,7 +113,7 @@ class SimpleParser(ExprParser):
         реализации разбора "сложных" операций. '''
         complex_ops = (tt.dot, tt.lparen, tt.lbracket)
         if self.token.value not in self.symtable:
-            self.e(UndeclaredIdentifierError, [self.token.value])
+            self.e(E_UNDECLARED.format(self.token.value))
         result = SynVar(self.token)
         self.next_token()
         if self.token.type in complex_ops:

@@ -1,1 +1,1 @@
-spc: tests/full/124.tst: Syntax error on line 5, col 4. Subscripted object is not an array
+spc: tests/full/124.tst(5,4) Error: Subscripted object is not an array

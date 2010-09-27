@@ -1,1 +1,1 @@
-spc: tests/full/094.tst: Syntax error on line 1, col 15. Inline arrays and records are not allowed here
+spc: tests/full/094.tst(1,15) Error: Inline arrays and records are not allowed here

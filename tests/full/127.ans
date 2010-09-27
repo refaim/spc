@@ -1,1 +1,1 @@
-spc: tests/full/127.tst: Syntax error on line 5, col 9. ']' expected but ';' found
+spc: tests/full/127.tst(5,9) Error: ']' expected but ';' found

@@ -1,1 +1,1 @@
-spc: tests/full/002.tst: Syntax error on line 1. Unexpected end of file
+spc: tests/full/002.tst(1) Error: Unexpected end of file

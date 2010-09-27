@@ -1,1 +1,1 @@
-spc: tests/full/037.tst: Syntax error on line 3, col 1. 'identifier' expected but 'end' found
+spc: tests/full/037.tst(3,1) Error: 'identifier' expected but 'end' found

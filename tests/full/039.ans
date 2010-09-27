@@ -1,1 +1,1 @@
-spc: tests/full/039.tst: Syntax error on line 5, col 1. ':=' expected but 'end' found
+spc: tests/full/039.tst(5,1) Error: ':=' expected but 'end' found

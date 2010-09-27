@@ -22,6 +22,9 @@ class Tokenizer(object):
             yield self.get_token()
             self.next_token()
 
+    def e(self, message, *args):
+        raise LexError(message, self._tokenpos, *args)
+
     def _getch(self):
         self._cpos += 1
         if not self.eof and self._cpos == len(self._text):
@@ -58,7 +61,7 @@ class Tokenizer(object):
             elif ch in special:
                 tok = self._read_delimiter(ch)
             elif nonempty(ch):
-                raise_exception(IllegalCharError((self._tokenpos), [ch]))
+                self.e("Illegal character '{0}'", ch)
 
             found = not (empty(ch) or tok is None)
 
@@ -99,9 +102,12 @@ class Tokenizer(object):
             else:
                  ttype, value = tt.real, eval(numstring)
 
-        etypes = { tt.integer: IntError, tt.real: RealError }
+        etypes = {
+            tt.integer: 'Invalid integer constant',
+            tt.real: 'Invalid real constant',
+        }
         if empty(numstring):
-            raise_exception(etypes[ttype](self._tokenpos))
+            self.e(etypes[ttype])
         return Token(ttype, numstring, value)
 
     def _read_comment(self, ch):
@@ -115,11 +121,14 @@ class Tokenizer(object):
     def _read_block_comment(self, ch):
         # first - {}, second - (**)
 
+        def fail():
+            self.e('Unexpected end of file in block comment')
+
         def read_first(ch):
             while ch not in ('}', ''):
                 ch = self._getch()
             if ch == '}': return None
-            raise_exception(BlockCommentEofError(self._tokenpos))
+            fail()
 
         def read_second(ch):
             if self._getch() != '*':
@@ -131,7 +140,7 @@ class Tokenizer(object):
                 if ch == '*':
                     found = self._getch() == ')'
             if found: return None
-            raise_exception(BlockCommentEofError(self._tokenpos))
+            fail()
 
         methods = [read_first, read_second]
         return methods[ch == '('](ch)
@@ -166,7 +175,7 @@ class Tokenizer(object):
             value = '"' + s[1:-1].replace("''", "'") + '"'
             return Token(tt.string_const, s, value)
         else:
-            raise_exception(StringEofError(self._tokenpos))
+            self.e('Unexpected end of file in string literal')
 
     def _match_regexp(self, pattern):
         match = re.compile(pattern).match(self._text, self._cpos)
@@ -192,5 +201,5 @@ class Tokenizer(object):
     def _read_char_const(self, ch):
         char = self._match_regexp(r'(#\d*)').lstrip('#')
         if empty(char) or int(char) > 255:
-            raise_exception(CharConstError(self._tokenpos))
+            self.e('Invalid character constant')
         return Token(tt.char_const, '#' + char, chr(int(char)))

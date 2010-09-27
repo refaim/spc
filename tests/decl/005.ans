@@ -1,1 +1,1 @@
-spc: tests/decl/005.tst: Syntax error on line 1. ':' expected but 'EOF' found
+spc: tests/decl/005.tst(1) Error: ':' expected but 'EOF' found

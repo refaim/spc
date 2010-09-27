@@ -1,1 +1,1 @@
-spc: tests/full/058.tst: Syntax error on line 1, col 13. Unknown type '1'
+spc: tests/full/058.tst(1,13) Error: Unknown type '1'

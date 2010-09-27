@@ -17,4 +17,4 @@
 |  9, 2       |  c7sd602034990123     |  c7sd602034990123  |  Identifier  |
 |             |                       |                    |              |
 +-------------+-----------------------+--------------------+--------------+
-spc: tests/lexer/003.tst: Lexical error on line 9, col 18. Illegal character '`'
+spc: tests/lexer/003.tst(9,18) Error: Illegal character '`'

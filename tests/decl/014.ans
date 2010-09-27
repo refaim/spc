@@ -1,1 +1,1 @@
-spc: tests/decl/014.tst: Syntax error on line 1, col 17. '=' expected but ';' found
+spc: tests/decl/014.tst(1,17) Error: '=' expected but ';' found

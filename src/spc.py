@@ -11,7 +11,8 @@ Usage: spc [option] [filename1] [filename2] [...]
 -e, --expr           parse arithmetic expressions
 -s, --simple-decl    parse expressions with simple declarations
 -d, --decl           parse normal Pascal declarations
--f, --full-syntax    perform a full parse\
+-f, --full-syntax    perform a full parse
+-g, --generate       generate assembly code\
 '''
 
 import sys
@@ -79,6 +80,11 @@ class Compiler(object):
         self.parser.parse_declarations()
         self.parser.symtable.write()
 
+    def generate(self):
+        self.parser = Parser(self.tokenizer)
+        program = self.parser.parse()
+        self.parser.check_types(program)
+
 def usage():
     print(__doc__.format(version=APP_VERSION))
     return 0
@@ -97,6 +103,7 @@ def main(argv):
         'simple-decl': Compiler.parse_simple_decl,
         'decl':        Compiler.parse_decl,
         'full-syntax': Compiler.parse,
+        'generate':    Compiler.generate,
     }
 
     compiler_options = {'help' : 'h'}
@@ -131,7 +138,7 @@ def main(argv):
             with open(fname, buffering=10) as source:
                 compiler_actions[option](Compiler(source, fname))
     except CompileError, e:
-        return error(e.message, fname)
+        return error(fname + str(e))
     return 0
 
 if __name__ == '__main__':

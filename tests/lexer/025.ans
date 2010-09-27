@@ -14,4 +14,4 @@
 |  1, 15      |  -           |               |  Minus              |
 |             |              |               |                     |
 +-------------+--------------+---------------+---------------------+
-spc: tests/lexer/025.tst: Lexical error on line 1, col 16. Invalid character constant
+spc: tests/lexer/025.tst(1,16) Error: Invalid character constant

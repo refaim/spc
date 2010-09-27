@@ -1,4 +1,4 @@
 Symbol table:
 f: function
 r: record
-spc: tests/sdecl/031.tst: Syntax error on line 5, col 5. Identifier expected
+spc: tests/sdecl/031.tst(5,5) Error: Identifier expected

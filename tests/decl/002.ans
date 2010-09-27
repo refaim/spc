@@ -1,1 +1,1 @@
-spc: tests/decl/002.tst: Syntax error on line 1. 'identifier' expected but 'EOF' found
+spc: tests/decl/002.tst(1) Error: 'identifier' expected but 'EOF' found

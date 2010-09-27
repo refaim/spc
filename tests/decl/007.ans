@@ -1,1 +1,1 @@
-spc: tests/decl/007.tst: Syntax error on line 2, col 8. Unknown type 'unknown'
+spc: tests/decl/007.tst(2,8) Error: Unknown type 'unknown'

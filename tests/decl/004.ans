@@ -1,1 +1,1 @@
-spc: tests/decl/004.tst: Syntax error on line 1, col 5. 'identifier' expected but 'const' found
+spc: tests/decl/004.tst(1,5) Error: 'identifier' expected but 'const' found

@@ -1,1 +1,1 @@
-spc: tests/full/056.tst: Syntax error on line 3, col 10. Redeclared identifier 'f'
+spc: tests/full/056.tst(3,10) Error: Redeclared identifier 'f'

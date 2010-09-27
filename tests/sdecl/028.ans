@@ -1,4 +1,4 @@
 Symbol table:
 a: array
 f: function
-spc: tests/sdecl/028.tst: Syntax error on line 7, col 5. Unexpected character ']'
+spc: tests/sdecl/028.tst(7,5) Error: Unexpected character ']'

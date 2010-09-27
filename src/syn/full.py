@@ -40,16 +40,17 @@ class Parser(ExprParser):
             type = type.type
         return type
 
-    def e(self, error, params=[], pos=None):
+    def expect(self, expected):
+        found = self.token.value or self.token.text
+        self.e(E_EXPECTED, (expected, found))
+
+    def e(self, message, *args):
         if self._saved_pos:
             pos = self._saved_pos
             self.clear_position()
-        if error is ExpError:
-            tok = self.token
-            params.append(tok.value if tok.value else tok.text)
-        if error is NotAllowedError:
-            params = [self.token.value]
-        super(Parser, self).e(error, params, pos)
+        else:
+            pos = self.token.linepos
+        raise SynError(message, pos, *args)
 
     def save_position(self):
         # save current token position for error messages
@@ -65,7 +66,7 @@ class Parser(ExprParser):
                 reqtype = tokentype.text
             else:
                 reqtype = str(tokentype)
-            self.e(ExpError, [reqtype])
+            self.expect(reqtype)
         self.next_token()
         return current
 
@@ -77,7 +78,7 @@ class Parser(ExprParser):
     def parse(self):
         self.parse_declarations()
         if self.token.type == tt.eof:
-            self.e(ExpError, [tt.kwBegin.text])
+            self.expect(tt.kwBegin.text)
         return self.parse_statement()
 
     def parse_declarations(self):
@@ -93,12 +94,12 @@ class Parser(ExprParser):
                     self.next_token()
                     return complex_handlers[ttype]()
                 else:
-                    self.e(ComplexNotAllowedError)
+                    self.e('Inline arrays and records are not allowed here')
             type = self.find_symbol(self.token.value)
             if type is None:
-                self.e(UnknownTypeError, [self.token.value])
+                self.e("Unknown type '{0}'", self.token.value)
             if not type.is_type():
-                self.e(ExpError, ['Typename'])
+                self.expect('Typename')
             self.next_token()
             return type
 
@@ -112,7 +113,7 @@ class Parser(ExprParser):
             self.require_token(tt.kwOf)
             atype = parse_type()
             if lbound > rbound:
-                self.e(RangeBoundsError)
+                self.e('Upper bound of range is less than lower bound')
             self.clear_position()
             return SymTypeArray(atype, SymTypeRange(lbound, rbound))
 
@@ -130,13 +131,13 @@ class Parser(ExprParser):
             self.save_position()
             self.require_token(tt.identifier)
             if name in keywords:
-                self.e(ReservedNameError)
+                self.e(E_RESERVED_NAME)
             if self.look_up:
                 search = self.find_symbol
             else:
                 search = lambda name: name in self.symtable
             if search(name):
-                self.e(RedeclaredIdentifierError, [name])
+                self.e(E_REDECLARED, name)
             self.clear_position()
             return name
 
@@ -178,7 +179,7 @@ class Parser(ExprParser):
             vartype = parse_type()
             if self.token.type == tt.equal:
                 if len(varnames) > 1:
-                    self.e(VarInitError)
+                    self.e('Only one variable can be initialized')
                 self.next_token()
                 varvalue = self.parse_expression()
                 self.assert_types(self.get_expr_type(varvalue), vartype)
@@ -207,7 +208,7 @@ class Parser(ExprParser):
                         if self.token.type == tt.semicolon:
                             self.next_token()
                             if self.token.type == tt.rparen:
-                                self.e(ExpError, ['parameter'])
+                                self.expect('parameter')
 
                 name = parse_ident()
                 function = SymTypeFunction(name)
@@ -265,14 +266,14 @@ class Parser(ExprParser):
     def parse_identifier(self): # virtual function
         var, name = self.token, self.token.value
         if self.token.type != tt.identifier:
-            self.e(ExpError, [tt.identifier])
+            self.expect(tt.identifier)
         if not self.find_symbol(name):
-            self.e(UndeclaredIdentifierError, [name])
+            self.e(E_UNDECLARED, name)
         return SynVar(var)
 
     def parse_expression(self, expected='expression'): # virtual function
         if self.token.value in keywords:
-            self.e(ExpError, [expected])
+            self.expect(expected)
         return ExprParser.parse_expression(self)
 
     def parse_factor(self): # virtual function
@@ -281,7 +282,7 @@ class Parser(ExprParser):
             function = self.get_type(result)
             params = []
             if not isinstance(function, SymTypeFunction):
-                self.e(CallError)
+                self.e(E_CALL)
             self.next_token()
             if self.token.type != tt.rparen:
                 params.append(self.parse_expression())
@@ -289,17 +290,17 @@ class Parser(ExprParser):
                     self.next_token()
                     params.append(self.parse_expression())
                 if self.token.type != tt.rparen:
-                    self.e(ExpError, [tt.rparen.text])
+                    self.expect(tt.rparen.text)
             if len(params) > len(function.args):
-                self.e(TooManyParamsError)
+                self.e('Too many actual parameters')
             if len(params) < len(function.args):
-                self.e(NotEnoughParamsError)
+                self.e('Not enough actual parameters')
             return SynCall(result, params)
 
         def parse_field_request(result):
             record = self.get_type(result)
             if not isinstance(record, SymTypeRecord):
-                self.e(RecordError)
+                self.e(E_REQUEST_FIELD)
             self.next_token()
             self.symtable_stack.append(record.symtable)
             result = SynFieldRequest(result, self.parse_identifier())
@@ -309,11 +310,11 @@ class Parser(ExprParser):
         def parse_subscript(result):
             array = self.get_type(result)
             if not isinstance(array, SymTypeArray):
-                self.e(SubscriptError)
+                self.e(E_SUBSCRIPT)
             self.next_token()
             index = self.parse_expression()
             if self.token.type != tt.rbracket:
-                self.e(ExpError, [tt.rbracket.text])
+                self.expect(tt.rbracket.text)
             return SynSubscript(result, index)
 
         handlers = {
@@ -344,7 +345,7 @@ class Parser(ExprParser):
             self.next_token()
         while not self.end_of_program and self.token.type != tt.kwEnd:
             if self.token.type == tt.eof:
-                self.e(UnexpectedEOFError)
+                self.e('Unexpected end of file')
             statement = self.parse_statement()
             block.add(statement)
             if self.token.type != tt.kwEnd:
@@ -411,7 +412,7 @@ class Parser(ExprParser):
                 if self.loop_depth:
                     self.next_token()
                     return StatementClass()
-                self.e(NotAllowedError)
+                self.e(E_NOT_ALLOWED, self.token.value)
             return parse
 
         handlers = {
@@ -437,7 +438,7 @@ class Parser(ExprParser):
                     self.next_token()
                     if self.token.type == tt.kwElse:
                         # todo: fix error message
-                        self.e(NotAllowedError)
+                        self.e(E_NOT_ALLOWED, self.token.value)
             self.block_depth -= 1
         elif key in handlers:
             statement = handlers[key]()
@@ -447,5 +448,5 @@ class Parser(ExprParser):
             else:
                 statement = self.parse_expression(expected='statement')
         else:
-            self.e(ExpError, [tt.kwBegin.text])
+            self.expect(tt.kwBegin.text)
         return statement

@@ -8,4 +8,4 @@
 |  1, 3       |  $0          |  0            |  Integer     |
 |             |              |               |              |
 +-------------+--------------+---------------+--------------+
-spc: tests/lexer/006.tst: Lexical error on line 1, col 5. Invalid integer constant
+spc: tests/lexer/006.tst(1,5) Error: Invalid integer constant

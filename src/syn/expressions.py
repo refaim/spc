@@ -10,24 +10,24 @@ binary_ops = [
         tt.assign,
     ],
     [
-        tt.equal, 
-        tt.not_equal, 
-        tt.less, 
-        tt.greater, 
-        tt.greater_or_equal, 
+        tt.equal,
+        tt.not_equal,
+        tt.less,
+        tt.greater,
+        tt.greater_or_equal,
         tt.less_or_equal
     ],
     [
-        tt.plus, 
-        tt.minus, 
+        tt.plus,
+        tt.minus,
         tt.logic_or
     ],
     [
-        tt.mul, 
-        tt.div, 
-        tt.shl, 
-        tt.shr, 
-        tt.int_div, 
+        tt.mul,
+        tt.div,
+        tt.shl,
+        tt.shr,
+        tt.int_div,
         tt.int_mod,
         tt.logic_and
     ],
@@ -43,6 +43,11 @@ class ExprParser(object):
         while self.token.type != tt.eof:
             yield self.parse_expression()
 
+    def e(self, message, pos=None):
+        if pos is None:
+            pos = self.token.linepos
+        raise SynError(message, pos)
+
     @property
     def token(self):
         return self.tokenizer.get_token()
@@ -51,14 +56,9 @@ class ExprParser(object):
         self.prevpos = self.token.linepos
         self.tokenizer.next_token()
 
-    def e(self, error, params=[], pos=None):
-        if pos is None:
-            pos = self.token.linepos
-        raise_exception(error(pos, params))
-
     def parse_expression(self):
         return self.internal_parse(0)
-    
+
     def internal_parse(self, priority):
         if priority < max_priority:
             result = self.internal_parse(priority + 1)
@@ -80,13 +80,13 @@ class ExprParser(object):
             self.next_token()
             result = self.parse_expression()
             if self.token.type != tt.rparen:
-                self.e(ParMismatchError, pos=position)
+                self.e('Parenthesis mismatch', position)
         elif self.token.type == tt.identifier:
             result = self.parse_identifier()
         elif self.token.type in (tt.integer, tt.real, tt.string_const):
             result = SynConst(self.token)
         else:
-            self.e(UnexpectedTokenError, [self.token.text])
+            self.e("Unexpected character '{0}'".format(self.token.text))
         return self.return_factor(result)
 
     def return_factor(self, factor):

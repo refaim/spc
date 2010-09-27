@@ -1,1 +1,1 @@
-spc: tests/decl/019.tst: Syntax error on line 1, col 14. 'integer' expected but '1.0' found
+spc: tests/decl/019.tst(1,14) Error: 'integer' expected but '1.0' found

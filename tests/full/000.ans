@@ -1,1 +1,1 @@
-spc: tests/full/000.tst: Syntax error on line 1. 'begin' expected but 'EOF' found
+spc: tests/full/000.tst(1) Error: 'begin' expected but 'EOF' found

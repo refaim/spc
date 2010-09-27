@@ -1,1 +1,1 @@
-spc: tests/lexer/016.tst: Lexical error on line 1, col 1. Invalid character constant
+spc: tests/lexer/016.tst(1,1) Error: Invalid character constant

@@ -1,1 +1,1 @@
-spc: tests/full/088.tst: Syntax error on line 1, col 24. ';' expected but ':' found
+spc: tests/full/088.tst(1,24) Error: ';' expected but ':' found

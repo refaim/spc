@@ -1,4 +1,4 @@
 Symbol table:
 a: array
 r: record
-spc: tests/sdecl/027.tst: Syntax error on line 5, col 5. Identifier expected
+spc: tests/sdecl/027.tst(5,5) Error: Identifier expected

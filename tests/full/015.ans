@@ -1,1 +1,1 @@
-spc: tests/full/015.tst: Syntax error on line 2, col 3. 'continue' not allowed
+spc: tests/full/015.tst(2,3) Error: 'continue' not allowed
