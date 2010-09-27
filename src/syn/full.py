@@ -214,12 +214,11 @@ class Parser(ExprParser):
                 function = SymTypeFunction(name)
                 self.symtable.insert(function)
                 function.args = []
+                self.symtable_stack.append(function.args)
                 if self.token.type == tt.lparen:
                     self.next_token()
                     if self.token.type != tt.rparen:
-                        self.symtable_stack.append(function.args)
                         parse_args()
-                        self.symtable_stack.pop()
                     self.require_token(tt.rparen)
                 if has_result:
                     self.require_token(tt.colon)
@@ -228,7 +227,6 @@ class Parser(ExprParser):
                     function.type = None
                 self.require_token(tt.semicolon)
                 function.declarations = SymTable()
-                self.symtable_stack.append(function.args)
                 self.symtable_stack.append(function.declarations)
                 self.look_up = True
                 self.parse_declarations()
