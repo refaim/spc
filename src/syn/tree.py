@@ -32,24 +32,24 @@ class SynStatementFor(SynStatement):
 
 class SynStatementWhile(SynStatement):
     @copy_args
-    def __init__(self, condtition, action): pass
+    def __init__(self, condition, action): pass
     def display(self, depth):
-        print self.indent(depth, 'while {0} do'.format(self.condtition))
+        print self.indent(depth, 'while {0} do'.format(self.condition))
         self.action.display(self.deeper(depth))
 
 class SynStatementRepeat(SynStatement):
     @copy_args
-    def __init__(self, condtition, action): pass
+    def __init__(self, condition, action): pass
     def display(self, depth):
         print self.indent(depth, 'repeat')
         self.action.display(self.deeper(depth))
-        print self.indent(depth, 'until {0}'.format(self.condtition))
+        print self.indent(depth, 'until {0}'.format(self.condition))
 
 class SynStatementIf(SynStatement):
     @copy_args
-    def __init__(self, condtition, action, else_action): pass
+    def __init__(self, condition, action, else_action): pass
     def display(self, depth):
-        print self.indent(depth, 'if {0} then'.format(self.condtition))
+        print self.indent(depth, 'if {0} then'.format(self.condition))
         self.action.display(self.deeper(depth))
         if self.else_action:
             print self.indent(depth, 'else')
@@ -67,7 +67,12 @@ class SynExpr(SynNode):
     def display(self, depth): print self.indent(depth, self.__str__())
     @property
     def children(self): return []
-    #def type(self, table): return None
+
+class SynCastToReal(SynExpr):
+    @copy_args
+    def __init__(self, expression): pass
+    def type(self, table):
+        return table['real']
 
 class SynCall(SynExpr):
     @copy_args
@@ -105,20 +110,21 @@ class SynFieldRequest(SynExpr):
 class SynOperation(SynExpr):
     @copy_args
     def __init__(self, operation, *operands):
-        self.operands = operands
+        self.operands = list(operands)
     def __str__(self):
-        if len(self.operands) == 1:
-            text = self.operation.text + str(self.operands[0])
-        else:
-            text = '{0} {1} {2}'.format(
-                self.operands[0], self.operation.text, self.operands[1])
+        #if len(self.operands) == 1:
+        #    text = self.operation.text + str(self.operands[0])
+        #else:
+        text = '{0} {1} {2}'.format(
+            self.operands[0], self.operation.text, self.operands[1])
         return '(' + text + ')'
 
     @property
     def label(self):
         text = self.operation.text
         return text if text != '[' else '[]'
-
+    @property
+    def pos(self): return self.operation.linepos
     @property
     def children(self): return self.operands
 
@@ -130,6 +136,9 @@ class SynVar(SynExpr):
     def label(self): return self.token.text
     @property
     def name(self): return self.token.value
+    @property
+    def pos(self): return self.token.linepos
     def type(self, table): return table[self.name]
 
-class SynConst(SynVar): pass
+class SynConst(SynVar):
+    def type(self, table): return table[str(self.token.type)]

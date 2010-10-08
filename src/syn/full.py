@@ -35,14 +35,14 @@ class Parser(ExprParser):
                 return table[name]
         return None
     def get_type(self, symbol):
-        type = symbol.type(self.symtable)
-        while not type.is_type() or isinstance(type, SymTypeAlias):
-            type = type.type
-        return type
+        type_ = symbol.type(self.symtable)
+        while type_ and (not type_.is_type() or isinstance(type_, SymTypeAlias)):
+            type_ = type_.type
+        return type_
 
     def expect(self, expected):
         found = self.token.value or self.token.text
-        self.e(E_EXPECTED, (expected, found))
+        self.e(E_EXPECTED, expected, found)
 
     def e(self, message, *args):
         if self._saved_pos:
@@ -166,10 +166,6 @@ class Parser(ExprParser):
                 consttype = None
             self.require_token(tt.equal)
             constvalue = self.parse_expression()
-            if consttype is None:
-                consttype = self.get_expr_type(constvalue)
-            else:
-                self.assert_types(self.get_expr_type(constvalue), consttype)
             self.require_token(tt.semicolon)
             self.symtable.insert(SymConst(constname, consttype, constvalue))
 
@@ -182,7 +178,6 @@ class Parser(ExprParser):
                     self.e('Only one variable can be initialized')
                 self.next_token()
                 varvalue = self.parse_expression()
-                self.assert_types(self.get_expr_type(varvalue), vartype)
             else:
                 varvalue = None
             self.require_token(tt.semicolon)
@@ -255,11 +250,100 @@ class Parser(ExprParser):
             while self.token.type == tt.identifier:
                 parsefunc()
 
-    def get_expr_type(self, expr):
-        return SymTypeInt()
+    def check_types(self, stmt):
 
-    def assert_types(self, first, second):
-        pass
+        int_ops = (
+            tt.logic_and, tt.logic_or,
+            tt.logic_xor, tt.logic_not,
+            tt.shr, tt.shl,
+            tt.int_div, tt.int_mod,
+        )
+
+        def expr_type(expr):
+            if not isinstance(expr, SynOperation):
+                return self.get_type(expr)
+            if expr.operation.type == tt.assign:
+               raise SynError('Illegal expression', expr.pos)
+            ltype, rtype = map(expr_type, expr.operands)
+            if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
+                return self.find_symbol('integer')
+            if expr.operation.type in int_ops:
+                raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
+            cast_to_real(expr, ltype, rtype)
+            return self.find_symbol('real')
+
+        def cast_to_real(expr, ltype, rtype):
+            if isinstance(ltype, SymTypeInt):
+                expr.operands[0] = SynCastToReal(expr.operands[0])
+            elif isinstance(rtype, SymTypeInt):
+                expr.operands[1] = SynCastToReal(expr.operands[1])
+
+        def require_ordinal(*expressions):
+            for expr in expressions:
+                if isinstance(expr, SynOperation):
+                    type_ = expr_type(expr)
+                else:
+                    type_ = self.get_type(expr)
+                if not isinstance(type_, SymTypeInt):
+                    raise SynError('Ordinal expression expected', expr.pos)
+
+        def require_mutable(*expressions):
+            for expr in expressions:
+                if (not isinstance(expr,
+                       (SynVar, SynSubscript, SynFieldRequest))
+                ):
+                    raise SynError('Mutable expression expected', expr.pos)
+
+        def require_statement(expr):
+            is_statement = isinstance(expr, (SynCall, SynEmptyStatement))
+            is_assignment = isinstance(expr, SynOperation) and \
+                 expr.operation.type == tt.assign
+
+            if is_assignment:
+                require_mutable(expr.operands[0])
+
+                ltype, rtype = map(expr_type, expr.operands)
+                if ltype is not rtype:
+                    if isinstance(ltype, SymTypeReal):
+                        cast_to_real(expr, ltype, rtype)
+                    else:
+                        raise SynError(
+                            E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
+
+            elif not is_statement:
+                raise SynError('Illegal expression', expr.pos)
+
+        def check_for():
+            require_ordinal(stmt.counter, stmt.initial, stmt.final)
+            require_mutable(stmt.counter)
+            self.check_types(stmt.action)
+
+        def check_while_repeat():
+            require_ordinal(stmt.condition)
+            self.check_types(stmt.action)
+
+        def check_if():
+            require_ordinal(stmt.condition)
+            self.check_types(stmt.action)
+            if stmt.else_action:
+                self.check_types(stmt.else_action)
+
+        def check_block():
+            for statement in stmt.statements:
+                self.check_types(statement)
+
+        handlers = {
+            SynStatementBlock: check_block,
+            SynStatementFor: check_for,
+            SynStatementWhile: check_while_repeat,
+            SynStatementRepeat: check_while_repeat,
+            SynStatementIf: check_if,
+        }
+
+        if type(stmt) in handlers:
+            handlers[type(stmt)]()
+        else:
+            require_statement(stmt)
 
     def parse_identifier(self): # virtual function
         var, name = self.token, self.token.value
@@ -329,6 +413,7 @@ class Parser(ExprParser):
 
     def parse_condition(self):
         condition = self.parse_expression()
+
         # todo: check type
         return condition
 

@@ -26,5 +26,6 @@ E_REQUEST_FIELD = 'Request of field in something not a record'
 E_SUBSCRIPT = 'Subscripted object is not an array'
 E_UNDECLARED = 'Undeclared identifier \'{0}\''
 E_REDECLARED = 'Redeclared identifier \'{0}\''
-E_EXPECTED = "'{0[0]}' expected but '{0[1]}' found"
+E_EXPECTED = "'{0}' expected but '{1}' found"
 E_NOT_ALLOWED = "'{0}' not allowed"
+E_INCOMPATIBLE_TYPES = "Incompatible types: expected '{0}' got '{1}'"

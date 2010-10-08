@@ -5,6 +5,8 @@ Major:
     SA-F: Remove empty statements
     SA-F: 057.tst
     SA-F: Disable redeclaration of params
+    SA-F: Allow ';' after single instruction in operators
+    SA-F: Check types in declarations
 
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages
