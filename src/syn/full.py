@@ -418,7 +418,7 @@ class Parser(ExprParser):
         op = self.token
         if op.type in unary_ops:
             self.next_token()
-            result = SynOperation(op, ExprParser.parse_factor(self))
+            result = SynOperation(op, self.parse_factor())
         else:
             result = ExprParser.parse_factor(self)
         while self.token.type in handlers:
