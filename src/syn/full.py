@@ -264,13 +264,22 @@ class Parser(ExprParser):
                 return self.get_type(expr)
             if expr.operation.type == tt.assign:
                raise SynError('Illegal expression', expr.pos)
-            ltype, rtype = map(expr_type, expr.operands)
-            if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
-                return self.find_symbol('integer')
-            if expr.operation.type in int_ops:
-                raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
-            cast_to_real(expr, ltype, rtype)
-            return self.find_symbol('real')
+            types = map(expr_type, expr.operands)
+            ltype = types[0]
+            if len(types) == 1:
+                if (not isinstance(ltype, SymTypeInt) and
+                    expr.operation.type == tt.logic_not
+                ):
+                    raise SynError(E_ORDINAL_EXPECTED, expr.pos)
+                return ltype
+            else:
+                rtype = types[1]
+                if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
+                    return self.find_symbol('integer')
+                if expr.operation.type in int_ops:
+                    raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
+                cast_to_real(expr, ltype, rtype)
+                return self.find_symbol('real')
 
         def cast_to_real(expr, ltype, rtype):
             if isinstance(ltype, SymTypeInt):
@@ -285,7 +294,7 @@ class Parser(ExprParser):
                 else:
                     type_ = self.get_type(expr)
                 if not isinstance(type_, SymTypeInt):
-                    raise SynError('Ordinal expression expected', expr.pos)
+                    raise SynError(E_ORDINAL_EXPECTED, expr.pos)
 
         def require_mutable(*expressions):
             for expr in expressions:
@@ -404,8 +413,14 @@ class Parser(ExprParser):
             tt.dot: parse_field_request,
             tt.lbracket: parse_subscript,
         }
+        unary_ops = (tt.minus, tt.logic_not)
 
-        result = ExprParser.parse_factor(self)
+        op = self.token
+        if op.type in unary_ops:
+            self.next_token()
+            result = SynOperation(op, ExprParser.parse_factor(self))
+        else:
+            result = ExprParser.parse_factor(self)
         while self.token.type in handlers:
             result = handlers[self.token.type](result)
             self.next_token()
@@ -533,3 +548,4 @@ class Parser(ExprParser):
         else:
             self.expect(tt.kwBegin.text)
         return statement
+

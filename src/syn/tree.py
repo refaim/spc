@@ -112,11 +112,14 @@ class SynOperation(SynExpr):
     def __init__(self, operation, *operands):
         self.operands = list(operands)
     def __str__(self):
-        #if len(self.operands) == 1:
-        #    text = self.operation.text + str(self.operands[0])
-        #else:
-        text = '{0} {1} {2}'.format(
-            self.operands[0], self.operation.text, self.operands[1])
+        if len(self.operands) == 1:
+            op = self.operation.text
+            if op == 'not':
+                op += ' '
+            text = op + str(self.operands[0])
+        else:
+            text = '{0} {1} {2}'.format(
+                self.operands[0], self.operation.text, self.operands[1])
         return '(' + text + ')'
 
     @property

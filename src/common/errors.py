@@ -29,3 +29,4 @@ E_REDECLARED = 'Redeclared identifier \'{0}\''
 E_EXPECTED = "'{0}' expected but '{1}' found"
 E_NOT_ALLOWED = "'{0}' not allowed"
 E_INCOMPATIBLE_TYPES = "Incompatible types: expected '{0}' got '{1}'"
+E_ORDINAL_EXPECTED = 'Ordinal expression expected'
