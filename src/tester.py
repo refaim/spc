@@ -9,7 +9,7 @@ import getopt
 
 import dot_parser
 
-from common.functions import *
+from common.functions import copy_args
 from spc import main as run_compiler
 
 class TestError(Exception):
@@ -25,10 +25,9 @@ class NoAnswer(TestError):
 t_ext, a_ext, o_ext = ".tst", ".ans", ".out"
 
 class Tester(object):
+    @copy_args
     def __init__(self, option, path, verbose, full=False):
-        self.option, self.path, self.verbose = option, path, verbose
         self.suite = self.get_suite(path)
-        self.full = full
         self.passed, self.answer_present = True, True
 
     def get_suite(self, path):
@@ -36,7 +35,7 @@ class Tester(object):
 
     def run(self):
         for entry in self.suite:
-            self.testname = first(os.path.splitext(os.path.basename(entry)))
+            self.testname = os.path.splitext(os.path.basename(entry))[0]
             self.test = self.path + self.testname
             self.run_test(entry)
             try:
@@ -145,8 +144,8 @@ def main(argv):
         opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')
     except getopt.GetoptError, e:
         return error(str(e) + ', use short variants of compiler options')
-    opts = [first(o).lstrip('-') for o in opts]
-    if nonempty(args):
+    opts = [o[0].lstrip('-') for o in opts]
+    if args:
         return error('arguments are not allowed')
     if 'v' in opts:
         verbose = True

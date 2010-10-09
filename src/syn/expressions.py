@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from common.functions import *
+from common.functions import copy_args
 from common.errors import *
-from tree import *
 from tok.token import tt
+from tree import *
 
 binary_ops = [
     [

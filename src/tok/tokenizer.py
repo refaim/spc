@@ -4,7 +4,6 @@ import re
 import string
 
 from common.errors import *
-from common.functions import *
 from token import Token, tt, special, reverse_special, keywords
 
 class Tokenizer(object):
@@ -34,8 +33,8 @@ class Tokenizer(object):
     def _getline(self):
         line = self._file.readline()
         self._cline, self._cpos = self._cline + 1, -1
-        self.eof = empty(line)
-        if not self.eof and last(line) != '\n':
+        self.eof = len(line) == 0
+        if not self.eof and line[-1] != '\n':
            line += '\n'
         return line
 
@@ -60,12 +59,12 @@ class Tokenizer(object):
             elif ch == "#": tok = self._read_char_const(ch)
             elif ch in special:
                 tok = self._read_delimiter(ch)
-            elif nonempty(ch):
+            elif ch:
                 self.e("Illegal character '{0}'", ch)
 
-            found = not (empty(ch) or tok is None)
+            found = ch and tok is not None
 
-        if found and nonempty(ch):
+        if found and ch:
             tok.line, tok.pos = self._tokenpos
         else:
             tok = Token(tt.eof, value='EOF')
@@ -89,7 +88,7 @@ class Tokenizer(object):
             # try real
             numstring = self._match_regexp(r'(\d+\.\d+)|(\d+[Ee]-{0,1}\d+)')
             # try int
-            if empty(numstring):
+            if not numstring:
                 numstring = self._match_regexp(r'\d+')
                 value = int(numstring)
                 # check for real
@@ -106,7 +105,7 @@ class Tokenizer(object):
             tt.integer: 'Invalid integer constant',
             tt.real: 'Invalid real constant',
         }
-        if empty(numstring):
+        if not numstring:
             self.e(etypes[ttype])
         return Token(ttype, numstring, value)
 
@@ -135,7 +134,7 @@ class Tokenizer(object):
                 self._putch()
                 return self._read_delimiter(ch)
             found = False
-            while not (found or empty(ch)):
+            while not found and ch:
                 ch = self._getch()
                 if ch == '*':
                     found = self._getch() == ')'
@@ -200,6 +199,6 @@ class Tokenizer(object):
 
     def _read_char_const(self, ch):
         char = self._match_regexp(r'(#\d*)').lstrip('#')
-        if empty(char) or int(char) > 255:
+        if not char or int(char) > 255:
             self.e('Invalid character constant')
         return Token(tt.char_const, '#' + char, chr(int(char)))

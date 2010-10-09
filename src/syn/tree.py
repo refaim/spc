@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from common.functions import *
+from common.functions import copy_args
 
 class SynNode(object):
     def indent(self, depth, string): return ' ' * depth + string

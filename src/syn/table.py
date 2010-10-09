@@ -2,7 +2,7 @@
 
 from UserDict import UserDict
 
-from common.functions import *
+from common.functions import copy_args
 
 class Symbol(object):
     @copy_args
@@ -90,7 +90,7 @@ class SimpleSymTable(UserDict):
             return symtype
 
     def write(self):
-        if empty(self):
+        if not self:
             return
         print('Symbol table:')
         for sym, symtype in sorted(self.items()):

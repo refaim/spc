@@ -2,11 +2,10 @@
 
 import copy
 
-from common.functions import *
 from common.errors import *
+from tok.token import tt, keywords
 from tree import *
 from table import *
-from tok.token import tt, keywords
 from expressions import ExprParser
 
 class Parser(ExprParser):

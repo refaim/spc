@@ -17,12 +17,12 @@
 операции применима любая операция. В выражениях допускаются целые числа,
 строковые константы, а также числа с плавающей точкой. '''
 
-from common.functions import *
+from common.functions import copy_args
 from common.errors import *
 from tok.token import tt
 from expressions import ExprParser
-from tree import *
 from table import SimpleSymTable
+from tree import *
 
 class SimpleParser(ExprParser):
     ''' Класс, реализующий разбор объявлений и "сложных" операций
@@ -82,7 +82,7 @@ class SimpleParser(ExprParser):
             while self.token.type == tt.comma:
                 self.next_token()
                 args.append(self.parse_expression())
-            if nonempty(args) and self.token.type != tt.rparen:
+            if args and self.token.type != tt.rparen:
                 self.e(E_PAR_MISMATCH, pos=self.prevpos)
             self.next_token()
             return SynCall(func, args)

@@ -108,23 +108,23 @@ def main(argv):
 
     compiler_options = {'help' : 'h'}
     for key in compiler_actions:
-        compiler_options[key] = first(key)
+        compiler_options[key] = key[0]
 
     try:
         opts, args = getopt.getopt(
             argv, ''.join(compiler_options.values()), compiler_options.keys())
 
         # [('-a', ''), ('--foo', '')] -> ['a', 'foo']
-        opts = [first(o).lstrip('-') for o in opts]
+        opts = [o[0].lstrip('-') for o in opts]
     except getopt.GetoptError, e:
         return error('{0!s}, try --help for more options'.format(e))
 
     present = lambda o: o in opts or compiler_options[o] in opts
 
-    if present('help') or empty(opts) or len(opts) > 1:
+    if present('help') or not opts or len(opts) > 1:
         return usage()
 
-    if empty(args):
+    if not args:
         return error('no input files')
     for path in args:
         if not os.path.exists(path):

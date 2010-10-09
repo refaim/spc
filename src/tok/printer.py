@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from common.functions import *
 from token import tt, keywords
 
 lexems_str = { tt.identifier: "Identifier", tt.integer: "Integer",
@@ -41,7 +40,7 @@ b_horz, b_vert, b_cross = "-", "|", "+"
 
 def print_tokens(tokens):
 
-    if empty(tokens):
+    if not tokens:
         return
 
     headers = ["Line, pos", "Token text", "Token value", "Token type"]

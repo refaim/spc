@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions import *
+from functions import copy_args
 
 class CompileError(Exception):
     @copy_args

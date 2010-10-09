@@ -3,7 +3,6 @@
 import pydot
 import os
 
-from common.functions import *
 from tree import SynCall
 
 class SyntaxTreePrinter(object):
@@ -11,7 +10,7 @@ class SyntaxTreePrinter(object):
         self.trees = trees
         self.ctr = 0
         self.graph = pydot.Dot()
-        self.filename = first(os.path.splitext(os.path.basename(path)))
+        self.filename = os.path.splitext(os.path.basename(path))[0]
 
     @property
     def counter(self):
@@ -24,7 +23,7 @@ class SyntaxTreePrinter(object):
             if isinstance(node, SynCall):
                 functions.append(node.caller)
 
-            node_shape = 'box' if empty(node.children) else 'ellipse'
+            node_shape = 'ellipse' if node.children else 'box'
             if node in functions:
                 node_shape = 'diamond'
 
@@ -49,6 +48,6 @@ class SyntaxTreePrinter(object):
             indices[root] = self.counter
             add_to_current(root)
             self.graph.add_subgraph(self.current_graph)
-        if nonempty(self.graph.get_subgraph_list()):
+        if self.graph.get_subgraph_list():
             self.graph.write_dot(self.filename + '.dot')
             self.graph.write_gif(self.filename + '.gif')
