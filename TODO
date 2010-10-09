@@ -2,11 +2,13 @@ Major:
     Common: Write correct pascal grammar
     LA: Implement analysis of mixed character-string constants
     SA-E: Fix bug with 'a<operation>' parse
-    SA-F: Remove empty statements
-    SA-F: 057.tst
+    SA-D: Fix test #013
+    SA-F: Fix test #057
     SA-F: Disable redeclaration of params
     SA-F: Allow ';' after single instruction in operators
+    SA-F: Allow constant expressions in range
     SA-F: Check types in declarations
+    SA-F: Implement type check in expressions with string constants
 
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages
