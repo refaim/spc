@@ -249,6 +249,28 @@ class Parser(ExprParser):
             while self.token.type == tt.identifier:
                 parsefunc()
 
+    def expr_type(self, expr):
+        if not isinstance(expr, SynOperation):
+            return self.get_type(expr)
+        if expr.operation.type == tt.assign:
+           raise SynError('Illegal expression', expr.pos)
+        types = map(self.expr_type, expr.operands)
+        ltype = types[0]
+        if len(types) == 1:
+            if (not isinstance(ltype, SymTypeInt) and
+                expr.operation.type == tt.logic_not
+            ):
+                raise SynError(E_ORDINAL_EXPECTED, expr.pos)
+            return ltype
+        else:
+            rtype = types[1]
+            if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
+                return self.find_symbol('integer')
+            if expr.operation.type in int_ops:
+                raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
+            cast_to_real(expr, ltype, rtype)
+            return self.find_symbol('real')
+
     def check_types(self, stmt):
 
         int_ops = (
@@ -257,28 +279,6 @@ class Parser(ExprParser):
             tt.shr, tt.shl,
             tt.int_div, tt.int_mod,
         )
-
-        def expr_type(expr):
-            if not isinstance(expr, SynOperation):
-                return self.get_type(expr)
-            if expr.operation.type == tt.assign:
-               raise SynError('Illegal expression', expr.pos)
-            types = map(expr_type, expr.operands)
-            ltype = types[0]
-            if len(types) == 1:
-                if (not isinstance(ltype, SymTypeInt) and
-                    expr.operation.type == tt.logic_not
-                ):
-                    raise SynError(E_ORDINAL_EXPECTED, expr.pos)
-                return ltype
-            else:
-                rtype = types[1]
-                if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
-                    return self.find_symbol('integer')
-                if expr.operation.type in int_ops:
-                    raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
-                cast_to_real(expr, ltype, rtype)
-                return self.find_symbol('real')
 
         def cast_to_real(expr, ltype, rtype):
             if isinstance(ltype, SymTypeInt):
@@ -289,7 +289,7 @@ class Parser(ExprParser):
         def require_ordinal(*expressions):
             for expr in expressions:
                 if isinstance(expr, SynOperation):
-                    type_ = expr_type(expr)
+                    type_ = self.expr_type(expr)
                 else:
                     type_ = self.get_type(expr)
                 if not isinstance(type_, SymTypeInt):
@@ -310,7 +310,7 @@ class Parser(ExprParser):
             if is_assignment:
                 require_mutable(expr.operands[0])
 
-                ltype, rtype = map(expr_type, expr.operands)
+                ltype, rtype = map(self.expr_type, expr.operands)
                 if ltype is not rtype:
                     if isinstance(ltype, SymTypeReal):
                         cast_to_real(expr, ltype, rtype)
@@ -547,4 +547,3 @@ class Parser(ExprParser):
         else:
             self.expect(tt.kwBegin.text)
         return statement
-

@@ -18,13 +18,16 @@ class Symbol(object):
 class SymVar(Symbol):
     @copy_args
     def __init__(self, name, type, value): pass
-
     def __str__(self):
         text = '{0}: {1}'.format(self.name, self.type.name)
         if self.value:
             return '{0} = {1}'.format(text, self.value)
         else:
             return text
+
+    @property
+    def size(self):
+        return self.type.size
 
 class SymConst(SymVar): pass
 
@@ -41,6 +44,9 @@ class SymTypeFunction(SymType):
 
     @property
     def symtable(self): return self._symtable
+    @property
+    def size(self):
+        return 4 # call by offset
 
 class SymTypeAlias(SymType):
     @copy_args
@@ -48,6 +54,10 @@ class SymTypeAlias(SymType):
 
     def __str__(self):
         return '{0} = {1}'.format(self.name, self.type.name)
+
+    @property
+    def size(self):
+        return self.type.size
 
 class SymTypeArray(SymType):
     @copy_args
@@ -57,6 +67,10 @@ class SymTypeArray(SymType):
     def __str__(self):
         return 'array[{0}] of {1}'.format(self.range, self.type.name)
 
+    @property
+    def size(self):
+        return self.type.size * self.range.size
+
 class SymTypeRange(SymType):
     @copy_args
     def __init__(self, leftbound, rightbound):
@@ -64,6 +78,11 @@ class SymTypeRange(SymType):
 
     def __str__(self):
         return '{0}..{1}'.format(self.leftbound, self.rightbound)
+
+    @property
+    def size(self):
+        return self.rightbound - self.leftbound + 1
+
 
 class SymTypeRecord(SymType):
     def __init__(self, name, table):
@@ -73,13 +92,23 @@ class SymTypeRecord(SymType):
     @property
     def symtable(self): return self._symtable
 
+    @property
+    def size(self):
+        return sum(type_.size for type_ in self.symtable.values())
+
 class SymTypeInt(SymType):
     def __init__(self):
         SymType.__init__(self, 'integer')
+    @property
+    def size(self):
+        return 4
 
 class SymTypeReal(SymType):
     def __init__(self):
         SymType.__init__(self, 'real')
+    @property
+    def size(self):
+        return 4
 
 
 class SimpleSymTable(UserDict):
@@ -136,4 +165,3 @@ class SymTable(UserDict):
                 if f.declarations:
                     self.write_symbols(f.declarations, ' ' * 2)
                 f.body.display()
-

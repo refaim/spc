@@ -29,6 +29,7 @@ from syn.simple import SimpleParser
 from syn.expressions import ExprParser
 from syn.full import Parser
 from syn.printer import SyntaxTreePrinter
+from gen.main import Generator
 
 class Compiler(object):
     def __init__(self, program, fname):
@@ -84,6 +85,9 @@ class Compiler(object):
         self.parser = Parser(self.tokenizer)
         program = self.parser.parse()
         self.parser.check_types(program)
+        self.generator = Generator(program, self.parser)
+        assembly = self.generator.generate()
+        print assembly
 
 def usage():
     print(__doc__.format(version=APP_VERSION))

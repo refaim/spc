@@ -19,6 +19,12 @@ class CompileError(Exception):
 class LexError(CompileError): pass
 class SynError(CompileError): pass
 
+class GenError(CompileError):
+    @copy_args
+    def __init__(self, message): pass
+    def __str__(self):
+        return ' Error: {0}'.format(self.message)
+
 E_PAR_MISMATCH = 'Parenthesis mismatch'
 E_RESERVED_NAME = 'Identifier \'{0}\' is reserved and not allowed for using'
 E_CALL = 'Called object is neither a procedure nor a function'

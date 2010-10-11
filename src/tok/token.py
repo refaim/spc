@@ -95,4 +95,3 @@ for token in tt:
         s = s.replace('kw', '', 1).lower()
         if s in keywords:
             token.text = s
-
