@@ -139,6 +139,13 @@ class Generator(object):
 
     def generate_statement(self, stmt):
 
+        def jump_if_zero(label):
+            self.generate_command(
+                ('pop', 'eax'),
+                ('test', 'eax', 'eax'),
+                ('jz', label),
+            )
+
         def generate_operation():
             if len(stmt.operands) == 2:
                 self.generate_binary(stmt)
@@ -172,11 +179,7 @@ class Generator(object):
             self.loops.append((start, end))
             self.generate_label(start)
             self.generate_statement(stmt.condition)
-            self.generate_command(
-                ('pop', 'eax'),
-                ('test', 'eax', 'eax'),
-                ('jz', end),
-            )
+            jump_if_zero(end)
             self.generate_statement(stmt.action)
             self.generate_command('jmp', start)
             self.generate_label(end)
@@ -188,11 +191,7 @@ class Generator(object):
             self.generate_label(start)
             self.generate_statement(stmt.action)
             self.generate_statement(stmt.condition)
-            self.generate_command(
-                ('pop', 'eax'),
-                ('test', 'eax', 'eax'),
-                ('jz', start),
-            )
+            jump_if_zero(start)
             self.generate_label(end)
             self.loops.pop()
 
@@ -202,11 +201,7 @@ class Generator(object):
         def generate_if():
             self.generate_statement(stmt.condition)
             else_case, endif = self.get_labels(2)
-            self.generate_command(
-                ('pop', 'eax'),
-                ('test', 'eax', 'eax'),
-                ('jz', else_case),
-            )
+            jump_if_zero(else_case)
             self.generate_statement(stmt.action)
             self.generate_command('jmp', endif)
             self.generate_label(else_case)
