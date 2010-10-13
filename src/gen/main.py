@@ -196,7 +196,19 @@ class Generator(object):
             self.loops.pop()
 
         def generate_for():
-            pass
+            start, inc, end = self.get_labels(3)
+            self.loops.append((inc, end))
+            self.generate_statement(stmt.assignment)
+            self.generate_label(start)
+            self.generate_statement(stmt.check)
+            jump_if_zero(end)
+            self.generate_statement(stmt.action)
+            self.generate_label(inc)
+            self.generate_command(
+                'inc', self.get_variable_offset(stmt.counter.name))
+            self.generate_command('jmp', start)
+            self.generate_label(end)
+            self.loops.pop()
 
         def generate_if():
             self.generate_statement(stmt.condition)

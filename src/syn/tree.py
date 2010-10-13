@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from common.functions import copy_args
+from tok.token import Token, tt
 
 class SynNode(object):
     def indent(self, depth, string): return ' ' * depth + string
@@ -24,7 +25,12 @@ class SynStatementBlock(SynStatement):
 
 class SynStatementFor(SynStatement):
     @copy_args
-    def __init__(self, counter, initial, final, action): pass
+    def __init__(self, counter, initial, final, action):
+        self.assignment = SynOperation(
+            Token(tt.assign), counter, initial)
+        self.check = SynOperation(
+            Token(tt.less_or_equal), counter, final)
+
     def display(self, depth):
         print self.indent(depth, 'for {0} := {1} to {2} do'.format(
             self.counter, self.initial, self.final))
