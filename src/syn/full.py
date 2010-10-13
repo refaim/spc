@@ -275,23 +275,16 @@ class Parser(ExprParser):
                 return self.find_symbol('integer')
             if expr.operation.type in int_ops:
                 raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
-            cast_to_real(expr, ltype, rtype)
+            self.cast_to_real(expr, ltype, rtype)
             return self.find_symbol('real')
 
+    def cast_to_real(self, expr, ltype, rtype):
+        if isinstance(ltype, SymTypeInt):
+            expr.operands[0] = SynCastToReal(expr.operands[0])
+        elif isinstance(rtype, SymTypeInt):
+            expr.operands[1] = SynCastToReal(expr.operands[1])
+
     def check_types(self, stmt):
-
-        int_ops = (
-            tt.logic_and, tt.logic_or,
-            tt.logic_xor, tt.logic_not,
-            tt.shr, tt.shl,
-            tt.int_div, tt.int_mod,
-        )
-
-        def cast_to_real(expr, ltype, rtype):
-            if isinstance(ltype, SymTypeInt):
-                expr.operands[0] = SynCastToReal(expr.operands[0])
-            elif isinstance(rtype, SymTypeInt):
-                expr.operands[1] = SynCastToReal(expr.operands[1])
 
         def require_ordinal(*expressions):
             for expr in expressions:
@@ -320,7 +313,7 @@ class Parser(ExprParser):
                 ltype, rtype = map(self.expr_type, expr.operands)
                 if ltype is not rtype:
                     if isinstance(ltype, SymTypeReal):
-                        cast_to_real(expr, ltype, rtype)
+                        self.cast_to_real(expr, ltype, rtype)
                     else:
                         raise SynError(
                             E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
