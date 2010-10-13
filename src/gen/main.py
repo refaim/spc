@@ -59,7 +59,7 @@ class Generator(object):
     def generate_label(self, name):
         self.instructions.append(asm.Label(name))
 
-    def generate_command(self, *commands):
+    def cmd(self, *commands):
         add_tuple = lambda c:self.instructions.append(
             asm.Command(c[0], *c[1:]))
         one_command = all(not isinstance(cmd, tuple) for cmd in commands)
@@ -113,10 +113,9 @@ class Generator(object):
         self.generate_statement(self.program)
 
         if is_windows():
-            self.generate_command(
-                'stdcall', asm.Offset('ExitProcess'), 0)
+            self.cmd('stdcall', asm.Offset('ExitProcess'), 0)
         else:
-            self.generate_command(
+            self.cmd(
                 ('mov', 'eax', 0),
                 'ret',
             )
@@ -140,7 +139,7 @@ class Generator(object):
     def generate_statement(self, stmt):
 
         def jump_if_zero(label):
-            self.generate_command(
+            self.cmd(
                 ('pop', 'eax'),
                 ('test', 'eax', 'eax'),
                 ('jz', label),
@@ -154,7 +153,7 @@ class Generator(object):
 
         def generate_cast():
             self.generate_statement(stmt.expression)
-            self.generate_command(
+            self.cmd(
                 ('fild', self.dword('esp')),
                 ('fstp', self.dword('esp')),
             )
@@ -180,21 +179,21 @@ class Generator(object):
             self.allocate(format_string_name, format_string, dup=False)
 
             if arg_type is SymTypeReal:
-                self.generate_command(
+                self.cmd(
                     ('fld', self.dword('esp')),
                     ('sub', 'esp', '4'),
                     ('fstp', asm.SizeCast('qword', asm.Offset('esp'))),
                 )
                 occupied_size += 4
 
-            self.generate_command(
+            self.cmd(
                 ('push', format_string_name),
                 ('call', asm.Offset('printf')),
                 ('add', 'esp', occupied_size + 4),
             )
 
         def generate_variable():
-            self.generate_command('push', self.get_variable_offset(stmt.name))
+            self.cmd('push', self.get_variable_offset(stmt.name))
 
         def generate_while():
             start, end = self.get_labels(2)
@@ -203,7 +202,7 @@ class Generator(object):
             self.generate_statement(stmt.condition)
             jump_if_zero(end)
             self.generate_statement(stmt.action)
-            self.generate_command('jmp', start)
+            self.cmd('jmp', start)
             self.generate_label(end)
             self.loops.pop()
 
@@ -227,9 +226,10 @@ class Generator(object):
             jump_if_zero(end)
             self.generate_statement(stmt.action)
             self.generate_label(inc)
-            self.generate_command(
-                'inc', self.get_variable_offset(stmt.counter.name))
-            self.generate_command('jmp', start)
+            self.cmd(
+                ('inc', self.get_variable_offset(stmt.counter.name)),
+                ('jmp', start),
+            )
             self.generate_label(end)
             self.loops.pop()
 
@@ -238,7 +238,7 @@ class Generator(object):
             else_case, endif = self.get_labels(2)
             jump_if_zero(else_case)
             self.generate_statement(stmt.action)
-            self.generate_command('jmp', endif)
+            self.cmd('jmp', endif)
             self.generate_label(else_case)
             if stmt.else_action:
                 self.generate_statement(stmt.else_action)
@@ -255,15 +255,13 @@ class Generator(object):
             SynStatementFor: generate_for,
             SynStatementWhile: generate_while,
             SynStatementRepeat: generate_repeat,
-            SynStatementBreak: lambda:
-                self.generate_command('jmp', self.loops[-1][1]),
-            SynStatementContinue: lambda:
-                self.generate_command('jmp', self.loops[-1][0]),
+            SynStatementBreak: lambda: self.cmd('jmp', self.loops[-1][1]),
+            SynStatementContinue: lambda: self.cmd('jmp', self.loops[-1][0]),
             SynStatementBlock: generate_block,
             SynStatementWrite: generate_write,
             SynVar: generate_variable,
-            SynConst: lambda: self.generate_command('push', stmt.name),
-            SynEmptyStatement: lambda: self.generate_command('nop'),
+            SynConst: lambda: self.cmd('push', stmt.name),
+            SynEmptyStatement: lambda: self.cmd('nop'),
         }
         handlers[type(stmt)]()
 
@@ -271,29 +269,29 @@ class Generator(object):
 
         def generate_assignment():
             dest = self.get_variable_offset(binop.operands[0].name)
-            self.generate_command('mov', dest, 'ebx')
+            self.cmd('mov', dest, 'ebx')
 
         def generate_logic_or():
             true, false, end = self.get_labels(3)
-            self.generate_command(
+            self.cmd(
                 ('test', 'eax', 'eax'),
                 ('jnz', true),
                 ('test', 'ebx', 'ebx'),
                 ('jz', false),
             )
             self.generate_label(true)
-            self.generate_command(
+            self.cmd(
                 ('mov', 'eax', 1),
                 ('jmp', end),
             )
             self.generate_label(false)
-            self.generate_command('xor', 'eax', 'eax')
+            self.cmd('xor', 'eax', 'eax')
             self.generate_label(end)
-            self.generate_command('push', 'eax')
+            self.cmd('push', 'eax')
 
         def generate_logic_and():
             false, end = self.get_labels(2)
-            self.generate_command(
+            self.cmd(
                 ('test', 'eax', 'eax'),
                 ('jz', false),
                 ('test', 'ebx', 'ebx'),
@@ -302,12 +300,12 @@ class Generator(object):
                 ('jmp', end),
             )
             self.generate_label(false)
-            self.generate_command('xor', 'eax', 'eax')
+            self.cmd('xor', 'eax', 'eax')
             self.generate_label(end)
-            self.generate_command('push', 'eax')
+            self.cmd('push', 'eax')
 
         def generate_comparison(setcc):
-            self.generate_command(
+            self.cmd(
                 ('cmp', 'eax', 'ebx'),
                 (setcc, 'al'),
                 ('movzx', 'eax', 'al'),
@@ -315,7 +313,7 @@ class Generator(object):
             )
 
         def generate_shift(shift):
-            self.generate_command(
+            self.cmd(
                 ('pop', 'ecx'),
                 ('pop', 'eax'),
                 (shift, 'eax', 'cl'),
@@ -325,7 +323,7 @@ class Generator(object):
         def integer_binary(function):
             @functools.wraps(function)
             def wraps(**kwargs):
-                self.generate_command(
+                self.cmd(
                     ('pop', 'ebx'),
                     ('pop', 'eax'),
                 )
@@ -333,14 +331,14 @@ class Generator(object):
             return wraps
 
         def generate_float_assignment():
-            self.generate_command(
+            self.cmd(
                 ('pop', 'ebx'),
                 ('pop', 'eax'),
             )
             generate_assignment()
 
         def generate_float_arithmetic(command):
-            self.generate_command(
+            self.cmd(
                 ('fld', self.dword('esp', offset=4)),
                 (command, self.dword('esp')),
                 ('add', 'esp', 4),
@@ -348,7 +346,7 @@ class Generator(object):
             )
 
         def generate_float_comparison(setcc):
-            self.generate_command(
+            self.cmd(
                 ('fld', self.dword('esp', offset=4)),
                 ('fcomp', self.dword('esp')),
                 (setcc, 'al'),
@@ -357,33 +355,32 @@ class Generator(object):
                 ('mov', self.dword('esp'), 'eax'),
             )
 
-        generate = self.generate_command
         integer, real = SymTypeInt, SymTypeReal
         BINARY_HANDLERS = {
             (integer, integer, tt.assign): generate_assignment,
 
-            (integer, integer, tt.plus): lambda: generate(
+            (integer, integer, tt.plus): lambda: self.cmd(
                 ('add', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.minus): lambda: generate(
+            (integer, integer, tt.minus): lambda: self.cmd(
                 ('sub', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.mul): lambda: generate(
+            (integer, integer, tt.mul): lambda: self.cmd(
                 ('imul', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.int_div): lambda: generate(
+            (integer, integer, tt.int_div): lambda: self.cmd(
                 ('xor', 'edx', 'edx'),
                 ('idiv', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.int_mod): lambda: generate(
+            (integer, integer, tt.int_mod): lambda: self.cmd(
                 ('xor', 'edx', 'edx'),
                 ('idiv', 'ebx'),
                 ('push', 'edx'),
@@ -406,7 +403,7 @@ class Generator(object):
 
             (integer, integer, tt.logic_or): generate_logic_or,
             (integer, integer, tt.logic_and): generate_logic_and,
-            (integer, integer, tt.logic_xor): lambda: generate(
+            (integer, integer, tt.logic_xor): lambda: self.cmd(
                 ('xor', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
@@ -447,10 +444,9 @@ class Generator(object):
         BINARY_HANDLERS[ltype, rtype, binop.operation.type]()
 
     def generate_unary(self, unop):
-        generate = self.generate_command
         integer, real = SymTypeInt, SymTypeReal
         UNARY_HANDLERS = {
-            (integer, tt.logic_not): lambda: generate(
+            (integer, tt.logic_not): lambda: self.cmd(
                 ('pop', 'eax'),
                 ('test', 'eax', 'eax'),
                 ('sete', 'al'),
@@ -458,7 +454,7 @@ class Generator(object):
                 ('push', 'eax'),
             ),
 
-            (integer, tt.minus): lambda: generate(
+            (integer, tt.minus): lambda: self.cmd(
                 ('pop', 'eax'),
                 ('neg', 'eax'),
                 ('push', 'eax'),
