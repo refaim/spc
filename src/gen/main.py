@@ -463,8 +463,15 @@ class Generator(object):
                 ('neg', 'eax'),
                 ('push', 'eax'),
             ),
+
+            (real, tt.minus): lambda: self.cmd(
+                ('fld', self.dword('esp')),
+                'fchs',
+                ('fstp', self.dword('esp')),
+            ),
         }
 
-        self.generate_statement(unop.operands[0])
-        optype = type(self.parser.expr_type(unop.operands[0]))
-        UNARY_HANDLERS[optype, unop.operation.type]()
+        operand = unop.operands[0]
+        self.generate_statement(operand)
+        operand_type = type(self.parser.expr_type(operand))
+        UNARY_HANDLERS[operand_type, unop.operation.type]()
