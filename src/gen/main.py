@@ -77,7 +77,7 @@ class Generator(object):
         for i in range(count):
             self.label_count += 1
             result.append('L' + str(self.label_count))
-        return result
+        return result[0] if len(result) == 1 else result
 
     def get_string_name(self):
         self.string_count += 1
@@ -126,7 +126,6 @@ class Generator(object):
                 self.output.write(str(row) +
                     ('\n' if i < len(list_) - 1 else ''))
 
-
         if self.declarations:
             self.output.write("section '.data' readable writeable\n\n")
             write_list(self.declarations)
@@ -135,6 +134,7 @@ class Generator(object):
         self.output.write("section '.code' readable executable\n\n")
         write_list(self.instructions)
 
+        self.output.write('\n')
         return self.output.getvalue()
 
     def generate_statement(self, stmt):
@@ -148,7 +148,7 @@ class Generator(object):
         def generate_write():
             map(self.generate_statement, reversed(stmt.args))
             if len(stmt.args) > 1:
-                format_string = ', '.join(['%d'] * len(stmt.args))
+                format_string = ''.join(['%d'] * len(stmt.args))
             else:
                 format_string = '%d'
             if stmt.newline:
@@ -200,7 +200,19 @@ class Generator(object):
             pass
 
         def generate_if():
-            pass
+            self.generate_statement(stmt.condition)
+            else_case, endif = self.get_labels(2)
+            self.generate_command(
+                ('pop', 'eax'),
+                ('test', 'eax', 'eax'),
+                ('jz', else_case),
+            )
+            self.generate_statement(stmt.action)
+            self.generate_command('jmp', endif)
+            self.generate_label(else_case)
+            if stmt.else_action:
+                self.generate_statement(stmt.else_action)
+            self.generate_label(endif)
 
         def generate_block():
             for statement in stmt.statements:
@@ -211,6 +223,7 @@ class Generator(object):
             SynStatementIf: generate_if,
             SynStatementFor: generate_for,
             SynStatementWhile: generate_while,
+            SynStatementRepeat: generate_repeat,
             SynStatementBreak: lambda:
                 self.generate_command('jmp', self.loops[-1][1]),
             SynStatementContinue: lambda:
