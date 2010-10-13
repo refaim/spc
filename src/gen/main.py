@@ -226,14 +226,16 @@ class Generator(object):
                 ('jmp', end),
             )
             self.generate_label(false)
-            self.generate_command('xor', 'eax', 'eax')
-            self.generate_command('push', 'eax')
+            self.generate_command(
+                ('xor', 'eax', 'eax'),
+                ('push', 'eax'),
+            )
             self.generate_label(end)
 
-        def generate_comparison(setter):
+        def generate_comparison(setcc):
             self.generate_command(
                 ('cmp', 'eax', 'ebx'),
-                (setter, 'al'),
+                (setcc, 'al'),
                 ('movzx', 'eax', 'al'),
                 ('push', 'eax'),
             )
@@ -288,12 +290,18 @@ class Generator(object):
                 ('push', 'edx'),
             ),
 
-            (integer, integer, tt.equal): lambda: generate_comparison('sete'),
-            (integer, integer, tt.less): lambda: generate_comparison('setl'),
-            (integer, integer, tt.less_or_equal): lambda: generate_comparison('setle'),
-            (integer, integer, tt.greater): lambda: generate_comparison('setg'),
-            (integer, integer, tt.greater_or_equal): lambda: generate_comparison('setge'),
-            (integer, integer, tt.not_equal): lambda: generate_comparison('setne'),
+            (integer, integer, tt.equal):
+                lambda: generate_comparison('sete'),
+            (integer, integer, tt.less):
+                lambda: generate_comparison('setl'),
+            (integer, integer, tt.less_or_equal):
+                lambda: generate_comparison('setle'),
+            (integer, integer, tt.greater):
+                lambda: generate_comparison('setg'),
+            (integer, integer, tt.greater_or_equal):
+                lambda: generate_comparison('setge'),
+            (integer, integer, tt.not_equal):
+                lambda: generate_comparison('setne'),
 
             (integer, integer, tt.logic_or): generate_logic_or,
             (integer, integer, tt.logic_and): generate_logic_and,
