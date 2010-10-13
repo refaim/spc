@@ -250,6 +250,13 @@ class Parser(ExprParser):
                 parsefunc()
 
     def expr_type(self, expr):
+        int_ops = (
+            tt.logic_and, tt.logic_or,
+            tt.logic_xor, tt.logic_not,
+            tt.shr, tt.shl,
+            tt.int_div, tt.int_mod,
+        )
+
         if not isinstance(expr, SynOperation):
             return self.get_type(expr)
         if expr.operation.type == tt.assign:
