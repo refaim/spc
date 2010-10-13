@@ -113,7 +113,8 @@ class Generator(object):
         self.generate_statement(self.program)
 
         if is_windows():
-            self.generate_command('stdcall', '[ExitProcess]', 0)
+            self.generate_command(
+                'stdcall', asm.MemoryOffset('ExitProcess'), 0)
         else:
             self.generate_command(
                 ('mov', 'eax', 0),
@@ -150,14 +151,14 @@ class Generator(object):
                 format_string = ', '.join(['%d'] * len(stmt.args))
             else:
                 format_string = '%d'
-            format_string = "'{0}'", 0'.format(format_string)
+            format_string = "'{0}', 0".format(format_string)
             if stmt.newline:
                 format_string += ', 10'
             format_string_name = self.get_string_name()
             self.allocate(format_string_name, format_string, dup=False)
             self.generate_command(
                 ('push', format_string_name),
-                ('call', '[printf]'),
+                ('call', asm.MemoryOffset('printf')),
                 ('add', 'esp', 4 * (len(stmt.args) + 1)),
             )
 
