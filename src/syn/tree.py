@@ -63,6 +63,15 @@ class SynStatementContinue(SynStatement):
     def display(self, depth):
         print self.indent(depth, 'continue')
 
+class SynStatementWrite(SynStatement):
+    @copy_args
+    def __init__(self, newline, *args):
+        self.args = args
+    def display(self, depth):
+        name = 'writeln' if self.newline else 'write'
+        print self.indent(depth, '{0}({1})'.format(
+            name, ', '.join(map(str, self.args))))
+
 class SynExpr(SynNode):
     def display(self, depth): print self.indent(depth, self.__str__())
     @property

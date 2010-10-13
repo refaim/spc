@@ -336,6 +336,10 @@ class Parser(ExprParser):
             if stmt.else_action:
                 self.check_types(stmt.else_action)
 
+        def check_write():
+            for expr in stmt.args:
+                self.expr_type(expr)
+
         def check_block():
             for statement in stmt.statements:
                 self.check_types(statement)
@@ -346,6 +350,7 @@ class Parser(ExprParser):
             SynStatementWhile: check_while_repeat,
             SynStatementRepeat: check_while_repeat,
             SynStatementIf: check_if,
+            SynStatementWrite: check_write,
         }
 
         if type(stmt) in handlers:
@@ -427,8 +432,6 @@ class Parser(ExprParser):
 
     def parse_condition(self):
         condition = self.parse_expression()
-
-        # todo: check type
         return condition
 
     def parse_statement_block(self):
@@ -512,6 +515,16 @@ class Parser(ExprParser):
                 self.e(E_NOT_ALLOWED, self.token.value)
             return parse
 
+        def parse_write(newline):
+            self.next_token()
+            self.require_token(tt.lparen)
+            messages = [self.parse_expression()]
+            while self.token.type == tt.comma:
+                self.next_token()
+                messages.append(self.parse_expression())
+            self.require_token(tt.rparen)
+            return SynStatementWrite(newline, *messages)
+
         handlers = {
             tt.kwIf: parse_statement_if,
             tt.kwWhile: parse_statement_while,
@@ -519,6 +532,8 @@ class Parser(ExprParser):
             tt.kwFor: parse_statement_for,
             tt.kwBreak: parse_break_or_continue(SynStatementBreak),
             tt.kwContinue: parse_break_or_continue(SynStatementContinue),
+            tt.kwWrite: lambda: parse_write(False),
+            tt.kwWriteln: lambda: parse_write(True),
         }
 
         key = self.token.type

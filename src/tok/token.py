@@ -37,6 +37,8 @@ keywords = [
     'until',
     'var',
     'while',
+    'write',
+    'writeln',
 ]
 
 alphabetic = [
