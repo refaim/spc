@@ -12,32 +12,24 @@ from syn.tree import *
 from syn.table import *
 import asm
 
+
 FASM_PATH = os.path.abspath(os.path.join(sys.path[0], '../asm/'))
 if not os.path.exists(FASM_PATH):
     raise GenError('FASM include files not found')
 
-if 'win' in sys.platform:
-    HEADER = \
-'''\
-format PE
-entry main
+def is_windows():
+    return 'win' in sys.platform
 
-include '{0}'
+if '64' in sys.platform:
+    raise GenError('64-bit platforms are not supported')
 
-data import
-    library msvcrt, 'MSVCRT.DLL'
-    import msvcrt, printf, 'printf'
-end data\n
-'''.format(os.path.join(FASM_PATH, 'import32.inc'))
-
+if is_windows():
+    HEADER = open(
+        os.path.join(FASM_PATH, 'win32header.asm')).read().format(
+            os.path.join(FASM_PATH, 'win32include\win32a.inc'))
 else:
-    HEADER = \
-'''\
-format ELF
+    HEADER = open(os.path.join(FASM_PATH, 'nix32header.asm')).read()
 
-public main
-extrn printf\n
-'''
 
 class Generator(object):
     @copy_args
@@ -119,10 +111,14 @@ class Generator(object):
 
         self.generate_label('main')
         self.generate_statement(self.program)
-        self.generate_command(
-            ('mov', 'eax', 0),
-            'ret',
-        )
+
+        if is_windows():
+            self.generate_command('stdcall', '[ExitProcess]', 0)
+        else:
+            self.generate_command(
+                ('mov', 'eax', 0),
+                'ret',
+            )
 
         def write_list(list_):
             for i, row in enumerate(list_):
@@ -131,11 +127,11 @@ class Generator(object):
 
 
         if self.declarations:
-            self.output.write("section '.data' writeable\n")
+            self.output.write("section '.data' readable writeable\n\n")
             write_list(self.declarations)
             self.output.write('\n\n')
 
-        self.output.write("section '.text' executable\n\n")
+        self.output.write("section '.code' readable executable\n\n")
         write_list(self.instructions)
 
         return self.output.getvalue()
@@ -154,14 +150,14 @@ class Generator(object):
                 format_string = ', '.join(['%d'] * len(stmt.args))
             else:
                 format_string = '%d'
-            format_string = '"{0}", 0'.format(format_string)
+            format_string = "'{0}'", 0'.format(format_string)
             if stmt.newline:
                 format_string += ', 10'
             format_string_name = self.get_string_name()
             self.allocate(format_string_name, format_string, dup=False)
             self.generate_command(
                 ('push', format_string_name),
-                ('call', 'printf'),
+                ('call', '[printf]'),
                 ('add', 'esp', 4 * (len(stmt.args) + 1)),
             )
 
