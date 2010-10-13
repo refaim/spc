@@ -35,57 +35,41 @@ else:
 '''\
 format ELF
 
-include '{0}'
-
 public main
 extrn printf\n
-'''.format(os.path.join(FASM_PATH, 'ccall.inc'))
+'''
 
 class Generator(object):
     @copy_args
     def __init__(self, program, parser):
         self.instructions = []
+        self.declarations = []
+        self.loops = []
         self.symtable_stack = [self.parser.symtable]
         self.output = StringIO.StringIO()
         self.label_count = 0
-        self.create_functions()
-
-    SIZES = {1: 'byte',  2: 'word', 4: 'dword', 6: 'fword', 8: 'qword'}
-    def cast_size(self, size, arg):
-        return asm.SizeCast(self.SIZES[size], arg)
-
-    def create_functions(self):
-        for name in self.SIZES.values():
-            setattr(self, 'cast_to_{0}'.format(name),
-                functools.partial(asm.SizeCast, name))
-    def get_dword_from_stack(self):
-        return self.cast_to_dword('esp')
+        self.string_count = 0
 
     def find_symbol(self, name):
         for table in reversed(self.symtable_stack):
             if name in table:
                 return table[name]
 
-    def get_type(self, expressions):
-        return map(self.parser.expr_type, expressions)
+    def get_type(self, *expressions):
+        return map(self.parser.expr_type, *expressions)
 
-    def add(self, instruction):
-        self.instructions.append(instruction)
+    def dword(self, arg):
+        return asm.SizeCast('dword', arg)
 
-    def generate_header(self):
-        self.output.write(HEADER)
-
-    def generate_footer(self):
-        pass
-
-    def allocate(self, name, size):
-        self.add(asm.Declaration(name, size))
+    def allocate(self, name, size, dup=True):
+        self.declarations.append(asm.Declaration(name, size, dup))
 
     def generate_label(self, name):
-        self.add(asm.Label(name))
+        self.instructions.append(asm.Label(name))
 
     def generate_command(self, *commands):
-        add_tuple = lambda c: self.add(asm.Command(c[0], *c[1:]))
+        add_tuple = lambda c:self.instructions.append(
+            asm.Command(c[0], *c[1:]))
         one_command = all(not isinstance(cmd, tuple) for cmd in commands)
         if one_command:
             add_tuple(commands)
@@ -94,7 +78,7 @@ class Generator(object):
             if isinstance(command, tuple):
                 add_tuple(command)
             else:
-                self.add(asm.Command(command))
+                self.instructions.append(asm.Command(command))
 
     def get_label(self, count=1):
         result = []
@@ -113,9 +97,9 @@ class Generator(object):
         return '{0}${1}'.format(self.TYPE2STR[type(type_.type)], name)
 
     def generate(self):
-        self.generate_header()
+        self.output.write(HEADER)
 
-        # avoid bug with iteration over UserDict
+        # avoid bug with iteration over UserDict (Python 2.6.4)
         table = dict(self.parser.symtable)
 
         # reserve memory for global variables
@@ -132,11 +116,20 @@ class Generator(object):
             'ret',
         )
 
-        for i, instruction in enumerate(self.instructions):
-            self.output.write(str(instruction) +
-                ('\n' if i < len(self.instructions) - 1 else ''))
+        def write_list(list_):
+            for i, row in enumerate(list_):
+                self.output.write(str(row) +
+                    ('\n' if i < len(list_) - 1 else ''))
 
-        self.generate_footer()
+
+        if self.declarations:
+            self.output.write("section '.data' writeable\n")
+            write_list(self.declarations)
+            self.output.write('\n\n')
+
+        self.output.write("section '.text' executable\n\n")
+        write_list(self.instructions)
+
         return self.output.getvalue()
 
     def generate_statement(self, stmt):
