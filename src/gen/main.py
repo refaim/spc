@@ -151,9 +151,11 @@ class Generator(object):
                 format_string = ', '.join(['%d'] * len(stmt.args))
             else:
                 format_string = '%d'
-            format_string = "'{0}', 0".format(format_string)
             if stmt.newline:
-                format_string += ', 10'
+                postfix = '10, 0'
+            else:
+                postfix = '0'
+            format_string = "'{0}', {1}".format(format_string, postfix)
             format_string_name = self.get_string_name()
             self.allocate(format_string_name, format_string, dup=False)
             self.generate_command(
@@ -225,10 +227,7 @@ class Generator(object):
 
         def generate_assignment():
             dest = self.get_variable_offset(binop.operands[0].name)
-            self.generate_command(
-                ('mov', 'eax', 'ebx'),
-                ('mov', dest, 'eax'),
-            )
+            self.generate_command('mov', dest, 'ebx')
 
         def generate_logic_or():
             true, false, end = self.get_label(3)
