@@ -6,6 +6,7 @@ import os
 import shutil
 import glob
 import getopt
+import subprocess
 
 import dot_parser
 
@@ -84,9 +85,9 @@ class DotTester(Tester):
         finally:
             output_present = os.path.exists(self.testname + self.ext)
             if output_present:
-                shutil.move(self.testname + self.ext, 
+                shutil.move(self.testname + self.ext,
                     self.test + o_ext + self.ext)
-                shutil.move(self.testname + self.hr_ext, 
+                shutil.move(self.testname + self.hr_ext,
                     self.test + o_ext + self.hr_ext)
         answer_present = os.path.exists(self.test + a_ext + self.ext)
         self.answer_present = answer_present or not output_present
@@ -99,15 +100,15 @@ class DotTester(Tester):
             subgraphs = []
             for subgraph in g.get_subgraph_list():
                 subgraphs.append(
-                    [(node.get_name(), node.get_label()) 
+                    [(node.get_name(), node.get_label())
                         for node in subgraph.get_node_list()])
             return subgraphs
-        
+
         def edges(g):
             subgraphs = []
             for subgraph in g.get_subgraph_list():
                 subgraphs.append(
-                    [(edge.get_source(), edge.get_destination()) 
+                    [(edge.get_source(), edge.get_destination())
                         for edge in subgraph.get_edge_list()])
             return subgraphs
 
@@ -117,6 +118,13 @@ class DotTester(Tester):
                 ograph = dot_parser.parse_dot_data(output.read())
                 return nodes(agraph) == nodes(ograph) and \
                        edges(agraph) == edges(ograph)
+
+class ExecutableTester(Tester):
+    def check(self):
+        exe = os.path.normpath(os.path.join(os.getcwd(), self.test + '.exe'))
+        with open(self.test + o_ext, 'w') as out:
+            subprocess.Popen(exe, shell=True, stdout=out).wait()
+        super(ExecutableTester, self).check()
 
 def error(msg):
     print(msg)
@@ -129,16 +137,20 @@ def main(argv):
         's': 'sdecl',
         'd': 'decl',
         'f': 'full',
+        'g': 'gen',
+        'c': 'gen',
     }
-    
+
     names = {
         'l': 'Tokenizer',
         'e': 'Expressions parser',
         's': 'Simple declarations parser',
         'd': 'Declarations parser',
         'f': 'Full syntax parser',
+        'g': 'Assembly generator',
+        'c': 'Full compiler',
     }
-    priorities = 'lesd'
+    priorities = 'lesdgc'
 
     try:
         opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')
@@ -176,7 +188,12 @@ def main(argv):
         return 0
 
     path = 'tests/{0}/'.format(optpaths[option])
-    tester_class = Tester if option == 'l' else DotTester
+    if option == 'l':
+        tester_class = Tester
+    elif option == 'c':
+        tester_class = ExecutableTester
+    else:
+        tester_class = DotTester
     tester = tester_class('-' + option, path, verbose, full)
     return tester.run()
 

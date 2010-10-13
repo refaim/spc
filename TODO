@@ -13,5 +13,6 @@ Major:
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages
     Common: Refactor 'Compiler' class
+    Common: Remove option --compile
     LA: Rewrite module 'printer.py' (possibly using the built-in formatter and writer)
     SA: Fix the output position of ParenthesisMismatch exception

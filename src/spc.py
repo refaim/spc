@@ -18,6 +18,8 @@ Usage: spc [option] [filename1] [filename2] [...]
 import sys
 import os
 import getopt
+import subprocess
+import StringIO
 
 from version import APP_VERSION
 
@@ -29,7 +31,7 @@ from syn.simple import SimpleParser
 from syn.expressions import ExprParser
 from syn.full import Parser
 from syn.printer import SyntaxTreePrinter
-from gen.main import Generator
+from gen.main import Generator, FASM_PATH
 
 class Compiler(object):
     def __init__(self, program, fname):
@@ -81,13 +83,35 @@ class Compiler(object):
         self.parser.parse_declarations()
         self.parser.symtable.write()
 
-    def generate(self):
+    def common_generate(self):
         self.parser = Parser(self.tokenizer)
         program = self.parser.parse()
         self.parser.check_types(program)
         self.generator = Generator(program, self.parser)
-        assembly = self.generator.generate()
-        print assembly
+        return self.generator.generate()
+
+    def generate(self):
+        print self.common_generate()
+
+    def compile_(self):
+        fname = os.path.splitext(self.fname)[0]
+        listing = fname + '.asm'
+        with open(listing, 'w') as asmfile:
+            asmfile.write(self.common_generate())
+        if 'win' in sys.platform:
+            fasm = os.path.join(FASM_PATH, 'fasm.exe')
+            binary = fname + '.exe'
+            subprocess.Popen(
+                '{0} "{1}" >nul'.format(fasm, listing), shell=True).wait()
+        else:
+            fasm = os.path.join(FASM_PATH, 'fasm')
+            binary, output = fname + '.o', fname + '.exe'
+            subprocess.Popen(
+                '{0} > /dev/null'.format(
+                    ' '.join([fasm, listing, binary])), shell=True).wait()
+            subprocess.call(['gcc', binary, '-o' + output])
+            os.remove(binary)
+            subprocess.call(['strip', output])
 
 def usage():
     print(__doc__.format(version=APP_VERSION))
@@ -101,13 +125,14 @@ def error(msg, fname=None):
     return 2
 
 def main(argv):
-    compiler_actions = { 
+    compiler_actions = {
         'lex':         Compiler.tokenize,
         'expr':        Compiler.parse_expressions,
         'simple-decl': Compiler.parse_simple_decl,
         'decl':        Compiler.parse_decl,
         'full-syntax': Compiler.parse,
         'generate':    Compiler.generate,
+        'compile':     Compiler.compile_,
     }
 
     compiler_options = {'help' : 'h'}
