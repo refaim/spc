@@ -37,10 +37,10 @@ class Generator(object):
         self.instructions = []
         self.declarations = []
         self.loops = []
+        self.string_consts = {}
         self.symtable_stack = [self.parser.symtable]
         self.output = StringIO.StringIO()
         self.label_count = 0
-        self.string_count = 0
 
     def find_symbol(self, name):
         for table in reversed(self.symtable_stack):
@@ -55,6 +55,22 @@ class Generator(object):
 
     def allocate(self, name, size, dup=True):
         self.declarations.append(asm.Declaration(name, size, dup))
+
+    def allocate_string(self, string_):
+        if string_ in self.string_consts:
+            name = self.string_consts[string_]
+        else:
+            name = 'S' + str(len(self.string_consts))
+            self.string_consts[string_] = name
+            self.allocate(name, string_, dup=False)
+        return name
+
+    def get_labels(self, count=1):
+        result = []
+        for i in range(count):
+            result.append('L' + str(self.label_count))
+            self.label_count += 1
+        return result[0] if len(result) == 1 else result
 
     def generate_label(self, name):
         self.instructions.append(asm.Label(name))
@@ -71,17 +87,6 @@ class Generator(object):
                 add_tuple(command)
             else:
                 self.instructions.append(asm.Command(command))
-
-    def get_labels(self, count=1):
-        result = []
-        for i in range(count):
-            self.label_count += 1
-            result.append('L' + str(self.label_count))
-        return result[0] if len(result) == 1 else result
-
-    def get_string_name(self):
-        self.string_count += 1
-        return 'S' + str(self.string_count)
 
     TYPE2STR = {
         SymTypeInt:    'int',
@@ -175,8 +180,7 @@ class Generator(object):
             format_string = "'{0}', {1}".format(
                 format_string, '10, 0' if stmt.newline else '0')
 
-            format_string_name = self.get_string_name()
-            self.allocate(format_string_name, format_string, dup=False)
+            format_string_name = self.allocate_string(format_string)
 
             if arg_type is SymTypeReal:
                 self.cmd(
