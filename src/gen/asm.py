@@ -7,9 +7,12 @@ class Base(object):
 
 class Declaration(Base):
     @copy_args
-    def __init__(self, name, size): pass
+    def __init__(self, name, value, dup): pass
     def __str__(self):
-        return '{0} db {1} dup(0)'.format(self.name, self.size)
+        text = '{0} db {1}'.format(self.name, self.value)
+        if self.dup:
+            text = '{0} dup(0)'.format(text)
+        return text
 
 class Label(Base):
     @copy_args

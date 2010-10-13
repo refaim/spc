@@ -87,6 +87,10 @@ class Generator(object):
             result.append('L' + str(self.label_count))
         return result
 
+    def get_string_name(self):
+        self.string_count += 1
+        return 'S' + str(self.string_count)
+
     TYPE2STR = {
         SymTypeInt:    'int',
         SymTypeReal:   'real',
@@ -95,6 +99,10 @@ class Generator(object):
     }
     def get_variable_name(self, name, type_):
         return '{0}${1}'.format(self.TYPE2STR[type(type_.type)], name)
+
+    def get_variable_offset(self, name):
+        symbol = self.find_symbol(name)
+        return self.dword(asm.MemoryOffset(symbol.gen_name))
 
     def generate(self):
         self.output.write(HEADER)
@@ -134,18 +142,66 @@ class Generator(object):
 
     def generate_statement(self, stmt):
 
-        def generate_cast():
-            target = self.cast_to_dword(asm.RegOffset('esp'))
-            self.generate_command(
-                ('fild', target),
-                ('fstp', target),
-            )
-
         def generate_operation():
             if len(stmt.operands) == 2:
                 self.generate_binary(stmt)
             else:
                 self.generate_unary(stmt)
+
+        def generate_write():
+            map(self.generate_statement, reversed(stmt.args))
+            if len(stmt.args) > 1:
+                format_string = ', '.join(['%d'] * len(stmt.args))
+            else:
+                format_string = '%d'
+            format_string = '"{0}", 0'.format(format_string)
+            if stmt.newline:
+                format_string += ', 10'
+            format_string_name = self.get_string_name()
+            self.allocate(format_string_name, format_string, dup=False)
+            self.generate_command(
+                ('push', format_string_name),
+                ('call', 'printf'),
+                ('add', 'esp', 4 * (len(stmt.args) + 1)),
+            )
+
+        def generate_variable():
+            self.generate_command('push', self.get_variable_offset(stmt.name))
+
+        def generate_while():
+            start, end = self.get_label(2)
+            self.loops.append((start, end))
+            self.generate_label(start)
+            self.generate_statement(stmt.condition)
+            self.generate_command(
+                ('pop', 'eax'),
+                ('test', 'eax', 'eax'),
+                ('jz', end),
+            )
+            self.generate_statement(stmt.action)
+            self.generate_command('jmp', start)
+            self.generate_label(end)
+            self.loops.pop()
+
+        def generate_repeat():
+            start, end = self.get_label(2)
+            self.loops.append((start, end))
+            self.generate_label(start)
+            self.generate_statement(stmt.action)
+            self.generate_statement(stmt.condition)
+            self.generate_command(
+                ('pop', 'eax'),
+                ('test', 'eax', 'eax'),
+                ('jz', start),
+            )
+            self.generate_label(end)
+            self.loops.pop()
+
+        def generate_for():
+            pass
+
+        def generate_if():
+            pass
 
         def generate_block():
             for statement in stmt.statements:
@@ -153,24 +209,28 @@ class Generator(object):
 
         handlers = {
             SynOperation: generate_operation,
-            SynCastToReal: generate_cast,
+            SynStatementIf: generate_if,
+            SynStatementFor: generate_for,
+            SynStatementWhile: generate_while,
+            SynStatementBreak: lambda:
+                self.generate_command('jmp', self.loops[-1][1]),
+            SynStatementContinue: lambda:
+                self.generate_command('jmp', self.loops[-1][0]),
             SynStatementBlock: generate_block,
-            SynEmptyStatement: lambda: self.generate_command('nop'),
+            SynStatementWrite: generate_write,
+            SynVar: generate_variable,
             SynConst: lambda: self.generate_command('push', stmt.name),
-            SynVar: lambda: self.generate_command(
-                'push', self.find_symbol(stmt.name).gen_name),
+            SynEmptyStatement: lambda: self.generate_command('nop'),
         }
         handlers[type(stmt)]()
 
     def generate_binary(self, binop):
 
         def generate_assignment():
-            dest = self.find_symbol(binop.operands[0].name)
-            cast_to_dest = functools.partial(self.cast_size, dest.size)
+            dest = self.get_variable_offset(binop.operands[0].name)
             self.generate_command(
                 ('mov', 'eax', 'ebx'),
-                ('mov', cast_to_dest(
-                    asm.MemoryOffset(dest.gen_name)), 'eax'),
+                ('mov', dest, 'eax'),
             )
 
         def generate_logic_or():
