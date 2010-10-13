@@ -50,8 +50,8 @@ class Generator(object):
     def get_type(self, *expressions):
         return map(self.parser.expr_type, *expressions)
 
-    def dword(self, arg):
-        return asm.SizeCast('dword', arg)
+    def dword(self, arg, offset=0):
+        return asm.SizeCast('dword', asm.Offset(arg, offset))
 
     def allocate(self, name, size, dup=True):
         self.declarations.append(asm.Declaration(name, size, dup))
@@ -94,7 +94,7 @@ class Generator(object):
 
     def get_variable_offset(self, name):
         symbol = self.find_symbol(name)
-        return self.dword(asm.MemoryOffset(symbol.gen_name))
+        return self.dword(symbol.gen_name)
 
     def generate(self):
         self.output.write(HEADER)
@@ -114,7 +114,7 @@ class Generator(object):
 
         if is_windows():
             self.generate_command(
-                'stdcall', asm.MemoryOffset('ExitProcess'), 0)
+                'stdcall', asm.Offset('ExitProcess'), 0)
         else:
             self.generate_command(
                 ('mov', 'eax', 0),
@@ -152,23 +152,45 @@ class Generator(object):
             else:
                 self.generate_unary(stmt)
 
+        def generate_cast():
+            self.generate_statement(stmt.expression)
+            self.generate_command(
+                ('fild', self.dword('esp')),
+                ('fstp', self.dword('esp')),
+            )
+
         def generate_write():
-            map(self.generate_statement, reversed(stmt.args))
-            if len(stmt.args) > 1:
-                format_string = ''.join(['%d'] * len(stmt.args))
-            else:
-                format_string = '%d'
-            if stmt.newline:
-                postfix = '10, 0'
-            else:
-                postfix = '0'
-            format_string = "'{0}', {1}".format(format_string, postfix)
+            formats = {
+                SymTypeInt: '%d',
+                SymTypeReal: '%f',
+            }
+
+            format_string = ''
+            occupied_size = 0
+            for arg in reversed(stmt.args):
+                self.generate_statement(arg)
+                arg_type = type(self.parser.expr_type(arg))
+                format_string += formats[arg_type]
+                occupied_size += 4
+
+            format_string = "'{0}', {1}".format(
+                format_string, '10, 0' if stmt.newline else '0')
+
             format_string_name = self.get_string_name()
             self.allocate(format_string_name, format_string, dup=False)
+
+            if arg_type is SymTypeReal:
+                self.generate_command(
+                    ('fld', self.dword('esp')),
+                    ('sub', 'esp', '4'),
+                    ('fstp', asm.SizeCast('qword', asm.Offset('esp'))),
+                )
+                occupied_size += 4
+
             self.generate_command(
                 ('push', format_string_name),
-                ('call', asm.MemoryOffset('printf')),
-                ('add', 'esp', 4 * (len(stmt.args) + 1)),
+                ('call', asm.Offset('printf')),
+                ('add', 'esp', occupied_size + 4),
             )
 
         def generate_variable():
@@ -186,10 +208,11 @@ class Generator(object):
             self.loops.pop()
 
         def generate_repeat():
-            start, end = self.get_labels(2)
-            self.loops.append((start, end))
+            start, check, end = self.get_labels(3)
+            self.loops.append((check, end))
             self.generate_label(start)
             self.generate_statement(stmt.action)
+            self.generate_label(check)
             self.generate_statement(stmt.condition)
             jump_if_zero(start)
             self.generate_label(end)
@@ -227,6 +250,7 @@ class Generator(object):
 
         handlers = {
             SynOperation: generate_operation,
+            SynCastToReal: generate_cast,
             SynStatementIf: generate_if,
             SynStatementFor: generate_for,
             SynStatementWhile: generate_while,
@@ -298,14 +322,6 @@ class Generator(object):
                 ('push', 'eax'),
             )
 
-        def generate_real_arithmetic(command):
-            self.generate_command(
-                ('fld', self.dword(asm.RegOffset('esp', 4))),
-                (command, self.dword('esp')),
-                ('add', 'esp', 4),
-                ('fstp', self.dword('esp')),
-            )
-
         def integer_binary(function):
             @functools.wraps(function)
             def wraps(**kwargs):
@@ -315,6 +331,31 @@ class Generator(object):
                 )
                 return function(**kwargs)
             return wraps
+
+        def generate_float_assignment():
+            self.generate_command(
+                ('pop', 'ebx'),
+                ('pop', 'eax'),
+            )
+            generate_assignment()
+
+        def generate_float_arithmetic(command):
+            self.generate_command(
+                ('fld', self.dword('esp', offset=4)),
+                (command, self.dword('esp')),
+                ('add', 'esp', 4),
+                ('fstp', self.dword('esp')),
+            )
+
+        def generate_float_comparison(setcc):
+            self.generate_command(
+                ('fld', self.dword('esp', offset=4)),
+                ('fcomp', self.dword('esp')),
+                (setcc, 'al'),
+                ('add', 'esp', 4),
+                ('movzx', 'eax', 'al'),
+                ('mov', self.dword('esp'), 'eax'),
+            )
 
         generate = self.generate_command
         integer, real = SymTypeInt, SymTypeReal
@@ -347,9 +388,13 @@ class Generator(object):
                 ('idiv', 'ebx'),
                 ('push', 'edx'),
             ),
+            (integer, integer, tt.div): lambda:
+                generate_float_arithmetic('fdiv'),
 
             (integer, integer, tt.equal):
                 lambda: generate_comparison('sete'),
+            (integer, integer, tt.not_equal):
+                lambda: generate_comparison('setne'),
             (integer, integer, tt.less):
                 lambda: generate_comparison('setl'),
             (integer, integer, tt.less_or_equal):
@@ -358,8 +403,6 @@ class Generator(object):
                 lambda: generate_comparison('setg'),
             (integer, integer, tt.greater_or_equal):
                 lambda: generate_comparison('setge'),
-            (integer, integer, tt.not_equal):
-                lambda: generate_comparison('setne'),
 
             (integer, integer, tt.logic_or): generate_logic_or,
             (integer, integer, tt.logic_and): generate_logic_and,
@@ -371,23 +414,36 @@ class Generator(object):
             (integer, integer, tt.shr): lambda: generate_shift('shr'),
             (integer, integer, tt.shl): lambda: generate_shift('shl'),
 
+            (real, real, tt.assign): generate_float_assignment,
+
             (real, real, tt.plus): lambda:
-                generate_real_arithmetic('fadd'),
+                generate_float_arithmetic('fadd'),
             (real, real, tt.minus): lambda:
-                generate_real_arithmetic('fsub'),
+                generate_float_arithmetic('fsub'),
             (real, real, tt.mul): lambda:
-                generate_real_arithmetic('fmul'),
+                generate_float_arithmetic('fmul'),
             (real, real, tt.div): lambda:
-                generate_real_arithmetic('fdiv'),
-            (integer, integer, tt.div): lambda:
-                generate_real_arithmetic('fdiv'),
+                generate_float_arithmetic('fdiv'),
+
+            (real, real, tt.equal):
+                lambda: generate_float_comparison('sete'),
+            (real, real, tt.not_equal):
+                lambda: generate_float_comparison('setne'),
+            (real, real, tt.less):
+                lambda: generate_float_comparison('setl'),
+            (real, real, tt.less_or_equal):
+                lambda: generate_float_comparison('setle'),
+            (real, real, tt.greater):
+                lambda: generate_float_comparison('setg'),
+            (real, real, tt.greater_or_equal):
+                lambda: generate_float_comparison('setge'),
         }
         for key, func in BINARY_HANDLERS.iteritems():
-            if key.count(integer) == 2 and tt.shr != key[-1] != tt.shl:
+            if key.count(integer) == 2 and key[-1] not in (tt.shr, tt.shl, tt.div):
                 BINARY_HANDLERS[key] = integer_binary(func)
 
         map(self.generate_statement, binop.operands)
-        ltype, rtype = map(type, self.get_type(binop.operands))
+        ltype, rtype = [type(self.parser.expr_type(e)) for e in binop.operands]
         BINARY_HANDLERS[ltype, rtype, binop.operation.type]()
 
     def generate_unary(self, unop):
@@ -410,5 +466,5 @@ class Generator(object):
         }
 
         self.generate_statement(unop.operands[0])
-        optype = self.get_type(unop.operands)[0]
-        UNARY_HANDLERS[type(optype), unop.operation.type]()
+        optype = type(self.parser.expr_type(unop.operands[0]))
+        UNARY_HANDLERS[optype, unop.operation.type]()

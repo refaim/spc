@@ -9,8 +9,11 @@ Major:
     SA-F: Allow constant expressions in range
     SA-F: Check types in declarations
     SA-F: Implement type check in expressions with string constants
+    SA-F: Allow block without begin/end in 'repeat'
+    SA-F: Fix bug with blocks ('end' and ';' handling)
     G: Implement 'or' and 'and' in pascal (not C) style
     G: Implement string constants generation
+    G: Check for division by zero
 
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages

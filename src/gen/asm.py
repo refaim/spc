@@ -30,7 +30,7 @@ class Command(Base):
             text += ' ' + ', '.join(str(arg) for arg in self.args)
         return text
 
-class RegOffset(Base):
+class Offset(Base):
     @copy_args
     def __init__(self, reg, offset=0): pass
     def __str__(self):
@@ -38,12 +38,6 @@ class RegOffset(Base):
         if self.offset:
             text += ('+{0}' if self.offset > 0 else '{0}').format(self.offset)
         return '[{0}]'.format(text)
-
-class MemoryOffset(Base):
-    @copy_args
-    def __init__(self, memory): pass
-    def __str__(self):
-        return '[{0}]'.format(self.memory)
 
 class SizeCast(Base):
     @copy_args

@@ -256,27 +256,41 @@ class Parser(ExprParser):
             tt.shr, tt.shl,
             tt.int_div, tt.int_mod,
         )
+        comparisons = (
+            tt.equal, tt.not_equal,
+            tt.less, tt.less_or_equal,
+            tt.greater, tt.greater_or_equal,
+        )
 
         if not isinstance(expr, SynOperation):
             return self.get_type(expr)
-        if expr.operation.type == tt.assign:
+        optype = expr.operation.type
+        if optype == tt.assign:
            raise SynError('Illegal expression', expr.pos)
         types = map(self.expr_type, expr.operands)
         ltype = types[0]
         if len(types) == 1:
             if (not isinstance(ltype, SymTypeInt) and
-                expr.operation.type == tt.logic_not
+                optype == tt.logic_not
             ):
                 raise SynError(E_ORDINAL_EXPECTED, expr.pos)
             return ltype
         else:
             rtype = types[1]
-            if isinstance(ltype, SymTypeInt) and isinstance(rtype, SymTypeInt):
+            if (optype != tt.div and
+                isinstance(ltype, SymTypeInt) and
+                isinstance(rtype, SymTypeInt)
+            ):
                 return self.find_symbol('integer')
-            if expr.operation.type in int_ops:
+            if optype in int_ops:
                 raise SynError(E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
             self.cast_to_real(expr, ltype, rtype)
-            return self.find_symbol('real')
+            if optype == tt.div:
+                self.cast_to_real(expr, *map(self.expr_type, expr.operands))
+            if optype in comparisons:
+                return self.find_symbol('integer')
+            else:
+                return self.find_symbol('real')
 
     def cast_to_real(self, expr, ltype, rtype):
         if isinstance(ltype, SymTypeInt):
@@ -303,7 +317,9 @@ class Parser(ExprParser):
                     raise SynError('Mutable expression expected', expr.pos)
 
         def require_statement(expr):
-            is_statement = isinstance(expr, (SynCall, SynEmptyStatement))
+            is_statement = isinstance(expr,
+                (SynCall, SynEmptyStatement, \
+                 SynStatementBreak, SynStatementContinue))
             is_assignment = isinstance(expr, SynOperation) and \
                  expr.operation.type == tt.assign
 
