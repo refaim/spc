@@ -72,7 +72,7 @@ class Generator(object):
             else:
                 self.instructions.append(asm.Command(command))
 
-    def get_label(self, count=1):
+    def get_labels(self, count=1):
         result = []
         for i in range(count):
             self.label_count += 1
@@ -168,7 +168,7 @@ class Generator(object):
             self.generate_command('push', self.get_variable_offset(stmt.name))
 
         def generate_while():
-            start, end = self.get_label(2)
+            start, end = self.get_labels(2)
             self.loops.append((start, end))
             self.generate_label(start)
             self.generate_statement(stmt.condition)
@@ -183,7 +183,7 @@ class Generator(object):
             self.loops.pop()
 
         def generate_repeat():
-            start, end = self.get_label(2)
+            start, end = self.get_labels(2)
             self.loops.append((start, end))
             self.generate_label(start)
             self.generate_statement(stmt.action)
@@ -230,7 +230,7 @@ class Generator(object):
             self.generate_command('mov', dest, 'ebx')
 
         def generate_logic_or():
-            true, false, end = self.get_label(3)
+            true, false, end = self.get_labels(3)
             self.generate_command(
                 ('test', 'eax', 'eax'),
                 ('jnz', true),
@@ -248,7 +248,7 @@ class Generator(object):
             self.generate_command('push', 'eax')
 
         def generate_logic_and():
-            false, end = self.get_label(2)
+            false, end = self.get_labels(2)
             self.generate_command(
                 ('test', 'eax', 'eax'),
                 ('jz', false),
@@ -261,32 +261,6 @@ class Generator(object):
             self.generate_command('xor', 'eax', 'eax')
             self.generate_label(end)
             self.generate_command('push', 'eax')
-
-        def generate_logic_xor():
-            first_false, true, false, end = self.get_label(4)
-            self.generate_command(
-                ('test', 'eax', 'eax'),
-                ('jz', first_false),
-                ('test', 'ebx', 'ebx'),
-                ('jz', true),
-                ('jmp', false),
-            )
-            self.generate_label(first_false)
-            self.generate_command(
-                ('test', 'ebx', 'ebx'),
-                ('jnz', true),
-            )
-            self.generate_label(true)
-            self.generate_command(
-                ('mov', 'eax', 1),
-                ('jmp', end),
-            )
-            self.generate_label(false)
-            self.generate_command(
-                ('xor', 'eax', 'eax'),
-                ('push', 'eax'),
-            )
-            self.generate_label(end)
 
         def generate_comparison(setcc):
             self.generate_command(
@@ -369,7 +343,10 @@ class Generator(object):
 
             (integer, integer, tt.logic_or): generate_logic_or,
             (integer, integer, tt.logic_and): generate_logic_and,
-            (integer, integer, tt.logic_xor): generate_logic_xor,
+            (integer, integer, tt.logic_xor): lambda: generate(
+                ('xor', 'eax', 'ebx'),
+                ('push', 'eax'),
+            ),
 
             (integer, integer, tt.shr): lambda: generate_shift('shr'),
             (integer, integer, tt.shl): lambda: generate_shift('shl'),

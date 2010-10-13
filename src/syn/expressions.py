@@ -20,7 +20,8 @@ binary_ops = [
     [
         tt.plus,
         tt.minus,
-        tt.logic_or
+        tt.logic_or,
+        tt.logic_xor,
     ],
     [
         tt.mul,
