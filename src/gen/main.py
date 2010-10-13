@@ -344,5 +344,5 @@ class Generator(object):
         }
 
         self.generate_statement(unop.operands[0])
-        optype = self.get_type(unop.operands)
+        optype = self.get_type(unop.operands)[0]
         UNARY_HANDLERS[type(optype), unop.operation.type]()
