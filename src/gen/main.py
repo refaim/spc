@@ -308,6 +308,14 @@ class Generator(object):
                 ('push', 'eax'),
             )
 
+        def generate_real_arithmetic(command):
+            self.generate_command(
+                ('fld', self.dword(asm.RegOffset('esp', 4))),
+                (command, self.dword('esp')),
+                ('add', 'esp', 4),
+                ('fstp', self.dword('esp')),
+            )
+
         def integer_binary(function):
             @functools.wraps(function)
             def wraps(**kwargs):
@@ -369,6 +377,17 @@ class Generator(object):
 
             (integer, integer, tt.shr): lambda: generate_shift('shr'),
             (integer, integer, tt.shl): lambda: generate_shift('shl'),
+
+            (real, real, tt.plus): lambda:
+                generate_real_arithmetic('fadd'),
+            (real, real, tt.minus): lambda:
+                generate_real_arithmetic('fsub'),
+            (real, real, tt.mul): lambda:
+                generate_real_arithmetic('fmul'),
+            (real, real, tt.div): lambda:
+                generate_real_arithmetic('fdiv'),
+            (integer, integer, tt.div): lambda:
+                generate_real_arithmetic('fdiv'),
         }
         for key, func in BINARY_HANDLERS.iteritems():
             if key.count(integer) == 2 and tt.shr != key[-1] != tt.shl:
@@ -394,12 +413,6 @@ class Generator(object):
                 ('pop', 'eax'),
                 ('neg', 'eax'),
                 ('push', 'eax'),
-            ),
-
-            (real, tt.minus): lambda: generate(
-                ('fld', self.get_dword_from_stack()),
-                'fchs',
-                ('fstp', self.get_dword_from_stack()),
             ),
         }
 
