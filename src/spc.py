@@ -132,12 +132,12 @@ def main(argv):
         'decl':        Compiler.parse_decl,
         'full-syntax': Compiler.parse,
         'generate':    Compiler.generate,
-        'compile':     Compiler.compile_,
     }
 
     compiler_options = {'help' : 'h'}
     for key in compiler_actions:
         compiler_options[key] = key[0]
+    compiler_actions['compile'] = Compiler.compile_
 
     try:
         opts, args = getopt.getopt(
@@ -150,7 +150,7 @@ def main(argv):
 
     present = lambda o: o in opts or compiler_options[o] in opts
 
-    if present('help') or not opts or len(opts) > 1:
+    if present('help') or len(opts) > 1:
         return usage()
 
     if not args:
@@ -161,7 +161,11 @@ def main(argv):
         if not os.path.isfile(path):
             return error('{0} is a directory, not a file'.format(path))
 
-    job = ((opt, arg) for arg in args for opt in compiler_options if present(opt))
+    if args and not opts:
+        job = (('compile', arg) for arg in args)
+    else:    
+        job = ((opt, arg) for arg in args for opt in compiler_options \
+               if present(opt))
     try:
         for option, fname in job:
             with open(fname, buffering=10) as source:
