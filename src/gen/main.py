@@ -351,12 +351,13 @@ class Generator(object):
 
         def generate_float_comparison(setcc):
             self.cmd(
+                ('xor', 'eax', 'eax'),
+                ('fld', self.dword('esp')),
                 ('fld', self.dword('esp', offset=4)),
-                ('fcomp', self.dword('esp')),
+                ('fcomip', 'st0', 'st1'),
                 (setcc, 'al'),
-                ('add', 'esp', 4),
-                ('movzx', 'eax', 'al'),
-                ('mov', self.dword('esp'), 'eax'),
+                ('add', 'esp', 8),
+                ('push', 'eax'),
             )
 
         integer, real = SymTypeInt, SymTypeReal
@@ -431,13 +432,13 @@ class Generator(object):
             (real, tt.not_equal):
                 lambda: generate_float_comparison('setne'),
             (real, tt.less):
-                lambda: generate_float_comparison('setl'),
+                lambda: generate_float_comparison('setb'),
             (real, tt.less_or_equal):
-                lambda: generate_float_comparison('setle'),
+                lambda: generate_float_comparison('setbe'),
             (real, tt.greater):
-                lambda: generate_float_comparison('setg'),
+                lambda: generate_float_comparison('seta'),
             (real, tt.greater_or_equal):
-                lambda: generate_float_comparison('setge'),
+                lambda: generate_float_comparison('setae'),
         }
         for key, func in BINARY_HANDLERS.iteritems():
             if key.count(integer) and key[-1] not in (tt.shr, tt.shl, tt.div):
