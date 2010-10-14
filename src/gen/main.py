@@ -361,91 +361,92 @@ class Generator(object):
 
         integer, real = SymTypeInt, SymTypeReal
         BINARY_HANDLERS = {
-            (integer, integer, tt.assign): generate_assignment,
+            (integer, tt.assign): generate_assignment,
 
-            (integer, integer, tt.plus): lambda: self.cmd(
+            (integer, tt.plus): lambda: self.cmd(
                 ('add', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.minus): lambda: self.cmd(
+            (integer, tt.minus): lambda: self.cmd(
                 ('sub', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.mul): lambda: self.cmd(
+            (integer, tt.mul): lambda: self.cmd(
                 ('imul', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.int_div): lambda: self.cmd(
+            (integer, tt.int_div): lambda: self.cmd(
                 ('xor', 'edx', 'edx'),
                 ('idiv', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.int_mod): lambda: self.cmd(
+            (integer, tt.int_mod): lambda: self.cmd(
                 ('xor', 'edx', 'edx'),
                 ('idiv', 'ebx'),
                 ('push', 'edx'),
             ),
-            (integer, integer, tt.div): lambda:
+            (integer, tt.div): lambda:
                 generate_float_arithmetic('fdiv'),
 
-            (integer, integer, tt.equal):
+            (integer, tt.equal):
                 lambda: generate_comparison('sete'),
-            (integer, integer, tt.not_equal):
+            (integer, tt.not_equal):
                 lambda: generate_comparison('setne'),
-            (integer, integer, tt.less):
+            (integer, tt.less):
                 lambda: generate_comparison('setl'),
-            (integer, integer, tt.less_or_equal):
+            (integer, tt.less_or_equal):
                 lambda: generate_comparison('setle'),
-            (integer, integer, tt.greater):
+            (integer, tt.greater):
                 lambda: generate_comparison('setg'),
-            (integer, integer, tt.greater_or_equal):
+            (integer, tt.greater_or_equal):
                 lambda: generate_comparison('setge'),
 
-            (integer, integer, tt.logic_or): generate_logic_or,
-            (integer, integer, tt.logic_and): generate_logic_and,
-            (integer, integer, tt.logic_xor): lambda: self.cmd(
+            (integer, tt.logic_or): generate_logic_or,
+            (integer, tt.logic_and): generate_logic_and,
+            (integer, tt.logic_xor): lambda: self.cmd(
                 ('xor', 'eax', 'ebx'),
                 ('push', 'eax'),
             ),
 
-            (integer, integer, tt.shr): lambda: generate_shift('shr'),
-            (integer, integer, tt.shl): lambda: generate_shift('shl'),
+            (integer, tt.shr): lambda: generate_shift('shr'),
+            (integer, tt.shl): lambda: generate_shift('shl'),
 
-            (real, real, tt.assign): generate_float_assignment,
+            (real, tt.assign): generate_float_assignment,
 
-            (real, real, tt.plus): lambda:
+            (real, tt.plus): lambda:
                 generate_float_arithmetic('fadd'),
-            (real, real, tt.minus): lambda:
+            (real, tt.minus): lambda:
                 generate_float_arithmetic('fsub'),
-            (real, real, tt.mul): lambda:
+            (real, tt.mul): lambda:
                 generate_float_arithmetic('fmul'),
-            (real, real, tt.div): lambda:
+            (real, tt.div): lambda:
                 generate_float_arithmetic('fdiv'),
 
-            (real, real, tt.equal):
+            (real, tt.equal):
                 lambda: generate_float_comparison('sete'),
-            (real, real, tt.not_equal):
+            (real, tt.not_equal):
                 lambda: generate_float_comparison('setne'),
-            (real, real, tt.less):
+            (real, tt.less):
                 lambda: generate_float_comparison('setl'),
-            (real, real, tt.less_or_equal):
+            (real, tt.less_or_equal):
                 lambda: generate_float_comparison('setle'),
-            (real, real, tt.greater):
+            (real, tt.greater):
                 lambda: generate_float_comparison('setg'),
-            (real, real, tt.greater_or_equal):
+            (real, tt.greater_or_equal):
                 lambda: generate_float_comparison('setge'),
         }
         for key, func in BINARY_HANDLERS.iteritems():
-            if key.count(integer) == 2 and key[-1] not in (tt.shr, tt.shl, tt.div):
+            if key.count(integer) and key[-1] not in (tt.shr, tt.shl, tt.div):
                 BINARY_HANDLERS[key] = integer_binary(func)
 
         map(self.generate_statement, binop.operands)
-        ltype, rtype = [type(self.parser.expr_type(e)) for e in binop.operands]
-        BINARY_HANDLERS[ltype, rtype, binop.operation.type]()
+        # left type == right type
+        operand_type = type(self.parser.expr_type(binop.operands[0]))
+        BINARY_HANDLERS[operand_type, binop.operation.type]()
 
     def generate_unary(self, unop):
         integer, real = SymTypeInt, SymTypeReal
