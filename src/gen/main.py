@@ -88,6 +88,12 @@ class Generator(object):
             else:
                 self.instructions.append(asm.Command(command))
 
+    def call(self, name):
+        if is_windows():
+            return asm.Offset(name)
+        else:
+            return name
+
     TYPE2STR = {
         SymTypeInt:    'int',
         SymTypeReal:   'real',
@@ -131,11 +137,13 @@ class Generator(object):
                     ('\n' if i < len(list_) - 1 else ''))
 
         if self.declarations:
-            self.output.write("section '.data' readable writeable\n\n")
+            if is_windows():
+                self.output.write("section '.data' readable writeable\n\n")
             write_list(self.declarations)
             self.output.write('\n\n')
 
-        self.output.write("section '.code' readable executable\n\n")
+        if is_windows():
+            self.output.write("section '.code' readable executable\n\n")
         write_list(self.instructions)
 
         self.output.write('\n')
@@ -192,7 +200,7 @@ class Generator(object):
 
             self.cmd(
                 ('push', format_string_name),
-                ('call', asm.Offset('printf')),
+                ('call', self.call('printf')),
                 ('add', 'esp', occupied_size + 4),
             )
 
