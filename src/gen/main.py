@@ -53,6 +53,9 @@ class Generator(object):
     def dword(self, arg, offset=0):
         return asm.SizeCast('dword', asm.Offset(arg, offset))
 
+    def stack(self, offset=0):
+        return self.dword('esp', offset)
+
     def allocate(self, name, size, dup=True):
         self.declarations.append(asm.Declaration(name, size, dup))
 
@@ -167,8 +170,8 @@ class Generator(object):
         def generate_cast():
             self.generate_statement(stmt.expression)
             self.cmd(
-                ('fild', self.dword('esp')),
-                ('fstp', self.dword('esp')),
+                ('fild', self.stack()),
+                ('fstp', self.stack()),
             )
 
         def generate_write():
@@ -192,7 +195,7 @@ class Generator(object):
 
             if arg_type is SymTypeReal:
                 self.cmd(
-                    ('fld', self.dword('esp')),
+                    ('fld', self.stack()),
                     ('sub', 'esp', '4'),
                     ('fstp', asm.SizeCast('qword', asm.Offset('esp'))),
                 )
@@ -351,16 +354,16 @@ class Generator(object):
 
         def generate_float_arithmetic(command):
             self.cmd(
-                ('fld', self.dword('esp', offset=4)),
-                (command, self.dword('esp')),
+                ('fld', self.stack(offset=4)),
+                (command, self.stack()),
                 ('add', 'esp', 4),
-                ('fstp', self.dword('esp')),
+                ('fstp', self.stack()),
             )
 
         def generate_float_comparison(setcc):
             self.cmd(
                 ('xor', 'eax', 'eax'),
-                ('fld', self.dword('esp')),
+                ('fld', self.stack()),
                 ('fld', self.dword('esp', offset=4)),
                 ('fcomip', 'st0', 'st1'),
                 (setcc, 'al'),
@@ -475,9 +478,9 @@ class Generator(object):
             ),
 
             (real, tt.minus): lambda: self.cmd(
-                ('fld', self.dword('esp')),
+                ('fld', self.stack()),
                 'fchs',
-                ('fstp', self.dword('esp')),
+                ('fstp', self.stack()),
             ),
         }
 
