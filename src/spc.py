@@ -94,6 +94,11 @@ class Compiler(object):
         print self.common_generate()
 
     def compile_(self):
+
+        def check_code(process):
+            if process.wait() > 0:
+                raise CompileError('Assembling failed')
+
         fname = os.path.splitext(self.fname)[0]
         listing = fname + '.asm'
         with open(listing, 'w') as asmfile:
@@ -101,14 +106,16 @@ class Compiler(object):
         if 'win' in sys.platform:
             fasm = os.path.join(FASM_PATH, 'fasm.exe')
             binary = fname + '.exe'
-            subprocess.Popen(
-                '{0} "{1}" >nul'.format(fasm, listing), shell=True).wait()
+            check_code(
+                subprocess.Popen('{0} {1} >nul'.format(
+                    fasm, quote(listing)), shell=True))
         else:
             fasm = os.path.join(FASM_PATH, 'fasm')
             binary, output = fname + '.o', fname + '.exe'
-            subprocess.Popen(
-                '{0} > /dev/null'.format(
-                    ' '.join([fasm, listing, binary])), shell=True).wait()
+            check_code(
+                subprocess.Popen('{0} > /dev/null'.format(
+                    ' '.join(map(quote, [fasm, listing, binary]))),
+                    shell=True))
             subprocess.call(['gcc', binary, '-o' + output])
             os.remove(binary)
             subprocess.call(['strip', output])
@@ -163,7 +170,7 @@ def main(argv):
 
     if args and not opts:
         job = (('compile', arg) for arg in args)
-    else:    
+    else:
         job = ((opt, arg) for arg in args for opt in compiler_options \
                if present(opt))
     try:

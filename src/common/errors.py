@@ -3,9 +3,17 @@
 from functions import copy_args
 
 class CompileError(Exception):
+    template = '{0} Error: {1}'
+    @copy_args
+    def __init__(self, message): pass
+    def __str__(self):
+        return self.template.format('', self.message)
+
+class GenError(CompileError): pass
+
+class SourceError(CompileError):
     @copy_args
     def __init__(self, message, linepos, *args):
-        self.template = '{0} Error: {1}'
         self.message = message.format(*args)
 
     def __str__(self):
@@ -16,14 +24,8 @@ class CompileError(Exception):
             self.linepos = '({0})'.format(l)
         return self.template.format(self.linepos, self.message)
 
-class LexError(CompileError): pass
-class SynError(CompileError): pass
-
-class GenError(CompileError):
-    @copy_args
-    def __init__(self, message): pass
-    def __str__(self):
-        return ' Error: {0}'.format(self.message)
+class LexError(SourceError): pass
+class SynError(SourceError): pass
 
 E_PAR_MISMATCH = 'Parenthesis mismatch'
 E_RESERVED_NAME = 'Identifier \'{0}\' is reserved and not allowed for using'

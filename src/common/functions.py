@@ -3,6 +3,9 @@
 import inspect
 import functools
 
+def quote(string):
+    return '"' + string + '"'
+
 def copy_args(func):
     ''' Initializes object attributes by the initializer signature '''
     argspec = inspect.getargspec(func)

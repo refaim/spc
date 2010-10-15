@@ -10,39 +10,52 @@ import subprocess
 
 import dot_parser
 
+from common.errors import CompileError
 from common.functions import copy_args
 from spc import main as run_compiler
 
 class TestError(Exception):
     template = "Test #{0} {1}"
-    def __init__(self, name):
-        self.name = name
+
+    @copy_args
+    def __init__(self, name): pass
+    def __str__(self):
+        return self.template.format(self.name, self.result)
 
 class Fail(TestError):
-    message = "FAIL"
+    result = "FAIL"
 class NoAnswer(TestError):
-    message = "NO ANSWER"
+    result = "NO ANSWER"
+
+class AdvancedFail(Fail):
+    @copy_args
+    def __init__(self, name, message):
+        super(AdvancedFail, self).__init__(name)
+    def __str__(self):
+        return '{0}\n{1}'.format(
+            super(AdvancedFail, self).__str__(), self.message)
 
 t_ext, a_ext, o_ext = ".tst", ".ans", ".out"
 
 class Tester(object):
     @copy_args
     def __init__(self, option, path, verbose, full=False):
-        self.suite = self.get_suite(path)
+        self.suite = self.get_suite()
         self.passed, self.answer_present = True, True
 
-    def get_suite(self, path):
-        return sorted([t.replace('\\', '/') for t in glob.glob(path + '*' + t_ext)])
+    def get_suite(self):
+        return sorted(test.replace('\\', '/') for test in
+            glob.glob(os.path.join(self.path, '*' + t_ext)))
 
     def run(self):
         for entry in self.suite:
             self.testname = os.path.splitext(os.path.basename(entry))[0]
-            self.test = self.path + self.testname
+            self.test = os.path.normpath(os.path.join(self.path, self.testname))
             self.run_test(entry)
             try:
                 self.check()
             except TestError as result:
-                print(result.template.format(result.name, result.message))
+                print(str(result))
                 if not self.full:
                     return (1, len(self.suite))
             else:
@@ -51,10 +64,15 @@ class Tester(object):
         return (0, len(self.suite))
 
     def run_test(self, path):
+        argv = ([self.option] if self.option else []) + [path]
         oldout = sys.stdout
-        with open(self.test + o_ext, "w") as sys.stdout:
-            run_compiler([self.option, path])
-        sys.stdout = oldout
+        try:
+            with open(self.test + o_ext, "w") as sys.stdout:
+                run_compiler(argv)
+        except CompileError as e:
+            raise e
+        finally:
+            sys.stdout = oldout
 
     def compare(self, first, second, mode):
         with open(self.test + first, mode) as answer:
@@ -121,7 +139,9 @@ class DotTester(Tester):
 
 class ExecutableTester(Tester):
     def check(self):
-        exe = os.path.normpath(os.path.join(os.getcwd(), self.test + '.exe'))
+        exe = self.test + '.exe'
+        if not os.path.exists(exe):
+            raise AdvancedFail(self.testname, 'Executable not found')
         with open(self.test + o_ext, 'w') as out:
             subprocess.Popen(exe, shell=True, stdout=out).wait()
         super(ExecutableTester, self).check()
@@ -137,8 +157,7 @@ def main(argv):
         's': 'sdecl',
         'd': 'decl',
         'f': 'full',
-        'g': 'gen',
-        'c': 'gen',
+        '' : 'gen',
     }
 
     names = {
@@ -147,10 +166,8 @@ def main(argv):
         's': 'Simple declarations parser',
         'd': 'Declarations parser',
         'f': 'Full syntax parser',
-        'g': 'Assembly generator',
-        'c': 'Full compiler',
     }
-    priorities = 'lesdgc'
+    priorities = 'lesdf'
 
     try:
         opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')
@@ -171,7 +188,7 @@ def main(argv):
         full = False
     if len(opts) > 1:
         return error('use only one option')
-    option = opts[0]
+    option = opts[0] if opts else ''
 
     if option == 'a':
         for opt in priorities:
@@ -188,19 +205,21 @@ def main(argv):
         return 0
 
     path = 'tests/{0}/'.format(optpaths[option])
-    if option == 'l':
+    if option in ('l', 'f'):
         tester_class = Tester
-    elif option == 'c':
-        tester_class = ExecutableTester
-    else:
+    elif option in ('s', 'd', 'e'):
         tester_class = DotTester
-    tester = tester_class('-' + option, path, verbose, full)
+    else:
+        tester_class = ExecutableTester
+    tester = tester_class(('-' + option) if option else '', path, verbose, full)
     return tester.run()
 
 if __name__ == '__main__':
-    retcode = main(sys.argv[1:])
-    if isinstance(retcode, tuple):
-        sys.exit(retcode[0])
-    else:
-        sys.exit(retcode)
-
+    try:
+        retcode = main(sys.argv[1:])
+        if isinstance(retcode, tuple):
+            sys.exit(retcode[0])
+        else:
+            sys.exit(retcode)
+    except KeyboardInterrupt:
+        print "Interrupted by user"
