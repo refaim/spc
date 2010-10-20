@@ -210,6 +210,8 @@ def main(argv):
     elif option in ('s', 'd', 'e'):
         tester_class = DotTester
     else:
+        global t_ext
+        t_ext = '.pas'
         tester_class = ExecutableTester
     tester = tester_class(('-' + option) if option else '', path, verbose, full)
     return tester.run()
