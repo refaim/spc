@@ -2,7 +2,7 @@
 
 from common.functions import copy_args
 
-class Base(object): 
+class Base(object):
     pass
 
 class Declaration(Base):
@@ -22,13 +22,17 @@ class Label(Base):
 
 class Command(Base):
     @copy_args
-    def __init__(self, mnemonics, *args):
+    def __init__(self, mnem, *args):
         self.args = args
     def __str__(self):
-        text = self.mnemonics
+        text = self.mnem
         if self.args:
             text += ' ' + ', '.join(str(arg) for arg in self.args)
         return text
+
+    @property
+    def arg(self):
+        return self.args[0]
 
 class Offset(Base):
     @copy_args

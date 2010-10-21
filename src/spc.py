@@ -83,17 +83,20 @@ class Compiler(object):
         self.parser.parse_declarations()
         self.parser.symtable.write()
 
-    def common_generate(self):
+    def common_generate(self, optimize=False):
         self.parser = Parser(self.tokenizer)
         program = self.parser.parse()
         self.parser.check_types(program)
-        self.generator = Generator(program, self.parser)
+        self.generator = Generator(program, self.parser, optimize)
         return self.generator.generate()
 
     def generate(self):
         print self.common_generate()
 
-    def compile_(self):
+    def optimize(self):
+        self.compile_(optimize=True)
+
+    def compile_(self, optimize=False):
 
         def check_code(process):
             if process.wait() > 0:
@@ -102,7 +105,7 @@ class Compiler(object):
         fname = os.path.splitext(self.fname)[0]
         listing = fname + '.asm'
         with open(listing, 'w') as asmfile:
-            asmfile.write(self.common_generate())
+            asmfile.write(self.common_generate(optimize))
         if 'win' in sys.platform:
             fasm = os.path.join(FASM_PATH, 'fasm.exe')
             binary = fname + '.exe'
@@ -139,6 +142,7 @@ def main(argv):
         'decl':        Compiler.parse_decl,
         'full-syntax': Compiler.parse,
         'generate':    Compiler.generate,
+        'optimize':    Compiler.optimize,
     }
 
     compiler_options = {'help' : 'h'}

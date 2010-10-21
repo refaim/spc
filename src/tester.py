@@ -158,6 +158,7 @@ def main(argv):
         'd': 'decl',
         'f': 'full',
         '' : 'gen',
+        'o': 'gen',
     }
 
     names = {
@@ -167,7 +168,7 @@ def main(argv):
         'd': 'Declarations parser',
         'f': 'Full syntax parser',
     }
-    priorities = 'lesdf'
+    priorities = 'lesdfo'
 
     try:
         opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')

@@ -10,6 +10,7 @@ from common.functions import copy_args
 from tok.token import tt
 from syn.tree import *
 from syn.table import *
+from optimizer import Optimizer
 import asm
 
 
@@ -33,7 +34,7 @@ else:
 
 class Generator(object):
     @copy_args
-    def __init__(self, program, parser):
+    def __init__(self, program, parser, enable_optimizer=False):
         self.instructions = []
         self.declarations = []
         self.loops = []
@@ -146,6 +147,8 @@ class Generator(object):
 
         if is_windows():
             self.output.write("section '.code' readable executable\n\n")
+        if self.enable_optimizer:
+            self.instructions = Optimizer(self.instructions).optimize()
         write_list(self.instructions)
 
         self.output.write('\n')
