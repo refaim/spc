@@ -14,6 +14,7 @@ Major:
     G: Implement 'or' and 'and' in pascal (not C) style
     G: Implement string constants generation
     G: Check for division by zero
+    G: Multidimensional arrays (dimensions > 2)
 
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages

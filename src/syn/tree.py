@@ -111,6 +111,8 @@ class SynSubscript(SynExpr):
         if hasattr(arrtype, 'type'):
             arrtype = arrtype.type
         return arrtype
+    @property
+    def name(self): return self.array.name
 
 class SynFieldRequest(SynExpr):
     @copy_args

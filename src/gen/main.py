@@ -103,12 +103,11 @@ class Generator(object):
         SymTypeArray:  'arr',
         SymTypeRecord: 'rec',
     }
-    def get_variable_name(self, name, type_):
+    def generate_variable_name(self, name, type_):
         return '{0}${1}'.format(self.TYPE2STR[type(type_.type)], name)
 
-    def get_variable_offset(self, name):
-        symbol = self.find_symbol(name)
-        return self.dword(symbol.gen_name)
+    def get_variable_name(self, name):
+        return self.find_symbol(name).gen_name
 
     def generate(self):
         self.output.write(HEADER)
@@ -119,7 +118,7 @@ class Generator(object):
         # reserve memory for global variables
         for name, type_ in table.iteritems():
             if isinstance(type_, (SymVar, SymConst)):
-                gen_name = self.get_variable_name(name, type_)
+                gen_name = self.generate_variable_name(name, type_)
                 self.allocate(gen_name, type_.size)
                 table[name].gen_name = gen_name
 
@@ -152,7 +151,7 @@ class Generator(object):
         self.output.write('\n')
         return self.output.getvalue()
 
-    def generate_statement(self, stmt):
+    def generate_statement(self, stmt, lvalue=False):
 
         def jump_if_zero(label):
             self.cmd(
@@ -166,6 +165,19 @@ class Generator(object):
                 self.generate_binary(stmt)
             else:
                 self.generate_unary(stmt)
+
+        def generate_subscript():
+            self.generate_statement(stmt.array, lvalue=True)
+            array_type = self.parser.expr_type(stmt.array)
+            self.generate_statement(stmt.index)
+            self.cmd(
+                ('pop', 'eax'), # index
+                ('sub', 'eax', array_type.range.leftbound),
+                ('pop', 'ebx'), # base
+                ('imul', 'eax', array_type.type.size),
+                ('add', 'ebx', 'eax'),
+                ('push', 'ebx' if lvalue else self.dword('ebx')),
+            )
 
         def generate_cast():
             self.generate_statement(stmt.expression)
@@ -208,7 +220,11 @@ class Generator(object):
             )
 
         def generate_variable():
-            self.cmd('push', self.get_variable_offset(stmt.name))
+            name = self.get_variable_name(stmt.name)
+            if lvalue:
+                self.cmd('push', name)
+            else:
+                self.cmd('push', self.dword(name))
 
         def generate_while():
             start, end = self.get_labels(2)
@@ -242,7 +258,7 @@ class Generator(object):
             self.generate_statement(stmt.action)
             self.generate_label(inc)
             self.cmd(
-                ('inc', self.get_variable_offset(stmt.counter.name)),
+                ('inc', self.dword(self.get_variable_name(stmt.counter.name))),
                 ('jmp', start),
             )
             self.generate_label(end)
@@ -265,7 +281,10 @@ class Generator(object):
 
         handlers = {
             SynOperation: generate_operation,
+            SynSubscript: generate_subscript,
             SynCastToReal: generate_cast,
+            SynVar: generate_variable,
+            SynConst: lambda: self.cmd('push', stmt.name),
             SynStatementIf: generate_if,
             SynStatementFor: generate_for,
             SynStatementWhile: generate_while,
@@ -274,8 +293,6 @@ class Generator(object):
             SynStatementContinue: lambda: self.cmd('jmp', self.loops[-1][0]),
             SynStatementBlock: generate_block,
             SynStatementWrite: generate_write,
-            SynVar: generate_variable,
-            SynConst: lambda: self.cmd('push', stmt.name),
             SynEmptyStatement: lambda: self.cmd('nop'),
         }
         handlers[type(stmt)]()
@@ -283,8 +300,7 @@ class Generator(object):
     def generate_binary(self, binop):
 
         def generate_assignment():
-            dest = self.get_variable_offset(binop.operands[0].name)
-            self.cmd('mov', dest, 'ebx')
+            self.cmd('mov', self.dword('eax'), 'ebx')
 
         def generate_logic_or():
             true, false, end = self.get_labels(3)
@@ -455,9 +471,12 @@ class Generator(object):
             if key.count(integer) and key[-1] not in (tt.shr, tt.shl, tt.div):
                 BINARY_HANDLERS[key] = integer_binary(func)
 
-        map(self.generate_statement, binop.operands)
+        left, right = binop.operands
+        lvalue = binop.operation.type == tt.assign
+        self.generate_statement(left, lvalue)
+        self.generate_statement(right)
         # left type == right type
-        operand_type = type(self.parser.expr_type(binop.operands[0]))
+        operand_type = type(self.parser.expr_type(left))
         BINARY_HANDLERS[operand_type, binop.operation.type]()
 
     def generate_unary(self, unop):
