@@ -14,4 +14,4 @@ goto :eof
 
 :delete
     del /q %* >nul 2>&1
-    goto :eof
+    exit /b 0
