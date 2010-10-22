@@ -15,6 +15,7 @@ Major:
     G: Implement string constants generation
     G: Check for division by zero
     G: Multidimensional arrays (dimensions > 2)
+    O: Rewrite loop optimization
 
 Minor:
     Common: Unquote some tokens (like EOF and identifier) in error messages
