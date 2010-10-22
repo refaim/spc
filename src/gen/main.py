@@ -178,8 +178,8 @@ class Generator(object):
                 ('sub', 'eax', array_type.range.leftbound),
                 ('pop', 'ebx'), # base
                 ('imul', 'eax', array_type.type.size),
-                ('add', 'ebx', 'eax'),
-                ('push', 'ebx' if lvalue else self.dword('ebx')),
+                ('add', 'eax', 'ebx'),
+                ('push', 'eax' if lvalue else self.dword('eax')),
             )
 
         def generate_cast():
