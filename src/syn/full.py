@@ -27,14 +27,19 @@ class Parser(ExprParser):
     def find_symbol(self, name):
         for table in reversed(self.symtable_stack):
             if isinstance(table, list):
-                table = [symbol.name for symbol in table]
-                if name in table:
-                    return table[table.index(name)]
+                ntable = [symbol.name for symbol in table]
+                if name in ntable:
+                    return table[ntable.index(name)]
             if name in table:
                 return table[name]
         return None
     def get_type(self, symbol):
-        type_ = symbol.type(self.symtable)
+        for table in reversed(self.symtable_stack):
+            try:
+                type_ = symbol.type(table)
+                break
+            except KeyError:
+                continue
         while type_ and (not type_.is_type() or isinstance(type_, SymTypeAlias)):
             type_ = type_.type
         return type_
@@ -186,7 +191,7 @@ class Parser(ExprParser):
         def parse_subprogram(has_result):
             def parse():
 
-                def parse_args():
+                def parse_args(current_offset):
                     while self.token.type in (tt.kwVar, tt.identifier):
                         if self.token.type == tt.kwVar:
                             by_value = False
@@ -198,7 +203,9 @@ class Parser(ExprParser):
                         type = parse_type(complex=False)
                         for name in names:
                             self.symtable.append(
-                                SymFunctionArgument(name, type, by_value))
+                                SymFunctionArgument(
+                                    name, type, by_value, current_offset))
+                            current_offset += 4
                         if self.token.type == tt.semicolon:
                             self.next_token()
                             if self.token.type == tt.rparen:
@@ -209,10 +216,11 @@ class Parser(ExprParser):
                 self.symtable.insert(function)
                 function.args = []
                 self.symtable_stack.append(function.args)
+                current_offset = 0
                 if self.token.type == tt.lparen:
                     self.next_token()
                     if self.token.type != tt.rparen:
-                        parse_args()
+                        parse_args(current_offset)
                     self.require_token(tt.rparen)
                 if has_result:
                     self.require_token(tt.colon)
@@ -221,6 +229,8 @@ class Parser(ExprParser):
                     function.type = None
                 self.require_token(tt.semicolon)
                 function.declarations = SymTable()
+                function.declarations.insert(self.symtable_stack[-2]['integer'])
+                function.declarations.insert(self.symtable_stack[-2]['real'])
                 self.symtable_stack.append(function.declarations)
                 self.look_up = True
                 self.parse_declarations()
@@ -231,6 +241,10 @@ class Parser(ExprParser):
                 self.require_token(tt.semicolon)
                 self.symtable_stack.pop()
                 self.symtable_stack.pop()
+                function.table = dict(function.declarations)
+                for name in function.table:
+                    setattr(function.table[name], 'local', True)
+                function.table.update(dict((s.name, s) for s in function.args))
 
             return parse
 
@@ -297,6 +311,15 @@ class Parser(ExprParser):
             expr.operands[0] = SynCastToReal(expr.operands[0])
         elif isinstance(rtype, SymTypeInt):
             expr.operands[1] = SynCastToReal(expr.operands[1])
+
+    def check_program(self, program):
+        self.check_types(program)
+        table = (func for name, func in dict(self.symtable).iteritems()
+                 if isinstance(func, SymTypeFunction))
+        for func in table:
+            self.symtable_stack.append(func.table)
+            self.check_types(func.body)
+            self.symtable_stack.pop()
 
     def check_types(self, stmt):
 

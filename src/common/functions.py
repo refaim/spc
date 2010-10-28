@@ -10,7 +10,7 @@ def copy_args(func):
     ''' Initializes object attributes by the initializer signature '''
     argspec = inspect.getargspec(func)
     argnames = argspec.args[1:]
-    
+
     if argspec.defaults:
         defaults = dict(zip(argnames[-len(argspec.defaults):], argspec.defaults))
     else:
@@ -30,3 +30,6 @@ def copy_args(func):
             setattr(self, key, value)
         func(self, *args, **kwargs)
     return __init__
+
+def rlist(list_):
+    return list_[::-1]

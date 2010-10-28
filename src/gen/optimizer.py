@@ -2,7 +2,7 @@
 
 import math
 
-from common.functions import copy_args
+from common.functions import copy_args, rlist
 import asm
 
 REGISTERS = ('eax', 'ebx', 'ecx', 'edx', 'ebp', 'esi', 'edi')
@@ -37,7 +37,7 @@ class Optimizer(object):
         self.changed = True
 
     def sequence(self, *commands):
-        
+
         def mnem_list(window):
             result = []
             for cmd in window:
@@ -79,7 +79,7 @@ class Optimizer(object):
         pop c
         pop d
         ------->
-        mov d, a                                                               
+        mov d, a
         mov c, b
         '''
         slc = self.sequence('push', 'push', 'pop', 'pop')
@@ -99,17 +99,40 @@ class Optimizer(object):
         if slc:
             self.replace(asm.Command('mov', slc[1].arg, slc[0].arg))
 
+    def optimize_call(self):
+        '''
+        mov eax, func
+        call eax
+        -->
+        call func
+        '''
+        slc = self.sequence('mov', 'call')
+        if (slc and slc[0].args[0] == slc[1].arg):
+            self.replace(asm.Command('call', slc[0].args[1]))
+
     def optimize_arithmetic(self):
 
-        # 'sub reg/mem, 1' --> 'dec reg/mem'
         slc = self.sequence('sub')
-        if slc and slc[0].args[1] == 1:
-            self.replace(asm.Command('dec', slc[0].args[0]))
-        
-        # 'add reg/mem, 1' --> 'inc reg/mem'
+        if slc:
+            # remove 'sub reg/mem, 0'
+            if slc[0].args[1] == 0:
+                self.remove()
+            # 'sub reg/mem, 1' --> 'dec reg/mem'
+            elif slc[0].args[1] == 1:
+                self.replace(asm.Command('dec', slc[0].args[0]))
+
         slc = self.sequence('add')
-        if slc and slc[0].args[1] == 1:
-            self.replace(asm.Command('inc', slc[0].args[0]))
+        if slc:
+            # remove 'add reg/mem, 0'
+            if slc[0].args[1] == 0:
+                self.remove()
+            # 'add reg/mem, 1' --> 'inc reg/mem'
+            elif slc[0].args[1] == 1:
+                self.replace(asm.Command('inc', slc[0].args[0]))
+            # 'add reg/mem, -a' --> 'sub reg/mem, a'
+            elif slc[0].args[1] < 0:
+                self.replace(asm.Command('sub', slc[0].args[0], -slc[0].args[1]))
+
 
         def is_power(arg):
             log = math.log(arg, 2)
@@ -123,16 +146,76 @@ class Optimizer(object):
             if value:
                 self.replace(asm.Command('shl', slc[0].args[0], value))
 
-    def optimize_add_mov(self):
+    def optimize_mov_and_arithmetic(self):
         slc = self.sequence('add', 'mov')
-        if not slc:
-            return
-
-        if (slc[0].args[0] == slc[1].args[1] and
-            slc[0].args[1] == slc[1].args[0] and
+        '''
+        add a, b
+        mov b, a
+        -->
+        add b, a
+        '''
+        if (slc and
+            slc[0].args == rlist(slc[1].args) and
             not self.is_imm(slc[0].args[1])
         ):
-            self.replace(asm.Command('add', slc[0].args[1], slc[0].args[0]))
+            self.replace(asm.Command(
+                'add', slc[0].args[1], slc[0].args[0]))
+
+        '''
+        mov reg1, reg/mem
+        add reg2, reg1
+        -->
+        add reg2, reg/mem
+        '''
+        slc = self.sequence('mov', 'add')
+        if (slc and
+            slc[0].args[0] == slc[1].args[1] and
+            self.is_reg(slc[1].args[0])
+        ):
+            self.replace(asm.Command('add', slc[1].args[0], slc[0].args[1]))
+
+        '''
+        mov reg/mem, imm
+        neg reg/mem
+        -->
+        mov reg/mem, -imm
+        '''
+        slc = self.sequence('mov', 'neg')
+        if (slc and
+            slc[0].args[0] == slc[1].arg and
+            self.is_imm(slc[0].args[1])
+        ):
+            self.replace(asm.Command('mov', slc[0].args[0], -slc[0].args[1]))
+
+        '''
+        mov reg, 1
+        dec reg
+        -->
+        xor reg, reg
+        '''
+        slc = self.sequence('mov', 'dec')
+        if (slc and
+            self.is_imm(slc[0].args[1]) and
+            self.is_reg(slc[1].arg) and
+            slc[0].args[0] == slc[1].arg
+        ):
+            self.replace(asm.Command('mov', slc[1].arg, slc[0].args[1] - 1))
+
+        '''
+        mov reg, imm1
+        shl reg, imm2
+        -->
+        mov reg, imm1 * (2 ** imm2)
+        '''
+        slc = self.sequence('mov', 'shl')
+        if (slc and
+            slc[0].args[0] == slc[1].args[0] and
+            self.is_imm(slc[0].args[1]) and
+            self.is_imm(slc[1].args[1])
+        ):
+            self.replace(asm.Command(
+                'mov', slc[0].args[0],
+                       slc[0].args[1] * (2 ** slc[1].args[1])))
 
     def optimize_mov(self):
         '''
@@ -142,12 +225,26 @@ class Optimizer(object):
         mov reg/mem, imm
         '''
         slc = self.sequence('mov', 'mov')
-        if (slc and 
-            slc[0].args[0] == slc[1].args[1] and
-            self.is_imm(slc[0].args[1])
-        ):
-            self.replace(asm.Command('mov', slc[1].args[0], slc[0].args[1]))
-            
+        if slc:
+            if (slc[0].args[0] == slc[1].args[1] and
+                self.is_imm(slc[0].args[1])
+            ):
+                self.replace(asm.Command('mov', slc[1].args[0], slc[0].args[1]))
+
+            '''
+            mov reg, offset
+            mov dword [reg], imm
+            -->
+            mov dword [offset], imm
+            '''
+            if (isinstance(slc[1].args[0], asm.SizeCast) and
+                self.is_reg(slc[0].args[0]) and
+                slc[0].args[0] == slc[1].args[0].arg.reg and
+                self.is_imm(slc[1].args[1])
+            ):
+                cast = slc[1].args[0]
+                cast.arg.reg = slc[0].args[1]
+                self.replace(asm.Command('mov', cast, slc[1].args[1]))
 
         slc = self.sequence('mov')
         if not slc:
@@ -194,3 +291,4 @@ class Optimizer(object):
                 slc[0],
                 asm.Command('test', slc[0].arg, slc[0].arg),
             ))
+

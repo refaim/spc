@@ -39,14 +39,8 @@ class Generator(object):
         self.declarations = []
         self.loops = []
         self.string_consts = {}
-        self.symtable_stack = [self.parser.symtable]
         self.output = StringIO.StringIO()
         self.label_count = 0
-
-    def find_symbol(self, name):
-        for table in reversed(self.symtable_stack):
-            if name in table:
-                return table[name]
 
     def get_type(self, *expressions):
         return map(self.parser.expr_type, *expressions)
@@ -99,16 +93,21 @@ class Generator(object):
             return name
 
     TYPE2STR = {
-        SymTypeInt:    'int',
-        SymTypeReal:   'real',
-        SymTypeArray:  'arr',
-        SymTypeRecord: 'rec',
+        SymTypeInt:      'int',
+        SymTypeReal:     'real',
+        SymTypeArray:    'arr',
+        SymTypeRecord:   'rec',
+        SymTypeFunction: 'func',
     }
     def generate_variable_name(self, name, type_):
-        return '{0}${1}'.format(self.TYPE2STR[type(type_.type)], name)
+        return '{0}${1}'.format(self.TYPE2STR[type(type_)], name)
 
     def get_variable_name(self, name):
-        return self.find_symbol(name).gen_name
+        symbol = self.parser.find_symbol(name)
+        if isinstance(symbol, SymFunctionArgument):
+            return symbol.name
+        else:
+            return symbol.gen_name
 
     def generate(self):
         self.output.write(HEADER)
@@ -116,12 +115,32 @@ class Generator(object):
         # avoid bug with iteration over UserDict (Python 2.6.4)
         table = dict(self.parser.symtable)
 
-        # reserve memory for global variables
         for name, type_ in table.iteritems():
+            # reserve memory for global variables
             if isinstance(type_, (SymVar, SymConst)):
-                gen_name = self.generate_variable_name(name, type_)
+                gen_name = self.generate_variable_name(name, type_.type)
                 self.allocate(gen_name, type_.size)
                 table[name].gen_name = gen_name
+            # generate functions
+            elif isinstance(type_, SymTypeFunction):
+                gen_name = self.generate_variable_name(name, type_)
+                table[name].gen_name = gen_name
+                self.parser.symtable_stack.append(type_.table)
+                self.generate_label(gen_name)
+                self.cmd(
+                    ('push', 'ebp'),
+                    ('mov', 'ebp', 'esp'),
+                    ('add', 'ebp', 4),
+                    ('sub', 'esp', type_.declarations.size),
+                )
+                self.generate_statement(type_.body)
+                self.cmd(
+                    ('mov', 'esp', 'ebp'),
+                    ('mov', 'ebp', self.dword('ebp', -4)),
+                    ('ret'),
+                    (''), # empty line
+                )
+                self.parser.symtable_stack.pop()
 
         self.generate_label('main')
         self.generate_statement(self.program)
@@ -131,7 +150,7 @@ class Generator(object):
         else:
             self.cmd(
                 ('mov', 'eax', 0),
-                'ret',
+                ('ret'),
             )
 
         def write_list(list_):
@@ -173,13 +192,27 @@ class Generator(object):
             self.generate_statement(stmt.array, lvalue=True)
             array_type = self.parser.expr_type(stmt.array)
             self.generate_statement(stmt.index)
+            is_local = self.parser.find_symbol(stmt.array.name).is_local()
             self.cmd(
                 ('pop', 'eax'), # index
-                ('sub', 'eax', array_type.range.leftbound),
-                ('pop', 'ebx'), # base
+                ('add' if is_local else 'sub',
+                    'eax', array_type.range.leftbound),
                 ('imul', 'eax', array_type.type.size),
+                ('pop', 'ebx'), # base
                 ('add', 'eax', 'ebx'),
                 ('push', 'eax' if lvalue else self.dword('eax')),
+            )
+
+        def generate_call():
+            reserved_space = 0
+            for arg in reversed(stmt.args):
+                self.generate_statement(arg)
+                reserved_space += arg.type(self.parser.symtable).size
+            self.generate_statement(stmt.caller, lvalue=True)
+            self.cmd(
+                ('pop', 'eax'),
+                ('call', 'eax'),
+                ('add', 'esp', reserved_space),
             )
 
         def generate_cast():
@@ -223,11 +256,37 @@ class Generator(object):
             )
 
         def generate_variable():
-            name = self.get_variable_name(stmt.name)
-            if lvalue:
-                self.cmd('push', name)
-            else:
-                self.cmd('push', self.dword(name))
+
+            def generate_variable(symbol):
+                if symbol.is_local():
+                    generate_by_offset(-(symbol.offset + 4))
+                else:
+                    generate_by_name()
+
+            def generate_by_offset(offset):
+                if lvalue:
+                    self.cmd(
+                        ('mov', 'eax', 'ebp'),
+                        ('sub', 'eax', abs(offset)),
+                        ('push', 'eax'),
+                    )
+                else:
+                    self.cmd('push', self.dword('ebp', offset))
+
+            def generate_by_name():
+                name = self.get_variable_name(stmt.name)
+                if lvalue:
+                    self.cmd('push', name)
+                else:
+                    self.cmd('push', self.dword(name))
+
+            handlers = {
+                SymFunctionArgument: lambda: generate_by_offset(symbol.offset + 4),
+                SymTypeFunction: generate_by_name,
+                SymVar: lambda: generate_variable(symbol),
+            }
+            symbol = self.parser.find_symbol(stmt.name)
+            handlers[type(symbol)]()
 
         def generate_while():
             start, end = self.get_labels(2)
@@ -285,6 +344,7 @@ class Generator(object):
         handlers = {
             SynOperation: generate_operation,
             SynSubscript: generate_subscript,
+            SynCall: generate_call,
             SynCastToReal: generate_cast,
             SynVar: generate_variable,
             SynConst: lambda: self.cmd('push', stmt.name),
@@ -501,7 +561,7 @@ class Generator(object):
 
             (real, tt.minus): lambda: self.cmd(
                 ('fld', self.stack()),
-                'fchs',
+                ('fchs'),
                 ('fstp', self.stack()),
             ),
         }

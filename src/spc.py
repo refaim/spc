@@ -86,7 +86,7 @@ class Compiler(object):
     def common_generate(self, optimize=False):
         self.parser = Parser(self.tokenizer)
         program = self.parser.parse()
-        self.parser.check_types(program)
+        self.parser.check_program(program)
         self.generator = Generator(program, self.parser, optimize)
         return self.generator.generate()
 

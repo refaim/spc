@@ -29,11 +29,15 @@ class SymVar(Symbol):
     def size(self):
         return self.type.size
 
+    def is_local(self):
+        return hasattr(self, 'local')
+
 class SymConst(SymVar): pass
 
 class SymFunctionArgument(SymVar):
     @copy_args
-    def __init__(self, name, type, by_value): pass
+    def __init__(self, name, type, by_value, offset):
+        self.value = None
 
 class SymType(Symbol):
     def is_type(self): return True
@@ -42,8 +46,6 @@ class SymTypeFunction(SymType):
     @copy_args
     def __init__(self, name): pass
 
-    @property
-    def symtable(self): return self._symtable
     @property
     def size(self):
         return 4 # call by offset
@@ -126,10 +128,21 @@ class SimpleSymTable(UserDict):
             print('{0}: {1}'.format(sym, self.clean_type(symtype)))
 
 class SymTable(UserDict):
+    def __init__(self):
+        UserDict.__init__(self)
+        self.current_offset = 0
+
     def insert(self, symbol):
         assert isinstance(symbol, Symbol)
         self.__setitem__(symbol.name, symbol)
+        if isinstance(symbol, SymVar):
+            symbol.offset = self.current_offset
+            self.current_offset += symbol.size
         return symbol
+
+    @property
+    def size(self):
+        return self.current_offset
 
     def write(self):
         self.write_symbols(self)
