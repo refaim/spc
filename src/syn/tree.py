@@ -138,9 +138,13 @@ class SynOperation(SynExpr):
                 op += ' '
             text = op + str(self.operands[0])
         else:
-            text = '{0} {1} {2}'.format(
-                self.operands[0], self.operation.text, self.operands[1])
+            text = '{0[0]} {1} {0[1]}'.format(
+                self.operands, self.operation.text)
         return '(' + text + ')'
+    def type_(self, stack):
+        # this function used only in code generator
+        # for getting param size
+        return stack.find('integer')
 
     @property
     def label(self):
