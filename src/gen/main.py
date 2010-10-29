@@ -263,7 +263,7 @@ class Generator(object):
 
             def generate_variable(symbol):
                 if symbol.is_local():
-                    generate_by_offset(-(symbol.offset + 4))
+                    generate_by_offset(-(symbol.offset + 8))
                 else:
                     generate_by_name()
 
