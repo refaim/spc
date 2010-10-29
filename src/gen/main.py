@@ -197,9 +197,15 @@ class Generator(object):
                     'eax', array_type.range.leftbound),
                 ('imul', 'eax', array_type.type.size),
                 ('pop', 'ebx'), # base
-                ('add', 'eax', 'ebx'),
-                ('push', 'eax' if lvalue else self.dword('eax')),
             )
+            if is_local:
+                self.cmd(
+                    ('sub', 'eax', 'ebx'),
+                    ('neg', 'eax'),
+                )
+            else:
+                self.cmd('add', 'eax', 'ebx')
+            self.cmd('push', 'eax' if lvalue else self.dword('eax'))
 
         def generate_call():
             reserved_space = 0
