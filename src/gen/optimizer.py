@@ -281,14 +281,28 @@ class Optimizer(object):
         test reg8, reg8
         '''
         slc = self.sequence('setcc', 'movzx', 'test')
-        if not slc:
-            return
-
-        if (slc[0].arg == slc[1].args[1] and
+        if (slc and
+            slc[0].arg == slc[1].args[1] and
             slc[1].args[0] == slc[2].args[0] == slc[2].args[1]
         ):
             self.replace((
                 slc[0],
                 asm.Command('test', slc[0].arg, slc[0].arg),
             ))
+
+        '''
+        mov eax, ebp
+        sub eax, offset
+        inc dword [eax]
+        '''
+        slc = self.sequence('mov', 'sub', 'inc')
+        if (slc and
+            isinstance(slc[2].arg, asm.SizeCast) and
+            slc[0].args[0] == slc[1].args[0] == slc[2].args[0].arg.reg and
+            self.is_reg(slc[0].args[1]) and
+            self.is_imm(slc[1].args[1])
+        ):
+            self.replace(asm.Command(
+                'inc', asm.SizeCast(
+                    'dword', asm.Offset(slc[0].args[1], -slc[1].args[1]))))
 

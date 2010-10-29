@@ -323,8 +323,10 @@ class Generator(object):
             jump_if_zero(end)
             self.generate_statement(stmt.action)
             self.generate_label(inc)
+            self.generate_statement(stmt.counter, lvalue=True)
             self.cmd(
-                ('inc', self.dword(self.get_variable_name(stmt.counter.name))),
+                ('pop', 'eax'),
+                ('inc', self.dword('eax')),
                 ('jmp', start),
             )
             self.generate_label(end)
