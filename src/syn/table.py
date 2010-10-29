@@ -140,6 +140,10 @@ class SymTable(UserDict):
             self.current_offset += symbol.size
         return symbol
 
+    def iteritems(self):
+        # avoid bug with iteration over UserDict (Python 2.6.4)
+        return dict(self).iteritems()
+
     @property
     def size(self):
         return self.current_offset
@@ -178,3 +182,31 @@ class SymTable(UserDict):
                 if f.declarations:
                     self.write_symbols(f.declarations, ' ' * 2)
                 f.body.display()
+
+class SymTableStack(object):
+    def __init__(self, table):
+        self.content = []
+        self.append(table)
+
+    def append(self, table):
+        self.content.append(table)
+
+    def pop(self):
+        return self.content.pop()
+
+    def find(self, name):
+        for table in self.tables:
+            if isinstance(table, list):
+                ntable = [symbol.name for symbol in table]
+                if name in ntable:
+                    return table[ntable.index(name)]
+            if name in table:
+                return table[name]
+        return None
+
+    @property
+    def tables(self):
+        return reversed(self.content)
+    @property
+    def current_table(self):
+        return self.content[-1]

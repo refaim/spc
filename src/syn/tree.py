@@ -86,16 +86,16 @@ class SynExpr(SynNode):
 class SynCastToReal(SynExpr):
     @copy_args
     def __init__(self, expression): pass
-    def type(self, table):
-        return table['real']
+    def type_(self, stack):
+        return stack.find('real')
 
 class SynCall(SynExpr):
     @copy_args
     def __init__(self, caller, args=[]): pass
     def __str__(self): return '{0}({1})'.format(
         self.caller, ', '.join(str(arg) for arg in self.args))
-    def type(self, table):
-        return self.caller.type(table)
+    def type_(self, stack):
+        return self.caller.type_(stack)
 
     @property
     def label(self): return '()'
@@ -106,8 +106,8 @@ class SynSubscript(SynExpr):
     @copy_args
     def __init__(self, array, index): pass
     def __str__(self): return '{0}[{1}]'.format(self.array, self.index)
-    def type(self, table):
-        arrtype = self.array.type(table).type
+    def type_(self, stack):
+        arrtype = self.array.type_(stack).type
         if hasattr(arrtype, 'type'):
             arrtype = arrtype.type
         return arrtype
@@ -118,11 +118,14 @@ class SynFieldRequest(SynExpr):
     @copy_args
     def __init__(self, record, field): pass
     def __str__(self): return '{0}.{1}'.format(self.record, self.field)
-    def type(self, table):
-        rectype = self.record.type(table)
+    def type_(self, stack):
+        rectype = self.record.type_(stack).type
         if hasattr(rectype, 'type'):
             rectype = rectype.type
-        return self.field.type(rectype.symtable)
+        stack.append(rectype.symtable)
+        result = self.field.type_(stack)
+        stack.pop()
+        return result
 
 class SynOperation(SynExpr):
     @copy_args
@@ -158,7 +161,7 @@ class SynVar(SynExpr):
     def name(self): return self.token.value
     @property
     def pos(self): return self.token.linepos
-    def type(self, table): return table[self.name]
+    def type_(self, stack): return stack.find(self.name)
 
 class SynConst(SynVar):
-    def type(self, table): return table[str(self.token.type)]
+    def type_(self, stack): return stack.find(str(self.token.type))

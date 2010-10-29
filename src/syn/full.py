@@ -13,7 +13,7 @@ class Parser(ExprParser):
         super(Parser, self).__init__(tokenizer)
         self.end_of_program = False
         self.allow_empty = False
-        self.symtable_stack = [SymTable()]
+        self.symtable_stack = SymTableStack(SymTable())
         self.symtable.insert(SymTypeInt())
         self.symtable.insert(SymTypeReal())
         self.block_depth = 0
@@ -23,26 +23,19 @@ class Parser(ExprParser):
         self.clear_position()
 
     @property
-    def symtable(self): return self.symtable_stack[-1]
-    def find_symbol(self, name):
-        for table in reversed(self.symtable_stack):
-            if isinstance(table, list):
-                ntable = [symbol.name for symbol in table]
-                if name in ntable:
-                    return table[ntable.index(name)]
-            if name in table:
-                return table[name]
-        return None
-    def get_type(self, symbol):
-        for table in reversed(self.symtable_stack):
-            try:
-                type_ = symbol.type(table)
-                break
-            except KeyError:
-                continue
+    def symtable(self): return self.symtable_stack.current_table
+    def find_symbol(self, name): return self.symtable_stack.find(name)
+
+    def get_root_type(self, type_):
         while type_ and (not type_.is_type() or isinstance(type_, SymTypeAlias)):
             type_ = type_.type
         return type_
+
+    def get_type(self, stmt):
+        if isinstance(stmt, Symbol):
+            return self.get_root_type(stmt)
+        type_ = stmt.type_(self.symtable_stack)
+        return self.get_root_type(type_)
 
     def expect(self, expected):
         found = self.token.value or self.token.text
@@ -229,8 +222,6 @@ class Parser(ExprParser):
                     function.type = None
                 self.require_token(tt.semicolon)
                 function.declarations = SymTable()
-                function.declarations.insert(self.symtable_stack[-2]['integer'])
-                function.declarations.insert(self.symtable_stack[-2]['real'])
                 self.symtable_stack.append(function.declarations)
                 self.look_up = True
                 self.parse_declarations()
@@ -314,7 +305,7 @@ class Parser(ExprParser):
 
     def check_program(self, program):
         self.check_types(program)
-        table = (func for name, func in dict(self.symtable).iteritems()
+        table = (func for name, func in self.symtable.iteritems()
                  if isinstance(func, SymTypeFunction))
         for func in table:
             self.symtable_stack.append(func.table)

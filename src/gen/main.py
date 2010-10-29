@@ -112,9 +112,7 @@ class Generator(object):
     def generate(self):
         self.output.write(HEADER)
 
-        # avoid bug with iteration over UserDict (Python 2.6.4)
-        table = dict(self.parser.symtable)
-
+        table = self.parser.symtable
         for name, type_ in table.iteritems():
             # reserve memory for global variables
             if isinstance(type_, (SymVar, SymConst)):
@@ -207,7 +205,7 @@ class Generator(object):
             reserved_space = 0
             for arg in reversed(stmt.args):
                 self.generate_statement(arg)
-                reserved_space += arg.type(self.parser.symtable).size
+                reserved_space += arg.type_(self.parser.symtable_stack).size
             self.generate_statement(stmt.caller, lvalue=True)
             self.cmd(
                 ('pop', 'eax'),
