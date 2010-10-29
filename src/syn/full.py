@@ -348,6 +348,21 @@ class Parser(ExprParser):
                         raise SynError(
                             E_INCOMPATIBLE_TYPES, expr.pos, ltype, rtype)
 
+            elif isinstance(expr, SynCall):
+                function = self.find_symbol(expr.caller.name)
+                formal = [arg.type for arg in function.args]
+                actual = [(self.expr_type(arg), i)
+                    for i, arg in enumerate(expr.args)]
+                for frm, (act, act_index) in zip(formal, actual):
+                    if (isinstance(frm, SymTypeReal) and
+                        isinstance(act, SymTypeInt)
+                    ):
+                        expr.args[index] = SynCastToReal(expr.args[act_index])
+
+                    elif self.get_root_type(frm) != self.get_root_type(act):
+                        raise SynError(E_INCOMPATIBLE_TYPES,
+                            expr.args[act_index].pos, frm, act)
+
             elif not is_statement:
                 raise SynError('Illegal expression', expr.pos)
 
