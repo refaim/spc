@@ -112,33 +112,39 @@ class Generator(object):
     def generate(self):
         self.output.write(HEADER)
 
-        table = self.parser.symtable
-        for name, type_ in table.iteritems():
-            # reserve memory for global variables
-            if isinstance(type_, (SymVar, SymConst)):
-                gen_name = self.generate_variable_name(name, type_.type)
-                self.allocate(gen_name, type_.size)
-                table[name].gen_name = gen_name
-            # generate functions
-            elif isinstance(type_, SymTypeFunction):
-                gen_name = self.generate_variable_name(name, type_)
-                table[name].gen_name = gen_name
-                self.parser.symtable_stack.append(type_.table)
-                self.generate_label(gen_name)
-                self.cmd(
-                    ('push', 'ebp'),
-                    ('mov', 'ebp', 'esp'),
-                    ('add', 'ebp', 4),
-                    ('sub', 'esp', type_.declarations.size),
-                )
-                self.generate_statement(type_.body)
-                self.cmd(
-                    ('mov', 'esp', 'ebp'),
-                    ('mov', 'ebp', self.dword('ebp', -4)),
-                    ('ret'),
-                    (''), # empty line
-                )
-                self.parser.symtable_stack.pop()
+        generator = lambda stype: \
+            ((name, type_) for name, type_ in self.parser.symtable.iteritems()
+                if isinstance(type_, stype))
+
+        variables = generator(SymVar)
+        functions = generator(SymTypeFunction)
+
+        # reserve memory for global variables
+        for name, type_ in variables:
+            gen_name = self.generate_variable_name(name, type_.type)
+            self.allocate(gen_name, type_.size)
+            self.parser.symtable[name].gen_name = gen_name
+
+        # generate functions
+        for name, type_ in functions:
+            gen_name = self.generate_variable_name(name, type_)
+            self.parser.symtable[name].gen_name = gen_name
+            self.parser.symtable_stack.append(type_.table)
+            self.generate_label(gen_name)
+            self.cmd(
+                ('push', 'ebp'),
+                ('mov', 'ebp', 'esp'),
+                ('add', 'ebp', 4),
+                ('sub', 'esp', type_.declarations.size),
+            )
+            self.generate_statement(type_.body)
+            self.cmd(
+                ('mov', 'esp', 'ebp'),
+                ('mov', 'ebp', self.dword('ebp', -4)),
+                ('ret'),
+                (''), # empty line
+            )
+            self.parser.symtable_stack.pop()
 
         self.generate_label('main')
         self.generate_statement(self.program)
