@@ -119,7 +119,7 @@ class Compiler(object):
                 subprocess.Popen('{0} > /dev/null'.format(
                     ' '.join(map(quote, [fasm, listing, binary]))),
                     shell=True))
-            subprocess.call(['gcc', binary, '-o' + output])
+            subprocess.call(['gcc', '-m32', '-o' + output, binary])
             os.remove(binary)
             subprocess.call(['strip', output])
 
