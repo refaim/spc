@@ -19,11 +19,10 @@ import sys
 import os
 import getopt
 import subprocess
-import StringIO
 
 from version import APP_VERSION
 
-from common.functions import *
+from common.functions import quote
 from common.errors import CompileError
 from tok.tokenizer import Tokenizer
 from tok.printer import print_tokens
