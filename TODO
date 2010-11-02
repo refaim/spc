@@ -15,6 +15,7 @@ Major:
     G: Implement string constants generation
     G: Check for division by zero
     G: Multidimensional arrays (dimensions > 2)
+    G: Check function result type (in result assignment)
     O: Rewrite loop optimization
 
 Minor:

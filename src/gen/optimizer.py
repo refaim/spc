@@ -5,7 +5,7 @@ import math
 from common.functions import copy_args, rlist
 import asm
 
-REGISTERS = ('eax', 'ebx', 'ecx', 'edx', 'ebp', 'esi', 'edi')
+REGISTERS = ('eax', 'ebx', 'ecx', 'edx', 'esi', 'edi')
 
 
 class Optimizer(object):
@@ -291,9 +291,26 @@ class Optimizer(object):
             ))
 
         '''
+        mov eax, offset
+        inc dword [eax]
+        -->
+        inc dword [offset]
+        '''
+        slc = self.sequence('mov', 'inc')
+        if (slc and
+            isinstance(slc[1].arg, asm.SizeCast) and
+            slc[0].args[0] == slc[1].args[0].arg.reg and
+            self.is_reg(slc[0].args[0])
+        ):
+            self.replace(asm.Command(
+                'inc', asm.SizeCast('dword', asm.Offset(slc[0].args[1]))))
+
+        '''
         mov eax, ebp
         sub eax, offset
         inc dword [eax]
+        -->
+        inc dword [ebp-offset]
         '''
         slc = self.sequence('mov', 'sub', 'inc')
         if (slc and

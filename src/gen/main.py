@@ -48,6 +48,9 @@ class Generator(object):
     def dword(self, arg, offset=0):
         return asm.SizeCast('dword', asm.Offset(arg, offset))
 
+    def function_result(self):
+        return self.dword('ebp')
+
     def stack(self, offset=0):
         return self.dword('esp', offset)
 
@@ -100,6 +103,8 @@ class Generator(object):
         SymTypeFunction: 'func',
     }
     def generate_variable_name(self, name, type_):
+        while isinstance(type_, SymTypeAlias):
+            type_ = type_.type
         return '{0}${1}'.format(self.TYPE2STR[type(type_)], name)
 
     def get_variable_name(self, name):
@@ -133,14 +138,15 @@ class Generator(object):
             self.generate_label(gen_name)
             self.cmd(
                 ('push', 'ebp'),
+                ('sub', 'esp', 4), # for function result
                 ('mov', 'ebp', 'esp'),
-                ('add', 'ebp', 4),
                 ('sub', 'esp', type_.declarations.size),
             )
             self.generate_statement(type_.body)
             self.cmd(
-                ('mov', 'esp', 'ebp'),
-                ('mov', 'ebp', self.dword('ebp', -4)),
+                ('add', 'esp', type_.declarations.size),
+                ('pop', 'eax'), # function result
+                ('pop', 'ebp'),
                 ('ret'),
                 (''), # empty line
             )
@@ -224,6 +230,9 @@ class Generator(object):
                 ('call', 'eax'),
                 ('add', 'esp', reserved_space),
             )
+            func = self.parser.find_symbol(stmt.caller.name)
+            if func.has_result:
+                self.cmd('push', 'eax')
 
         def generate_cast():
             self.generate_statement(stmt.expression)
@@ -269,7 +278,8 @@ class Generator(object):
 
             def generate_variable(symbol):
                 if symbol.is_local():
-                    generate_by_offset(-(symbol.offset + 8))
+                    # substract 4 -- skip saved ebp
+                    generate_by_offset(-symbol.offset - 4)
                 else:
                     generate_by_name()
 
@@ -291,7 +301,9 @@ class Generator(object):
                     self.cmd('push', self.dword(name))
 
             handlers = {
-                SymFunctionArgument: lambda: generate_by_offset(symbol.offset + 4),
+                SymFunctionArgument:
+                    # return value + saved ebp + function result = 12
+                    lambda: generate_by_offset(symbol.offset + 12),
                 SymTypeFunction: generate_by_name,
                 SymVar: lambda: generate_variable(symbol),
             }
@@ -349,6 +361,13 @@ class Generator(object):
                 self.generate_statement(stmt.else_action)
             self.generate_label(endif)
 
+        def generate_result():
+            self.generate_statement(stmt.value)
+            self.cmd(
+                ('pop', 'eax'),
+                ('mov', self.function_result(), 'eax'),
+            )
+
         def generate_block():
             for statement in stmt.statements:
                 self.generate_statement(statement)
@@ -368,6 +387,7 @@ class Generator(object):
             SynStatementContinue: lambda: self.cmd('jmp', self.loops[-1][0]),
             SynStatementBlock: generate_block,
             SynStatementWrite: generate_write,
+            SynStatementResult: generate_result,
             SynEmptyStatement: lambda: self.cmd('nop'),
         }
         handlers[type(stmt)]()

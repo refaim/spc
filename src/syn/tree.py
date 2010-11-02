@@ -78,6 +78,12 @@ class SynStatementWrite(SynStatement):
         print self.indent(depth, '{0}({1})'.format(
             name, ', '.join(map(str, self.args))))
 
+class SynStatementResult(SynStatement):
+    @copy_args
+    def __init__(self, value, type_): pass
+    def display(self, depth):
+        print self.indent(depth, 'result := {0!s}'.format(self.value))
+
 class SynExpr(SynNode):
     def display(self, depth): print self.indent(depth, self.__str__())
     @property

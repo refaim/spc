@@ -31,6 +31,7 @@ keywords = [
     'procedure', 
     'record',
     'repeat',
+    'result',
     'then',
     'to',
     'type',

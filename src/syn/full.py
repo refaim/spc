@@ -19,6 +19,7 @@ class Parser(ExprParser):
         self.block_depth = 0
         self.loop_depth = 0
         self.anonymous_types = 0
+        self.current_function = None
         self.look_up = False
         self.clear_position()
 
@@ -220,6 +221,7 @@ class Parser(ExprParser):
                     function.type = parse_type(complex=False)
                 else:
                     function.type = None
+                function.has_result = has_result
                 self.require_token(tt.semicolon)
                 function.declarations = SymTable()
                 self.symtable_stack.append(function.declarations)
@@ -227,7 +229,9 @@ class Parser(ExprParser):
                 self.parse_declarations()
                 self.look_up = False
                 self.block_depth += 1
+                self.current_function = function
                 function.body = self.parse_statement_block()
+                self.current_function = None
                 self.block_depth -= 1
                 self.require_token(tt.semicolon)
                 self.symtable_stack.pop()
@@ -267,11 +271,25 @@ class Parser(ExprParser):
             tt.greater, tt.greater_or_equal,
         )
 
+        if isinstance(expr, SynCall):
+            func = self.get_type(expr)
+            if func.has_result:
+                return func.type
+            return None
         if not isinstance(expr, SynOperation):
             return self.get_type(expr)
         optype = expr.operation.type
         if optype == tt.assign:
            raise SynError('Illegal expression', expr.pos)
+
+        for op in expr.operands:
+            if isinstance(op, SynCall):
+                func = self.get_type(op)
+                if not func.has_result:
+                    raise SynError(
+                        'Procedures are not allowed in expressions',
+                        op.caller.pos)
+
         types = map(self.expr_type, expr.operands)
         ltype = types[0]
         if len(types) == 1:
@@ -325,7 +343,8 @@ class Parser(ExprParser):
 
         def require_mutable(*expressions):
             for expr in expressions:
-                if (not isinstance(expr,
+                if (isinstance(expr, SynConst) or
+                    not isinstance(expr,
                        (SynVar, SynSubscript, SynFieldRequest))
                 ):
                     raise SynError('Mutable expression expected', expr.pos)
@@ -350,18 +369,22 @@ class Parser(ExprParser):
 
             elif isinstance(expr, SynCall):
                 function = self.find_symbol(expr.caller.name)
-                formal = [arg.type for arg in function.args]
+                formal = [(arg.type, arg)
+                    for i, arg in enumerate(function.args)]
                 actual = [(self.expr_type(arg), i)
                     for i, arg in enumerate(expr.args)]
-                for frm, (act, act_index) in zip(formal, actual):
-                    if (isinstance(frm, SymTypeReal) and
-                        isinstance(act, SymTypeInt)
-                    ):
-                        expr.args[index] = SynCastToReal(expr.args[act_index])
+                for (frm_type, frm), (act_type, act_index) in zip(formal, actual):
+                    if not frm.by_value:
+                        require_mutable(expr.args[act_index])
 
-                    elif self.get_root_type(frm) != self.get_root_type(act):
+                    if (isinstance(frm_type, SymTypeReal) and
+                        isinstance(act_type, SymTypeInt)
+                    ):
+                        expr.args[act_index] = SynCastToReal(expr.args[act_index])
+
+                    elif self.get_root_type(frm_type) != self.get_root_type(act_type):
                         raise SynError(E_INCOMPATIBLE_TYPES,
-                            expr.args[act_index].pos, frm, act)
+                            expr.args[act_index].pos, frm_type, act_type)
 
             elif not is_statement:
                 raise SynError('Illegal expression', expr.pos)
@@ -385,6 +408,9 @@ class Parser(ExprParser):
             for expr in stmt.args:
                 self.expr_type(expr)
 
+        def check_result():
+            pass
+
         def check_block():
             for statement in stmt.statements:
                 self.check_types(statement)
@@ -396,6 +422,7 @@ class Parser(ExprParser):
             SynStatementRepeat: check_while_repeat,
             SynStatementIf: check_if,
             SynStatementWrite: check_write,
+            SynStatementResult: check_result,
         }
 
         if type(stmt) in handlers:
@@ -570,6 +597,16 @@ class Parser(ExprParser):
             self.require_token(tt.rparen)
             return SynStatementWrite(newline, *messages)
 
+        def parse_statement_result():
+            if (not self.current_function or
+                not self.current_function.has_result
+            ):
+                self.e(E_NOT_ALLOWED, self.token.value)
+            self.next_token()
+            self.require_token(tt.assign)
+            return SynStatementResult(
+                self.parse_expression(), self.current_function.type)
+
         handlers = {
             tt.kwIf: parse_statement_if,
             tt.kwWhile: parse_statement_while,
@@ -579,6 +616,7 @@ class Parser(ExprParser):
             tt.kwContinue: parse_break_or_continue(SynStatementContinue),
             tt.kwWrite: lambda: parse_write(False),
             tt.kwWriteln: lambda: parse_write(True),
+            tt.kwResult: parse_statement_result,
         }
 
         key = self.token.type
