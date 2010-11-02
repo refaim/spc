@@ -1,9 +1,39 @@
-Компилятор подмножества языка Pascal. Рекомендуется использовать только в учебных целях.
-Это университетское задание, за процессом сдачи можно наблюдать здесь:
-http://imcs.dvgu.ru/works/marks?color_coding=1;course=2439;group=1768;order_by=n;show_task_names=1;year=2010;
+Simple Pascal Compiler by Roman Kharitonov.
+Done for the university course.
+Homepage: http://github.com/refaim/spc
 
-Для работы требуется: 
-    Python 2.6+ со следующими библиотеками:
-        1. pydot: http://github.com/downloads/refaim/spc/pydot-1.0.2.tar.gz
-        2. pyparsing: http://github.com/downloads/refaim/spc/pyparsing-1.5.2.zip
-    Graphviz 2.24+ (нужен только для отрисовки синтаксических деревьев)
+This compiler can translate simple pascal programs to assembly and build them
+using FASM (http://flatassembler.net) which can create 32-bit executables
+for Windows and UNIX (GCC required).
+
+Usage: see 'python spc.py --help'
+
+Required software:
+    Python >= 2.6 and <= 3.0
+        http://python.org
+
+For syntax trees you also need this:
+    Graphviz >= 2.24
+        http://graphviz.org
+    
+    pydot >= 1.0.2
+        http://code.google.com/p/pydot
+        http://github.com/downloads/refaim/spc/pydot-1.0.2.tar.gz
+    pyparsing >= 1.5.2,
+        http://pyparsing.wikispaces.com
+        http://github.com/downloads/refaim/spc/pyparsing-1.5.2.zip
+
+You also can build compiler into standalone executable for Windows or UNIX.
+For that you need:
+    CMake >= 2.8.0
+        http://cmake.org
+
+    PyInstaller >= 1.4
+        http://pyinstaller.org
+HOWTO:
+    1. Install CMake and add its 'bin' directory to PATH.
+    2. Install PyInstaller, configure (see readme file in downloaded package)
+        and also add it to PATH (directory with Makespec.py and Build.py)
+    3. Run build script (build.sh or build.bat)
+    4. Now you have spc.exe (or 'spc' if non-Windows) in 'bin' in root compiler directory.
+

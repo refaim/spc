@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -rf bin src/version.py
+rm -rf bin
 find . -type f -name "*.pyc" -exec rm -f {} \;
 find tests -type f -name "*.out" -exec rm -f {} \;
 find tests -type f -name "*.out.*" -exec rm -f {} \;

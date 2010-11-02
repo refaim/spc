@@ -15,10 +15,10 @@ ELSE (WIN32)
 ENDIF (WIN32)
 
 # configure (add version number)
-CONFIGURE_FILE (
-  ${SOURCE_DIR}/version.in
-  ${SOURCE_DIR}/version.py
-)
+#CONFIGURE_FILE (
+#  ${SOURCE_DIR}/version.in
+#  ${SOURCE_DIR}/version.py
+#)
 
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 SET (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})

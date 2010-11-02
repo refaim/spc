@@ -161,7 +161,7 @@ class Parser(ExprParser):
                 self.next_token()
                 consttype = parse_type()
             else:
-                consttype = None
+                consttype = SymTypeInt() # dummy type
             self.require_token(tt.equal)
             constvalue = self.parse_expression()
             self.require_token(tt.semicolon)

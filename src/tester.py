@@ -167,8 +167,10 @@ def main(argv):
         's': 'Simple declarations parser',
         'd': 'Declarations parser',
         'f': 'Full syntax parser',
+        ' ': 'Generator',
+        'o': 'Optimizer',
     }
-    priorities = 'lesdfo'
+    priorities = 'lesdf o'
 
     try:
         opts, args = getopt.getopt(argv, ''.join(optpaths.keys()) + 'avu')
@@ -194,7 +196,7 @@ def main(argv):
     if option == 'a':
         for opt in priorities:
             print '{0}...'.format(names[opt])
-            args = ['-' + opt]
+            args = ['-' + opt] if opt != ' ' else []
             if verbose:
                 args.append('-v')
             if full:

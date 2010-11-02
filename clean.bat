@@ -2,7 +2,6 @@
 pushd %~dp0
 rd /s /q bin >nul 2>&1
 call :delete /s *.pyc
-call :delete src\version.py
 pushd tests
 call :delete /s *.out.*
 pushd gen

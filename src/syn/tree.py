@@ -125,7 +125,7 @@ class SynFieldRequest(SynExpr):
     def __init__(self, record, field): pass
     def __str__(self): return '{0}.{1}'.format(self.record, self.field)
     def type_(self, stack):
-        rectype = self.record.type_(stack).type
+        rectype = self.record.type_(stack)
         if hasattr(rectype, 'type'):
             rectype = rectype.type
         stack.append(rectype.symtable)

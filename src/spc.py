@@ -3,7 +3,7 @@
 # author: Roman Kharitonov, refaim.vl@gmail.com
 
 '''\
-Small Pascal Compiler v{version} (by Roman Kharitonov)
+Small Pascal Compiler (by Roman Kharitonov)
 Usage: spc [option] [filename1] [filename2] [...]
 
 -h, --help           display this help text
@@ -19,8 +19,6 @@ import sys
 import os
 import getopt
 import subprocess
-
-from version import APP_VERSION
 
 from common.functions import quote
 from common.errors import CompileError
