@@ -7,6 +7,7 @@ using FASM (http://flatassembler.net) which can create 32-bit executables
 for Windows and UNIX (GCC required).
 
 Usage: see 'python spc.py --help'
+Without options compiler will create executables.
 
 Required software:
     Python >= 2.6 and <= 3.0

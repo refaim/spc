@@ -21,9 +21,6 @@ if not os.path.exists(FASM_PATH):
 def is_windows():
     return 'win' in sys.platform
 
-if '64' in sys.platform:
-    raise GenError('64-bit platforms are not supported')
-
 if is_windows():
     HEADER = open(
         os.path.join(FASM_PATH, 'win32header.asm')).read().format(
