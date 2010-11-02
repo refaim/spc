@@ -10,7 +10,7 @@ Usage: see 'python spc.py --help'
 Without options compiler will create executables.
 
 Required software:
-    Python >= 2.6 and <= 3.0
+    Python >= 2.6 and < 3.0
         http://python.org
 
 For syntax trees you also need this:
